@@ -1,101 +1,131 @@
 \name{simdata}
-\title{Simuate Survival Data}
+\title{Simulate Survival Data}
 \description{
-\code{simdata} is used to simuate a clinical trial data with time-to-event endpoints.
+\code{simdata} is used to simulate a clinical trial data with time-to-event endpoints.
 }
 \usage{
-\method{wsvm}{default}(group="Group 1", strata='Strata 1', allocation=1,
+simdata(group="Group 1", strata="Strata 1" allocation=1,
     event_lambda=NA, drop_rate=NA, death_lambda=NA, n_enroll=NULL,
-    enroll_rate=NULL, total_sample=NULL, add_column=NULL, simplify=TRUE,
-    advanced_dist=NULL)
+    enroll_rate=NULL, total_sample=NULL, add_column=c('followT'),
+    simplify=TRUE, advanced_dist=NULL)
 }
 \arguments{
-  \item{group}{group}
-  \item{strata}{strata}
-  \item{allocation}{the proportion of each subgroup. For example, when group=c('trt','placebo'), strata=c('A','B','C'), the length of allocation should be 6. Note the value will be recycled if the length is less than needed.}
-  \item{event_lambda}{the hazard rate of event. The value will be recycled if the length is less than needed.}
-  \item{drop_rate}{the drop-out rate (patient/month). The value will be recycled if the length is less than needed.}
-  \item{death_lambda}{the hazard rate of death. The value will be recycled if the length is less than needed.}
-  \item{n_enroll}{(required when enroll_rate=NULL) a vector contains the number of enrollment each month}
-  \item{enroll_rate}{(required when n_enroll=NULL) the enrollment rate (patient/month)}
-  \item{total_sample}{(required when enroll_rate is in use) total scheduled sample size}
-  \item{add_column}{request additional columns \cr
+  \item{group}{a character vector of the names of each group (e.g., \code{c('treatment','control').})}
+  \item{strata}{a character vector of the names of strata in groups (e.g., \code{c('young','old').})}
+  \item{allocation}{the relative ratio of each subgroup (\code{group*strata}). See details. The value will be recycled if the length is less than needed.}
+  \item{event_lambda}{the hazard rate of events. See details. The value will be recycled if the length is less than needed.}
+  \item{drop_rate}{(optional) the drop-out rate (patients/month). Not hazard rate. See details. The value will be recycled if the length is less than needed.}
+  \item{death_lambda}{(optional) the hazard rate of death. The value will be recycled if the length is less than needed.}
+  \item{n_enroll}{(required when \code{enroll_rate=NULL}) a vector of the number of enrollment each month.}
+  \item{enroll_rate}{(required when \code{n_enroll=NULL}) the enrollment rate (patients/month).}
+  \item{total_sample}{(required when \code{n_enroll=NULL}) total scheduled sample size.}
+  \item{add_column}{request additional columns of the returned data frame. \cr
 Valid options are:
     \itemize{
-      \item \code{eventT_abs}absolute event time from the beginning of the trial (=eventT+enrollT)
-      \item \code{deathT_abs}absolute death time from the beginning of the trial (=deathT+enroolT)
-      \item \code{censor} whether censored
-      \item \code{event}whether having event
-      \item \code{censor_reason}why censored ('censored','death','never_event'(eventT=inf))
-      \item \code{followT}follow time (true observed time) from enrollT
-      \item \code{followT_abs}absolute follow time from the beginning of the trial (=followT+enrollT)
+      \item \code{'eventT_abs'}: absolute event time from the beginning of the trial (=eventT+enrollT)
+      \item \code{'dropT_abs'}: absolute drop-out time from the beginning of the trial (=dropT+enrollT)
+      \item \code{'deathT_abs'}: absolute death time from the beginning of the trial (=deathT+enroolT)
+      \item \code{'censor'}: censoring (drop-out or death) indicator
+      \item \code{'event'}: event indicator
+      \item \code{'censor_reason'}: censoring reason ('drop_out','death','never_event'(eventT=inf))
+      \item \code{'followT'}: follow-up time (true observed time) from enrollT
+      \item \code{'followT_abs'}: absolute follow-up time from the beginning of the trial (=followT+enrollT)
     }}
-  \item{simplify}{whether drop unused columns (i.e., the group variable when there is only one group)}
-  \item{advanced_dist}{use other distributions instead of exponential. The value will be recycled if the length is less than needed. e.g., list(event_dist=c(function(n)rexp(n,4), function(n)rweibull(n,3,2), drop_dist=..., death_dist=...) Each distribution is a function with only one input argument n (sample size) If any of event_dist, drop_dist, death_dist is missing, then search for event_lambda, drop_rate, death_lambda; if also missing, then this variable will not be generated}
+  \item{simplify}{whether drop unused columns (e.g., the group variable when there is only one group). See details.}
+  \item{advanced_dist}{use user-specified distributions for event, drop-out and death. A list containing random generation functions. See details and examples. }
 }
 
 \value{
-  An object of class \code{"wsvm"} containing the fitted model, including:
-  \item{SV}{The resulting support vectors (possibly scaled).}
-  \item{index}{The index of the resulting support vectors in the data
-    matrix. Note that this index refers to the preprocessed data (after
-    the possible effect of \code{na.omit} and \code{subset})}
-  \item{coefs}{The corresponding coefficients times the training labels.}
-  \item{rho}{The negative intercept.}
-  \item{sigma}{In case of a probabilistic regression model, the scale
-    parameter of the hypothesized (zero-mean) laplace distribution estimated by
-    maximum likelihood.}
-  \item{probA, probB}{numeric vectors of length k(k-1)/2, k number of
-    classes, containing the parameters of the logistic distributions fitted to
-    the decision values of the binary classifiers (1 / (1 + exp(a x + b))).}
+  A data frame containing the some of these columns:
+  \item{ID}{subject ID}
+  \item{group}{group indicator}
+  \item{strata}{stratum indicator}
+  \item{enrollT}{enrollment time (from the beginning of the trial)}
+  \item{eventT}{event time (from \code{enrollT})}
+  \item{eventT_abs}{event time (from the beginning of the trial)}
+  \item{dropT}{drop-out time (from \code{enrollT})}
+  \item{dropT_abs}{drop-out time (from the beginning of the trial)}
+  \item{deathT}{death time (from \code{enrollT})}
+  \item{deathT_abs}{death time (from the beginning of the trial)}
+  \item{censor}{censoring (drop-out or death) indicator}
+  \item{censor_reason}{censoring reason ('drop_out','death','never_event'(eventT=inf))}
+  \item{event}{event indicator}
+  \item{followT}{follow-up time / observed time (from \code{enrollT})}
+  \item{followT_abs}{follow-up time / observed time (from the beginning of the trial)}
 }
 \details{
-total number of subgroups will be '# treatment groups'*'# strata'  strata variable will be distributed into each treatment group. For example,
-group <- c('trt','placebo'), strata <- c('A','B','C'), then there will be six subgroups:
- trt+A, trt+B, trt+C, placebo+A, placebo+B, placebo+C
-}
-\note{
-Data are scaled internally, usually yielding better results.
+The total number of subgroups will be '# treatment groups' * '# strata'. The \code{strata} variable will be distributed into each treatment group. For example, if \code{group = c('trt','placebo')}, \code{strata=c('A','B','C')}, then there will be 6 subgroups: trt+A, trt+B, trt+C, placebo+A, placebo+B, placebo+C. The lengths of \code{allocation}, \code{event_lambda}, \code{drop_rate}, \code{death_lambda} should be 6 as well. Note that the values will be recycled for these variables. For example, if \code{allocation=c(1,2,3)}, then the proportion of 6 subgroups is actually 1:2:3:1:2:3, which means 1:1 ratio for groups, 1:2:3 ratio in each stratum.
 
-Parameters of SVM-models usually \emph{must} be tuned to yield sensible results!
-}
-\references{
-  \itemize{
-    \item
-      Chang, Chih-Chung and Lin, Chih-Jen:\cr
-      \emph{LIBSVM: a library for Support Vector Machines}\cr
-      \url{https://www.csie.ntu.edu.tw/~cjlin/libsvm/}
+The \code{event_lambda} (\eqn{\lambda}) is the hazard rate of the interested events. The density function of events is \eqn{f(t)=\lambda e^{-\lambda*t}}. Similarly, the \code{death_lambda} is the hazard rate of death.
 
-    \item Ming-Wei Chang, Hsuan-Tien Lin, Ming-Hen Tsai, Chia-Hua Ho and Hsiang-Fu Yu\cr
-     \emph{Weights for data instances}\cr
-     \url{https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/#weights_for_data_instances}
+The \code{drop_rate} is the probability of drop-out at \eqn{t=1}, which means the hazard rate of drop-out is \eqn{-log(1-drop_rate)} (or say, \code{drop_rate}=\eqn{1-e^{-hazard rate}}.
 
-     \item
-      Exact formulations of models, algorithms, etc. can be found in the
-      document:\cr
-      Chang, Chih-Chung and Lin, Chih-Jen:\cr
-      \emph{LIBSVM: a library for Support Vector Machines}\cr
-      \url{https://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.ps.gz}
+When \code{simplify=TRUE}, these columns will NOT be included:
+    \itemize{
+      \item \code{group} when only one group is specified
+      \item \code{strata} when only one stratum is specified
+      \item \code{eventT} when \code{event_lambda=NA}
+      \item \code{dropT} when \code{drop_rate=NA}
+      \item \code{deathT}  when \code{death_lambda=NA}
+    }
 
-      \item
-      More implementation details and speed benchmarks can be found on:
-      Rong-En Fan and Pai-Hsune Chen and Chih-Jen Lin:\cr
-      \emph{Working Set Selection Using the Second Order Information for Training SVM}\cr
-      \url{https://www.csie.ntu.edu.tw/~cjlin/papers/quadworkset.pdf}
+\code{advanced_dist} is used to define distributions for event, drop-out or death. It contains at least one of the elements: \code{event_dist}, \code{drop_dist}, \code{death_dist}. Each element has random generation functions for each subgroups. The value will be recycled if the length is less than needed. For example, \code{advanced_dist=list(event_dist=c(function1, function2), drop_dist=c(function3, function4))}. Here \code{function1}, \code{function3} are the event, drop-out generation function for the first subgroup; \code{function2}, \code{function4} for the second. If there is a third subgroup, \code{function1}, \code{function3} will be reused.
+Each distribution function (\code{functionX}) is a function with only one input argument \code{n} (sample size). If any of the \code{event_dist}, \code{drop_dist}, \code{death_dist} is missing, then we search for \code{event_lambda}, \code{drop_rate}, \code{death_lambda} to generate a exp distribution; if they are also missing, then corresponding variable will not be generated
+.}
 
-  }
-}
+
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
 \seealso{
-  \code{\link{predict.wsvm}},
-  \code{\link{plot.wsvm}},
-  \code{\link{tune_wsvm}},
-  \code{\link[SparseM]{matrix.csr}} (in package \pkg{SparseM})
+  \code{\link{rpwexp}},
+  \code{\link{rpwexp_conditional}}
+}
+
+\note{
+\code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have an Inf value for each variable.
 }
 \examples{
-d
+# Two groups with two strata. In the treatment group, there is a sensitive stratum and
+# a non-sensitive stratum. In the placebo group, all subjects are the same.
+# Treatment:place=1:2. Drop-rate=1\% only in treatment group.
+dat <- simdata(group=c('trt', 'place'), strata = c('sensitive','non-sensitive'),
+               allocation = c(1,1,2,2), enroll_rate = 20, total_sample = 1000,
+               event_lambda = c(0.1, 0.2, 0.01, 0.01),
+               drop_rate = c(0.01, 0.01, 0, 0))
+# enrolled subjects
+table(dat$group,dat$strata)
+# enrollment curve
+plot(sort(dat$enrollT), 1:1000, xlab='time', ylab='enrolled subjects')
+# event time in treatment group
+plot(ecdf(dat$eventT[dat$group=='trt' & dat$strata=='sensitive']))
+lines(ecdf(dat$eventT[dat$group=='trt' & dat$strata=='non-sensitive']), col='red')
+
+
+# One group. Event follows a piecewise exponential distribution; drop-out follows
+# a Weibull; death follows a exponential.
+dist_trt <- function(n)rpwexp(n, rate=c(0.01, 0.05, 0.01), breakpoint = c(30,60))
+dist_placebo <- function(n)rpwexp(n, rate=c(0.01, 0.005), breakpoint = c(50))
+dat <- simdata(group = c('trt','placebo'), n_enroll = c(rep(10,50),rep(20,10)),
+               death_lambda = 0.01,
+               advanced_dist = list(event_dist=c(dist_trt, dist_placebo),
+                                    drop_dist=function(n)rweibull(n,3,40)))
+# enrolled subjects
+table(dat$group)
+# enrollment curve
+plot(sort(dat$enrollT), 1:700, xlab='time', ylab='enrolled subjects')
+# event time in both groups
+plot(ecdf(dat$eventT[dat$group=='trt']), xlim=c(0,100))
+lines(ecdf(dat$eventT[dat$group=='placebo']), col='red')
+# drop-out time
+plot(ecdf(dat$dropT), xlim=c(0,100))
+
+
+# mixture cure distribution, 20\% of the subject are cured and will not have events
+dat <- simdata(strata=c('cure','non-cure'), allocation=c(20,80),
+        event_lambda=c(0, 0.38), n_enroll = rep(20,30),
+        add_column = c('eventT_abs', 'censor', 'event',
+                       'censor_reason', 'followT', 'followT_abs'))
 }
 
 

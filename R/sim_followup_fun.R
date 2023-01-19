@@ -3,7 +3,7 @@
 
 
 simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lambda=NA, drop_rate=NA,
-                    death_lambda=NA, n_enroll=NULL, enroll_rate=NULL, total_sample=NULL, add_column=NULL,
+                    death_lambda=NA, n_enroll=NULL, enroll_rate=NULL, total_sample=NULL, add_column=c('followT'),
                     simplify=T, advanced_dist=NULL) {
   # total number of subgroups will be '# treatment groups'*'# strata'
   # strata variable will be distributed into each treatment group. For example,
@@ -23,10 +23,11 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
   # total_sample: (required when enroll_rate is in use) total scheduled sample size
   # add_column: request additional columns
   #           'eventT_abs': absolute event time from the beginning of the trial (=eventT+enrollT)
+  #           'dropT_abs': absolute drop-out time from the beginning of the trial (=dropT+enrollT)
   #           'deathT_abs': absolute death time from the beginning of the trial (=deathT+enroolT)
   #           'censor': whether censored
   #           'event': whether having event
-  #           'censor_reason': why censored ('censored','death','never_event'(eventT=inf))
+  #           'censor_reason': why censored ('drop_out','death','never_event'(eventT=inf))
   #           'followT': follow time (true observed time) from enrollT
   #           'followT_abs': absolute follow time from the beginning of the trial (=followT+enrollT)
   # simplify: whether drop unused columns (i.e., the group variable when there is only one group)
@@ -37,7 +38,7 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
   #              If any of event_dist, drop_dist, death_dist is missing, then search for event_lambda, drop_rate, death_lambda;
   #              if also missing, then this variable will not be generated
 
-  # output: eventT, censorT, deathT is from enrollT, not the absolute time from the beginning of the study
+  # output: eventT, dropT, deathT is from enrollT, not the absolute time from the beginning of the study
 
   setting <- data.frame(group=rep(group, each=length(strata)), strata=strata, allocation=allocation, event_lambda=event_lambda, drop_rate=drop_rate, death_lambda=death_lambda)
   setting$allocation <- setting$allocation/sum(setting$allocation)
@@ -114,7 +115,7 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
 
 
   DTTE <- data.frame(ID=1:Total_d, group=as.factor(unlist(group_v)), strata=as.factor(unlist(strata_v)), enrollT=sample(unlist(popd)), eventT=unlist(ed),
-                     censorT=unlist(cd), deathT=unlist(dd))
+                     dropT=unlist(cd), deathT=unlist(dd))
 
 
   if (!is.null(add_column)){
@@ -124,16 +125,19 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
     if ('deathT_abs' %in% add_column){
       DTTE$deathT_abs <- DTTE$deathT+DTTE$enrollT
     }
+    if ('dropT_abs' %in% add_column){
+      DTTE$dropT_abs <- DTTE$dropT+DTTE$enrollT
+    }
     if ('censor_reason' %in% add_column){
-      type <- mapply(sum, as.numeric(DTTE$eventT>=DTTE$censorT), 2*(DTTE$eventT>=DTTE$deathT), 4*is.infinite(DTTE$eventT), na.rm = T)
+      type <- mapply(sum, as.numeric(DTTE$eventT>=DTTE$dropT), 2*(DTTE$eventT>=DTTE$deathT), 4*is.infinite(DTTE$eventT), na.rm = T)
       DTTE$censor_reason <- NA
-      DTTE$censor_reason[type==1 | type==5] <- 'censored'
+      DTTE$censor_reason[type==1 | type==5] <- 'drop_out'
       DTTE$censor_reason[type==2 | type==6] <- 'death'
-      DTTE$censor_reason[type==3 | type==7] <- ifelse(DTTE$censorT<=DTTE$deathT, 'censored','death')[type==3 | type==7]
+      DTTE$censor_reason[type==3 | type==7] <- ifelse(DTTE$dropT<=DTTE$deathT, 'drop_out','death')[type==3 | type==7]
       DTTE$censor_reason[type==4] <- 'never_event'
     }
     if ('event' %in% add_column | 'censor' %in% add_column){
-      event <- mapply(all, DTTE$eventT < DTTE$censorT, DTTE$eventT < DTTE$deathT, DTTE$eventT < Inf, na.rm = T)
+      event <- mapply(all, DTTE$eventT < DTTE$dropT, DTTE$eventT < DTTE$deathT, DTTE$eventT < Inf, na.rm = T)
       if ('event' %in% add_column){
         DTTE$event <- as.numeric(event)
       }
@@ -142,7 +146,7 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
       }
     }
     if ('followT' %in% add_column | 'followT_abs' %in% add_column){
-      followT <- mapply(min, DTTE$eventT, DTTE$censorT, DTTE$deathT, na.rm = T)
+      followT <- mapply(min, DTTE$eventT, DTTE$dropT, DTTE$deathT, na.rm = T)
       if ('followT' %in% add_column){
         DTTE$followT <- followT
       }
@@ -155,7 +159,7 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
   # simplify results
   if (simplify){
     ind <- c('ID', ifelse(length(group)==1,NA,'group'), ifelse(length(strata)==1,NA,'strata'), 'enrollT', ifelse(all(is.na(setting$event_lambda)), NA, 'eventT'),
-             ifelse(all(is.na(setting$drop_lambda)), NA, 'censorT'), ifelse(all(is.na(setting$death_lambda)), NA, 'deathT'), add_column)
+             ifelse(all(is.na(setting$drop_lambda)), NA, 'dropT'), ifelse(all(is.na(setting$death_lambda)), NA, 'deathT'), add_column)
     ind <- ind[!is.na(ind)]
     DTTE <- DTTE[,ind]
   }
