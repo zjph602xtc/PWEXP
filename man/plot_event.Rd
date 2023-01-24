@@ -13,7 +13,7 @@ plot_event(time, abs_time=TRUE, event, additional_event=0,
  \item{event}{the status indicator, 0=censor, 1=event. }
  \item{additional_event}{adding the cumulative number of events by a constant number from the beginning. }
  \item{add}{logical; if TRUE add lines to current plot.}
- \item{plot}{logical; if FALSE, do not plot any lines, but only return the line data}
+ \item{plot}{logical; if FALSE, do not plot any lines, but return the line data}
  \item{xyswitch}{logical; if TRUE, x-axis will be cumulative number of events and y will be the time.}
  \item{...}{pass over to \code{\link[base]{plot}.}}
 }

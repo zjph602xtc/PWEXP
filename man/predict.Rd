@@ -1,21 +1,15 @@
-\name{tune_wsvm}
-\alias{tune_wsvm}
-\alias{best.tune_wsvm}
-\alias{print.tune_wsvm}
-\alias{summary.tune_wsvm}
-\alias{print.summary.tune_wsvm}
-\title{Parameter Tuning of Functions Using Grid Search}
+\name{predict}
+\alias{predict.pwexp.fit}
+\alias{predict.boot.pwexp.fit}
+\title{Predict Events for Piecewise Exponential Model}
 \description{
-  This generic function tunes hyperparameters of statistical methods
-  using a grid search over supplied parameter ranges.
+ Obtians event prediction and optionally confidence interval from a piecewise exponential model.
 }
 \usage{
-tune_wsvm(train.x, train.y = NULL, weight, use_zero_weight = FALSE,
-     pre.check = TRUE, data = list(), validation.x = NULL,
-     validation.y = NULL, validation.weight = NULL,
-     weigthed.error = TRUE, ranges = NULL, predict.func = predict,
-     tunecontrol = tune.control(), ...)
-best.tune_wsvm(...)
+\method{predict}{pwexp.fit}(object, add=TRUE, show_breakpoint=TRUE,
+       breakpoint_par=NULL, ...)
+\method{predict}{boot.pwexp.fit}(object, add=TRUE, alpah=0.05, show_breakpoint=TRUE,
+       breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...)
 }
 \arguments{
   \item{train.x}{either a formula or a '\emph{design} matrix' of predictors.}

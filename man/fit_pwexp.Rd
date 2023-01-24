@@ -18,20 +18,20 @@ pwexp.fit(time, event, breakpoint=NULL, nbreak=0, max_set=10000,
   \item{trace}{logical; if TRUE, the returned data frame contains the log-likelihood of all possible breakpoints instead of the one with maximum likelihood. }
 }
 \details{
-If user specifies \code{breakpoint}, we will check the values to make the model identifiable. Any breakpoints after the last event time will be removed; a mid-point will be used if there are NO events between  any two concesutive breakpoints. A warning will be given.
+If user specifies \code{breakpoint}, we will check the values to make the model identifiable. Any breakpoints after the last event time will be removed;  Any breakpoints before the first event time will be removed; a mid-point will be used if there are NO events between  any two concesutive breakpoints. A warning will be given.
 }
 \value{
 A data frame containing these columns:
   \item{brk1, ..., brkx}{estimated breakpoints. The \code{attr(res,'brk')} can extract the vector of breakpoint from the model (\code{res} is the returned model from \code{pwexp.fit}). }
   \item{lam1, ..., lamx}{estimated piecewise hazard rates. The \code{attr(res,'lam')} can extract the vector of hazard rates from the model (\code{res} is the returned model from \code{pwexp.fit}). }
-  \item{likelihood} {the log-likelihood of the model.}
+  \item{likelihood}{the log-likelihood of the model.}
   \item{AIC}{the Akaike information criterion of the model.}
   \item{BIC}{the Bayesian information criterion of the model.}
 }
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
-\seealso{\code{\link{XXX}}}
+\seealso{\code{\link{boot.pwexp.fit}}, \code{\link{cv.pwexp.fit}}}
 
 \examples{
 
