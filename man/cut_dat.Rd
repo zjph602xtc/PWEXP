@@ -38,4 +38,4 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 The original dataset \code{data} will NOT be modified.
 }
 
-\seealso{\code{\link{tran_censor}}
+\seealso{\code{\link{tran_censor}}}

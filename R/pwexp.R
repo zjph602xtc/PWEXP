@@ -14,6 +14,9 @@ ppwexp <- function(q, rate=1, breakpoint=NULL, lower.tail=TRUE, log.p=FALSE, one
   # breakpoint must be sorted!
   # if safety_check is FALSE, then skip all checks and one_piece must be correctly specified.
   if (safety_check){
+    if (!is.null(breakpoint) & length(breakpoint)==0){
+      stop('breakpoint must be NULL or a vector of numerics.')
+    }
     one_piece <- is.null(breakpoint)
     if ((length(rate)-1) != length(breakpoint)){
       stop('wrong number of breakpoints')
@@ -49,6 +52,9 @@ ppwexp_conditional <- function(q, qT, rate=1, breakpoint=NULL, lower.tail=TRUE, 
   # breakpoint must be sorted!
   # if safety_check is FALSE, then skip all checks and one_piece must be correctly specified.
   if (safety_check){
+    if (!is.null(breakpoint) & length(breakpoint)==0){
+      stop('breakpoint must be NULL or a vector of numerics.')
+    }
     one_piece <- is.null(breakpoint)
     if ((length(rate)-1) != length(breakpoint)){
       stop('wrong number of breakpoints')
@@ -83,6 +89,9 @@ dpwexp <- function(x, rate=1, breakpoint=NULL, log=FALSE, one_piece, safety_chec
   # f(t)=lambda_i * exp(-((lam1-lam2)*d1+(lam2-lam3)*d2+... lami*t))
   # breakpoint must be sorted!
   if (safety_check){
+    if (!is.null(breakpoint) & length(breakpoint)==0){
+      stop('breakpoint must be NULL or a vector of numerics.')
+    }
     one_piece <- is.null(breakpoint)
     if ((length(rate)-1) != length(breakpoint)){
       stop('wrong number of breakpoints')
@@ -114,6 +123,9 @@ qpwexp <- function(p, rate=1, breakpoint=NULL, lower.tail=TRUE, log.p=FALSE, one
   # F(y)^(-1)=(-log(1-y)-(lam1-lam2)*d1-(lam2-lam3)*d2-...)/lami
   # breakpoint must be sorted!
   if (safety_check){
+    if (!is.null(breakpoint) & length(breakpoint)==0){
+      stop('breakpoint must be NULL or a vector of numerics.')
+    }
     one_piece <- is.null(breakpoint)
     if ((length(rate)-1) != length(breakpoint)){
       stop('wrong number of breakpoints')
@@ -152,6 +164,9 @@ qpwexp_conditional <- function(p, qT, rate=1, breakpoint=NULL, lower.tail=TRUE, 
 
   # length of qT should be 1 or == length(p)
   if (safety_check){
+    if (!is.null(breakpoint) & length(breakpoint)==0){
+      stop('breakpoint must be NULL or a vector of numerics.')
+    }
     one_piece <- is.null(breakpoint)
     if ((length(rate)-1) != length(breakpoint)){
       stop('wrong number of breakpoints')

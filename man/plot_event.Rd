@@ -28,4 +28,4 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
   \item{time}{sorted time}
   \item{n_event}{cumulative number of events}
 }
-\seealso{\code{\link{plot_km}}
+\seealso{\code{\link{plot_km}}}

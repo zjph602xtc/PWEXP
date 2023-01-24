@@ -1,4 +1,5 @@
 \name{simdata}
+\alias{simdata}
 \title{Simulate Survival Data}
 \description{
 \code{simdata} is used to simulate a clinical trial data with time-to-event endpoints.

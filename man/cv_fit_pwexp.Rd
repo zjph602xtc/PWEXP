@@ -1,14 +1,15 @@
-\name{boot.pwexp.fit}
-\alias{boot.pwexp.fit.default}
-\alias{boot.pwexp.fit.pwexp.fit}
-\title{Bootstrap a Piecewise Exponential Model}
+\name{cv.pwexp.fit}
+\alias{cv.pwexp.fit.default}
+\alias{cv.pwexp.fit.pwexp.fit}
+\alias{}
+\title{Cross Validate a Piecewise Exponential Model}
 \description{
-Bootstrap a existing piecewise exponential model or build a piecewise exponential model with bootstrapping.
+BCross Validate a existing piecewise exponential model.
 }
 \usage{
-\method{boot.pwexp.fit}{default}(time, event, nsim=100, breakpoint=NULL, nbreak=0,
+\method{cv.pwexp.fit}{default}(time, event, nsim=100, breakpoint=NULL, nbreak=0,
                max_set=1000, seed=1818)
-\method{boot.pwexp.fit}{pwexp.fit}(object, nsim=100, max_set=1000, seed=1818)
+\method{cv.pwexp.fit}{pwexp.fit}(object, nsim=100, max_set=1000, seed=1818)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{

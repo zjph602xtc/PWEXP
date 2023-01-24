@@ -43,10 +43,10 @@ dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
 
-plot_survival(dat$followT, dat$event, xlim=c(0,40))
+# plot_survival(dat$followT, dat$event, xlim=c(0,40))
 
 fit_res <- pwexp.fit(dat$followT, dat$event, nbreak = 2)
-plot_survival(fit_res, col='red', lwd=3, breakpoint_par = list(col='grey', lwd=2.5))
+# plot_survival(fit_res, col='red', lwd=3, breakpoint_par = list(col='grey', lwd=2.5))
 }
 
-\seealso{\code{\link{plot_event}}
+\seealso{\code{\link{plot_event}}}

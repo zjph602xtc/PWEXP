@@ -61,18 +61,18 @@ f2 <- dpwexp(t, rate = c(2, 1, 3), breakpoint = c(0.3,0.8))
 points(t, f2, col='red', pch=16)
 
 # generation function
-hist(rpwexp(50000, rate = c(2, 1, 3), breakpoint = c(0.3,0.8)), freq = F, add = T, breaks = 500)
+hist(rpwexp(50000, rate = c(2, 1, 3), breakpoint = c(0.3,0.8)), freq = FALSE, add = TRUE, breaks = 500)
 
 # distribution function
-F1 <- ppwexp(t, rate = 2, lower.tail = F)
+F1 <- ppwexp(t, rate = 2, lower.tail = FALSE)
 plot(t, F1, type='l', lwd=2, xlim=c(0,1.2), ylim=c(0,1.2))
-F2 <- ppwexp(t, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = F)
+F2 <- ppwexp(t, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = FALSE)
 lines(t, F2, col='red', lwd=2)
 
 # quantile function
 abline(0,1,col='grey')
-lines(F1, qpwexp(F1, rate = 2, lower.tail = F), lty=2, lwd=2)
-lines(F2, qpwexp(F2, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = F), col='red', lty=2, lwd=2)
+lines(F1, qpwexp(F1, rate = 2, lower.tail = FALSE), lty=2, lwd=2)
+lines(F2, qpwexp(F2, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = FALSE), col='red', lty=2, lwd=2)
 }
 
 

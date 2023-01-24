@@ -71,11 +71,7 @@
 }
 \seealso{\code{\link{tune.control}}, \code{\link{plot.tune_wsvm}}}
 \examples{
-data(iris)
 
-obj <- tune_wsvm(Species~., weight = c(rep(0.8, 50),rep(1,100)),
-            data = iris, ranges = list(gamma = 2^(-1:1), cost = 2^(2:4)),
-            tunecontrol = tune.control(sampling = "fix"))
 
 \donttest{
 set.seed(11)
@@ -86,13 +82,6 @@ obj <- tune_wsvm(Species~., weight = c(rep(0, 52),rep(1,98)),
 }
 
 
-summary(obj)
-plot(obj, transform.x = log2, transform.y = log2)
-plot(obj, type = "perspective", theta = 120, phi = 45)
-
-best.tune_wsvm(Species~.,weight = c(rep(0.08, 50),rep(1,100)),
-            data = iris, ranges = list(gamma = 2^(-1:1), cost = 2^(2:4)),
-            tunecontrol = tune.control(sampling = "fix"))
 }
 \keyword{models}
 
