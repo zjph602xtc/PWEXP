@@ -1,0 +1,14 @@
+name: "Piecewise Exponential Prediction Model"
+output_dir: "."
+navbar:
+  title: ""
+  right:
+    - text: "R package tutorial"
+      href: index.html
+    - icon: fa-github fa-lg
+      href: https://github.com/zjph602xtc/PWEXP
+
+output:
+  html_document:
+   theme: lumen
+  

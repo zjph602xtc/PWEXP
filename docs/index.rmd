@@ -1,0 +1,92 @@
+---
+title: "Piecewise Exponential Prediction Model"
+output: 
+  html_document:
+    toc: true
+    code_folding: show
+    toc_float: true
+    theme: lumen
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = TRUE,
+                      fig.height = 5,
+                      fig.width = 10)
+
+library(knitr)
+
+```
+<br><br>
+
+# 0. Install Package 'ZIPFA'
+You need to install package [optimx](https://cran.r-project.org/web/packages/optimx/index.html), [trustOptim](https://cran.r-project.org/web/packages/trustOptim/index.html) before installing [ZIPFA](https://cran.rstudio.com/web/packages/ZIPFA/index.html).
+```{r eval=FALSE}
+install.packages('optimx')
+install.packages('trustOptim')
+install.packages('ZIPFA')
+library('Matrix')
+library('parallel')
+library('doParallel')
+library('foreach')
+library('optimx')
+library('trustOptim')
+library('ZIPFA')
+```
+```{r echo=FALSE, message=FALSE}
+library('Matrix')
+```
+
+<br><br>
+
+# 1. Piecewise Exponential Distribution
+
+The hazard function, cumulative hazard function, PDF, CDF, quantile function of an exponential distribution r.v. $t$ is:
+\begin{align*}
+    h(t)&=\lambda\\
+    H(t)&=\lambda t\\
+    f(t)&=\lambda e^{-\lambda t}\\
+    F(t)&=1-e^{-\lambda t}\\
+    Q(p)&=\frac{-\log(1-p)}{\lambda}
+\end{align*}
+The hazard function, cumulative hazard function, PDF, survival function, quantile function of a piecewise exponential distribution r.v. $t$ is:
+\begin{align*}
+    h(t)&=\begin{cases}
+        \lambda_1, & t<d_1\\
+        \lambda_2, & d_1\le t<d_2\\
+        \vdots\\
+        \lambda_{r+1}, & t\ge d_r
+    \end{cases}\\
+    H(t)&=\begin{cases}
+        \lambda_1 t, & t<d_1\\
+        (\lambda_1-\lambda_2)d_1+\lambda_2t , & d_1\le t<d_2\\
+        \vdots\\
+        \left[\sum_{i=1}^r(\lambda_i-\lambda_{i+1})d_i\right]+\lambda_{r+1}t, & t\ge d_r
+    \end{cases}\\
+    f(t)=h(t)e^{-H(t)}&=\begin{cases}
+        \lambda_1 e^{-\lambda_1 t}, & t<d_1\\
+        \lambda_2 e^{(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
+        \vdots\\
+        \lambda_{r+1}e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
+    \end{cases}\\
+    S(t)=e^{-H(t)}&=\begin{cases}
+        e^{-\lambda_1 t}, & t<d_1\\
+        e^{(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
+        \vdots\\
+        e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
+    \end{cases}\\\\
+    Q(p)&=\begin{cases}
+        \frac{-\log(1-p)}{\lambda_1} & p< 1-e^{-\lambda d_1}\\
+        \frac{(\lambda_2-\lambda_1)d_1-\log(1-p)}{\lambda_2} & 1-e^{-\lambda d_1}\le p< 1-e^{(\lambda_2-
+        \lambda_1)d_1-\lambda_2 d_2}\\
+        \cdots\\
+        \frac{\left[\sum_{i=1}^r (\lambda_{i+1}-\lambda_i)d_i\right]-\log(1-p)}{\lambda_{r+1}} & p\ge 1-e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}d_r}\\
+    \end{cases}
+\end{align*}
+
+
+
+
+
+
