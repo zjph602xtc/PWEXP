@@ -5,7 +5,7 @@
 \code{simdata} is used to simulate a clinical trial data with time-to-event endpoints.
 }
 \usage{
-simdata(group="Group 1", strata="Strata 1" allocation=1,
+simdata(group="Group 1", strata="Strata 1", allocation=1,
     event_lambda=NA, drop_rate=NA, death_lambda=NA, n_enroll=NULL,
     enroll_rate=NULL, total_sample=NULL, add_column=c('followT'),
     simplify=TRUE, advanced_dist=NULL)
@@ -13,8 +13,8 @@ simdata(group="Group 1", strata="Strata 1" allocation=1,
 \arguments{
   \item{group}{a character vector of the names of each group (e.g., \code{c('treatment','control').})}
   \item{strata}{a character vector of the names of strata in groups (e.g., \code{c('young','old').})}
-  \item{allocation}{the relative ratio of each subgroup (\code{group*strata}). See details. The value will be recycled if the length is less than needed.}
-  \item{event_lambda}{the hazard rate of events. See details. The value will be recycled if the length is less than needed.}
+  \item{allocation}{the relative ratio of sample size in each subgroup (\code{group*strata}). See details. The value will be recycled if the length is less than needed.}
+  \item{event_lambda}{the hazard rate of the primary endpoint (event). See details. The value will be recycled if the length is less than needed.}
   \item{drop_rate}{(optional) the drop-out rate (patients/month). Not hazard rate. See details. The value will be recycled if the length is less than needed.}
   \item{death_lambda}{(optional) the hazard rate of death. The value will be recycled if the length is less than needed.}
   \item{n_enroll}{(required when \code{enroll_rate=NULL}) a vector of the number of enrollment each month.}
@@ -70,8 +70,8 @@ When \code{simplify=TRUE}, these columns will NOT be included:
       \item \code{deathT}  when \code{death_lambda=NA}
     }
 
-\code{advanced_dist} is used to define distributions for event, drop-out or death. It contains at least one of the elements: \code{event_dist}, \code{drop_dist}, \code{death_dist}. Each element has random generation functions for each subgroups. The value will be recycled if the length is less than needed. For example, \code{advanced_dist=list(event_dist=c(function1, function2), drop_dist=c(function3, function4))}. Here \code{function1}, \code{function3} are the event, drop-out generation function for the first subgroup; \code{function2}, \code{function4} for the second. If there is a third subgroup, \code{function1}, \code{function3} will be reused.
-Each distribution function (\code{functionX}) is a function with only one input argument \code{n} (sample size). If any of the \code{event_dist}, \code{drop_dist}, \code{death_dist} is missing, then we search for \code{event_lambda}, \code{drop_rate}, \code{death_lambda} to generate a exp distribution; if they are also missing, then corresponding variable will not be generated
+\code{advanced_dist} is used to define non-exponential distributions for event, drop-out or death. It is a list containing at least one of the elements: \code{event_dist}, \code{drop_dist}, \code{death_dist}. Each element has random generation functions for each subgroups. For example, \code{advanced_dist=list(event_dist=c(function1, function2), drop_dist=c(function3, function4))}. Here \code{function1}, \code{function3} are the event, drop-out generation function for the first subgroup; \code{function2}, \code{function4} for the second. If there is a third subgroup, \code{function1}, \code{function3} will be reused.
+Each data generation function (\code{functionX}) is a function with only one input argument \code{n} (sample size). If any of the \code{event_dist}, \code{drop_dist}, \code{death_dist} is missing, then we search for \code{event_lambda}, \code{drop_rate}, \code{death_lambda} to generate a exp distribution; if they are also missing, then corresponding variable will not be generated
 .}
 
 
@@ -85,11 +85,13 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 
 \note{
 \code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have an Inf value for each variable.
+
+See webpage \url{https://zjph602xtc.github.io/PWEXP/} for a diagram illustration of the relationship between returned variables.
 }
 \examples{
-# Two groups with two strata. In the treatment group, there is a sensitive stratum and
-# a non-sensitive stratum. In the placebo group, all subjects are the same.
-# Treatment:place=1:2. Drop-rate=1\% only in treatment group.
+# Two groups with two strata. In the treatment group, there is a treatment
+# sensitive stratum and a non-sensitive stratum. In the placebo group, all
+# subjects are the same. Treatment:place=1:2. Drop rate=1\% only in treatment group.
 dat <- simdata(group=c('trt', 'place'), strata = c('sensitive','non-sensitive'),
                allocation = c(1,1,2,2), enroll_rate = 20, total_sample = 1000,
                event_lambda = c(0.1, 0.2, 0.01, 0.01),

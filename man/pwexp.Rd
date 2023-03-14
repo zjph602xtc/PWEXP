@@ -1,4 +1,4 @@
-\name{Piecewise exponential}
+\name{piecewise exponential}
 \alias{dpwexp}
 \alias{ppwexp}
 \alias{qpwexp}
@@ -31,12 +31,16 @@ rpwexp(n, rate = 1, breakpoint = NULL)
 \value{
 \code{dpwexp} gives the density, \code{ppwexp} gives the distribution function, \code{qpwexp} gives the quantile function, and \code{rpwexp} generates random deviates.
 
-The length of the result is determined by \code{x}, \code{q}, \code{p} or \code{n} for \code{dpwexp}, \code{ppwexp}, \code{qpwexp} or \code{rpwexp}. This is different from the exponential distribution functions in package \pkg{stats}.
+The length of the result is determined by \code{x}, \code{q}, \code{p} or \code{n} for \code{dpwexp}, \code{ppwexp}, \code{qpwexp} or \code{rpwexp}. You can only specify a single piecewise exponential distribution every time you call these functions. This is different from the exponential distribution functions in package \pkg{stats}.
 
-Arguments \code{rate} and \code{breakpoint} must match, and only determine a single piecewise distribution.
+Arguments \code{rate} and \code{breakpoint} must match. The length of rate is the length of breakpoint + 1.
 }
 \details{
-dd
+The piecewise distribution function with piecewise rate \eqn{\lambda1, \dots, \lambdar} is
+\deqn{f(t)=\lambda_{r+1} exp{[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i-\lambda_{r+1}t}}
+for \eqn{d_{r} \le t < d_{r+1}}.
+
+See webpage \url{https://zjph602xtc.github.io/PWEXP/} for more details for its hazard function, cumulative hazard function, survival function, cumulative density function, quantile function.
 }
 
 \note{

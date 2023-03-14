@@ -435,6 +435,46 @@ t&lt;d_2\\
     \end{cases}
 \end{align*}\]</span></p>
 </div>
+<div id="conditional-piecewise-exponential-distribution"
+class="section level1">
+<h1>2. Conditional Piecewise Exponential Distribution</h1>
+<p>The conditional survival function, CDF, PFD and quantile function of
+an exponential distribution <span class="math inline">\(t\)</span> given
+<span class="math inline">\(t&gt;T\)</span> is <span
+class="math display">\[\begin{align*}
+    S(t|t&gt;T)&amp;=\frac{S(t)}{S(T)}=e^{\lambda T-\lambda t}\\
+    F(t|t&gt;T)&amp;=1-\frac{S(t)}{S(T)}=1-e^{\lambda T-\lambda t}\\
+    f(t|t&gt;T)&amp;=\lambda e^{\lambda T-\lambda t}\\
+    Q(p|t&gt;T)&amp;=\frac{\lambda T-\log(1-p)}{\lambda}
+\end{align*}\]</span></p>
+<p>The conditional survival function and CDF of a piecewise exponential
+distribution <span class="math inline">\(t\)</span> given <span
+class="math inline">\(t&gt;T\)</span> is <span
+class="math display">\[\begin{align*}
+    S(t|t&gt;T)&amp;=\frac{S(t)}{S(T)}, \text{ then plug in $S(t)$,
+$S(T)$}\\
+    F(t|t&gt;T)&amp;=1-\frac{S(t)}{S(T)}, \text{ then plug in $S(t)$,
+$S(T)$}
+\end{align*}\]</span> The conditional quantile function of a piecewise
+exponential distribution <span class="math inline">\(t\)</span> given
+<span class="math inline">\(t&gt;T\)</span> is <span
+class="math display">\[\begin{align*}
+    Q(p|t&gt;T)=\begin{cases}
+        \frac{\lambda_1 T-\log(1-p)}{\lambda_{1}}, &amp;
+        \hspace{-60pt} p &lt;F(d_{1}|t&gt;T), T &lt;d_{1}\\
+        \frac{\left[\sum_{i=1}^{k-1}
+(\lambda_{i+1}-\lambda_i)d_i\right]+\lambda_1 T-\log(1-p)}{\lambda_{k}},
+&amp; \\
+        &amp;\hspace{-60pt} F(d_{k-1}|t&gt;T)\le p &lt;F(d_{k}|t&gt;T),
+T &lt;d_{1}\\
+        \frac{\left[\sum_{i=m}^{k-1}
+(\lambda_{i+1}-\lambda_i)d_i\right]+\lambda_m T-\log(1-p)}{\lambda_{k}},
+&amp; \\
+        &amp;\hspace{-60pt} F(d_{k-1}|t&gt;T)\le p &lt;F(d_{k}|t&gt;T),
+d_{m-1}\le T &lt;d_{m}
+    \end{cases}
+\end{align*}\]</span></p>
+</div>
 
 
 

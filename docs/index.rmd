@@ -86,7 +86,30 @@ The hazard function, cumulative hazard function, PDF, survival function, quantil
 \end{align*}
 
 
+# 2. Conditional Piecewise Exponential Distribution
+The conditional survival function, CDF, PFD and quantile function of an exponential distribution $t$ given $t>T$ is 
+\begin{align*}
+    S(t|t>T)&=\frac{S(t)}{S(T)}=e^{\lambda T-\lambda t}\\
+    F(t|t>T)&=1-\frac{S(t)}{S(T)}=1-e^{\lambda T-\lambda t}\\
+    f(t|t>T)&=\lambda e^{\lambda T-\lambda t}\\
+    Q(p|t>T)&=\frac{\lambda T-\log(1-p)}{\lambda}
+\end{align*}
 
-
+The conditional survival function and CDF of a piecewise exponential distribution $t$ given $t>T$ is 
+\begin{align*}
+    S(t|t>T)&=\frac{S(t)}{S(T)}, \text{ then plug in $S(t)$, $S(T)$}\\
+    F(t|t>T)&=1-\frac{S(t)}{S(T)}, \text{ then plug in $S(t)$, $S(T)$}
+\end{align*}
+The conditional quantile function of a piecewise exponential distribution $t$ given $t>T$ is 
+\begin{align*}
+    Q(p|t>T)=\begin{cases}
+        \frac{\lambda_1 T-\log(1-p)}{\lambda_{1}}, & 
+        \hspace{-60pt} p <F(d_{1}|t>T), T <d_{1}\\
+        \frac{\left[\sum_{i=1}^{k-1} (\lambda_{i+1}-\lambda_i)d_i\right]+\lambda_1 T-\log(1-p)}{\lambda_{k}}, & \\
+        &\hspace{-60pt} F(d_{k-1}|t>T)\le p <F(d_{k}|t>T), T <d_{1}\\
+        \frac{\left[\sum_{i=m}^{k-1} (\lambda_{i+1}-\lambda_i)d_i\right]+\lambda_m T-\log(1-p)}{\lambda_{k}}, & \\
+        &\hspace{-60pt} F(d_{k-1}|t>T)\le p <F(d_{k}|t>T), d_{m-1}\le T <d_{m}
+    \end{cases}
+\end{align*}
 
 

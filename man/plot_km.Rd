@@ -4,7 +4,7 @@
 \alias{plot_survival.pwexp.fit}
 \title{Plot Survival Curve}
 \description{
-  Plot KM curve  with right censoring data or the survival curve of fitted piecewise exponential model.
+  Plot KM curve  with right censoring data or the survival curve of a fitted piecewise exponential model.
 }
 \usage{
 \method{plot_survival}{default}(time, event, add=FALSE, conf.int=FALSE, mark.time=TRUE,
