@@ -33,7 +33,6 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -222,9 +221,6 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
-<style type="text/css">
-.code-folding-btn { margin-bottom: 4px; }
-</style>
 
 
 
@@ -343,14 +339,6 @@ div.tocify {
 
 <div id="header">
 
-<div class="btn-group pull-right float-right">
-<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
-<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
-<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-</ul>
-</div>
-
 
 
 <h1 class="title toc-ignore">Piecewise Exponential Prediction Model</h1>
@@ -359,25 +347,241 @@ div.tocify {
 
 
 <p><br><br></p>
-<div id="install-package-zipfa" class="section level1">
-<h1>0. Install Package ‘ZIPFA’</h1>
+<div id="structure-of-package-pwexp" class="section level1">
+<h1>0.1. Structure of Package ‘PWEXP’</h1>
+<p>The `PWEXP’package provides a complete set of tools to work with
+survival data with piecewise exponential distribution. It also makes
+event prediction based on the fitted model. Specifically, it has five
+components for different tasks:</p>
+<ul>
+<li><strong>Simulate Data:</strong> (you can skip this part if you work
+with an existing dataset)
+<ul>
+<li>the <code>simdata()</code> function generates synthetic survival
+dataset with
+<ul>
+<li>enrollment time defined by enrollment rate or enrollment curve</li>
+<li>multiple treatment groups with stratification by pre-fixed
+allocation</li>
+<li>primary endpoint (event), drop-out (censor) and death with
+exponential distribution or user-defined distribution (e.g., piecewise
+exponential, mixture distribution, etc.) for each stratification in each
+group</li>
+</ul></li>
+<li>the <code>plot_survival()</code> function plots KM estimator for
+right censored data</li>
+<li>the <code>plot_event()</code> function plots the number of
+cumulative events</li>
+<li>auxiliary functions <code>dpwexp</code>, <code>ppwexp</code>,
+<code>qpwexp</code>, <code>rpwexp</code> are the PDF, CDF, quantile
+function, generator function for piecewise exponential distribution (See
+‘Piecewise Exponential Distribution’ Section for more details)</li>
+</ul></li>
+<li><strong>Split Data:</strong>
+<ul>
+<li>the <code>cut_dat()</code> function cuts the data by a specified
+time point. Only subjects who are enrolled before the specified time
+will be kept. It also recensors the data at the specified time. It is
+useful to create a training set.</li>
+</ul></li>
+<li><strong>Fit a Piecewise Exponential Model:</strong>
+<ul>
+<li>the <code>pwexp.fit()</code> function fits the piecewise exponential
+model to right censored data
+<ul>
+<li>with pre-specified breakpoints</li>
+<li>or with partially pre-specified breakpoints</li>
+<li>or with unknown breakpionts (to be fitted from the data)</li>
+</ul></li>
+<li>obtain model AIC, BIC</li>
+<li>the <code>cv.pwexp.fit()</code> conducts model cross validation</li>
+<li>the <code>plot_survival()</code> plots fitted survival curve for
+object <code>pwexp.fit</code></li>
+</ul></li>
+<li><strong>Bootstrap the Model to Get CI (optional):</strong>
+<ul>
+<li>the <code>boot.pwexp.fit()</code> conducts bootstrapping of an
+existing model</li>
+<li>the <code>plot_survival()</code> plots fitted survival curve and its
+CI for object <code>boot.pwexp.fit</code></li>
+</ul></li>
+<li><strong>Prediction</strong>
+<ul>
+<li>the <code>predict()</code> takes event model and censor model
+(optional) to make event prediction and timeline prediction</li>
+<li>provide the CI of predicted number of event or timeline</li>
+<li>the <code>plot_event()</code> plots predicted number of events (for
+object <code>predict.pwexp.fit</code>) and its CI (if applicable, for
+object <code>predict.boot.pwexp.fit()</code>)<br />
+</li>
+<li>auxiliary functions <code>ppwexp_conditional()</code>,
+<code>qpwexp_conditional()</code>, `<code>rpwexp</code>_conditional()`
+are the CDF, quantile function, generator function for conditional
+piecewise exponential distribution (See ‘Conditional Piecewise
+Exponential Distribution’ Section for more details)</li>
+</ul></li>
+</ul>
+<p><img src="images/structure%202.png" /></p>
+<p><br></p>
+</div>
+<div id="install-package-pwexp" class="section level1">
+<h1>0.2. Install Package ‘PWEXP’</h1>
 <p>You need to install package <a
-href="https://cran.r-project.org/web/packages/optimx/index.html">optimx</a>,
-<a
-href="https://cran.r-project.org/web/packages/trustOptim/index.html">trustOptim</a>
-before installing <a
-href="https://cran.rstudio.com/web/packages/ZIPFA/index.html">ZIPFA</a>.</p>
-<pre class="r"><code>install.packages(&#39;optimx&#39;)
-install.packages(&#39;trustOptim&#39;)
-install.packages(&#39;ZIPFA&#39;)
-library(&#39;Matrix&#39;)
-library(&#39;parallel&#39;)
-library(&#39;doParallel&#39;)
-library(&#39;foreach&#39;)
-library(&#39;optimx&#39;)
-library(&#39;trustOptim&#39;)
-library(&#39;ZIPFA&#39;)</code></pre>
-<p><br><br></p>
+href="https://CRAN.R-project.org/package=fastmatch">fastmatch</a> before
+installing <a href="https://github.com/zjph602xtc/PWEXP">PWEXP</a>.</p>
+<pre class="r"><code>install.packages(&#39;fastmatch&#39;)
+library(&#39;fastmatch&#39;)
+library(&#39;PWEXP&#39;)</code></pre>
+<p><br></p>
+</div>
+<div id="simulate-data" class="section level1">
+<h1>1. Simulate Data</h1>
+<div id="basic-usage-of-simdata" class="section level2">
+<h2>1.1 Basic Usage of <code>simdata()</code></h2>
+<p>You can skip this part if you work with an existing dataset. Here we
+use <code>simdata()</code> function to generate a simple example
+dataset:</p>
+<ul>
+<li>two groups with sample size ratio 1:2 (treatment vs. control);</li>
+<li>enrollment curve is defined as 10 pt/month in the first 2 months and
+5 pt/month in the following 20 months;</li>
+<li>the primary endpoint (event) follows an exponential distribution
+with hazard rate 0.01, 0.05 for treatment and control group;</li>
+<li>the drop-out follows an exponential distribution with drop-out
+probability 3%/month (equivalently, drop-out hazard rate is
+-log(1-0.03)=0.0304) for both groups;</li>
+<li>the death event follows an exponential distribution with hazard rate
+0, 0.005 for each group;</li>
+<li>argument <code>add_column</code> request some extra variables.</li>
+</ul>
+<pre class="r"><code>demo_dat0 &lt;- simdata(group = c(&#39;trt&#39;,&#39;control&#39;), n_enroll = c(10,10,rep(5,20)),
+                     allocation = c(1,2), event_lambda = c(0.01, 0.05), 
+                     drop_rate = 0.03, death_lambda = c(0, 0.005), 
+                     add_column = c(&#39;eventT_abs&#39;,&#39;dropT_abs&#39;,&#39;deathT_abs&#39;,&#39;followT&#39;,&#39;followT_abs&#39;,&#39;censor&#39;,&#39;event&#39;,&#39;censor_reason&#39;))
+head(demo_dat0)</code></pre>
+<pre><code>##   ID group   enrollT    eventT     dropT deathT eventT_abs dropT_abs deathT_abs
+## 1  1   trt 16.529422  80.71931  7.186174    Inf   97.24874  23.71560        Inf
+## 2  2   trt  9.048920  16.95343 11.380695    Inf   26.00235  20.42961        Inf
+## 3  3   trt  8.615620 110.08967 10.955580    Inf  118.70529  19.57120        Inf
+## 4  4   trt 19.962546 188.81322 55.954349    Inf  208.77577  75.91689        Inf
+## 5  5   trt 16.833389 176.74101 31.028997    Inf  193.57440  47.86239        Inf
+## 6  6   trt  5.443188  17.27667  9.374143    Inf   22.71986  14.81733        Inf
+##     followT followT_abs censor event censor_reason
+## 1  7.186174    23.71560      1     0      drop_out
+## 2 11.380695    20.42961      1     0      drop_out
+## 3 10.955580    19.57120      1     0      drop_out
+## 4 55.954349    75.91689      1     0      drop_out
+## 5 31.028997    47.86239      1     0      drop_out
+## 6  9.374143    14.81733      1     0      drop_out</code></pre>
+<p>In the generated dataset:</p>
+<ul>
+<li><code>enrollT</code> is the enrollment time</li>
+<li><code>eventT</code>, <code>dropT</code>, <code>deathT</code> are the
+underlying primary event, drop-out, death time</li>
+<li><code>followT</code> is the follow-up time, which is the minimum
+value of <code>eventT</code>, <code>dropT</code>,
+<code>deathT</code></li>
+<li><code>eventT</code>, <code>dropT</code>, <code>deathT</code>,
+<code>followT</code> are the corresponding time from the beginning of
+the trial</li>
+<li><code>cenosr</code>, <code>event</code> indicator whether the
+primary event happen at the end of follow-up; if a subject is censored,
+<code>censor_reason</code> shows the type of censoring (i.e.,
+‘drop_out’,‘death’ or ‘never_event’(if followT=inf)))</li>
+</ul>
+<p>The diagram below shows the relationship between these variables:
+<img src="images/simudata.png" /></p>
+<p><br></p>
+</div>
+<div id="piecewise-distribution-example" class="section level2">
+<h2>1.2 Piecewise Distribution Example</h2>
+<p><span style="color: #EB6864;font-weight:bold">In the follow parts of
+the demonstration</span>, we will use a single group with piecewise
+exponential distribution endpoint:</p>
+<pre class="r"><code># define the event generation function
+event_dist &lt;- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
+# use advanced_dist to adopt user-defined distribution
+dat &lt;- simdata(enroll_rate = 20, total_sample = 1000, drop_rate = 0.03,  
+               advanced_dist = list(event_dist=event_dist),
+               add_column = c(&#39;censor_reason&#39;,&#39;event&#39;,&#39;followT&#39;,&#39;followT_abs&#39;))</code></pre>
+<p>We can use the <code>plot_survival()</code> function to plot the
+survival curve and cumulative number of events:</p>
+<pre class="r"><code>plot_survival(dat$eventT, dat$event, conf.int = F, mark.time = T, xlim = c(0,25))
+plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0,25))</code></pre>
+<p><img src="index_files/figure-html/figures-side-1.png" width="50%" height="100%" /><img src="index_files/figure-html/figures-side-2.png" width="50%" height="100%" /></p>
+</div>
+</div>
+<div id="split-data-to-obtain-training-set" class="section level1">
+<h1>2. Split Data to Obtain Training Set</h1>
+<p>We cut the dataset by the time when 80% percent subject are enrolled.
+Only subjects who are enrolled before the specified time will be kept in
+the returned data. The returned data will be recensored at the specified
+time. This step is to create a training set. In real data analysis, this
+step may not be needed.</p>
+<pre class="r"><code>cut &lt;- quantile(dat$enrollT, 0.8)
+train &lt;- cut_dat(var_enrollT = &#39;enrollT&#39;, cut = cut, data = dat,
+                 var_followT = &#39;followT&#39;, var_followT_abs = &#39;followT_abs&#39;,
+                 var_event = &#39;event&#39;, var_censor_reason = &#39;censor_reason&#39;)</code></pre>
+<p><br></p>
+</div>
+<div id="fit-a-piecewise-exponential-model" class="section level1">
+<h1>3. Fit a Piecewise Exponential Model</h1>
+<p>We will fit several piecewise exponential model on the training
+set:</p>
+<ul>
+<li><code>fit_res0</code> has pre-specified breakpoints</li>
+<li><code>fit_res01</code> has one pre-specified breakpoint 14, and the
+total number of breakpoint is 2. The other breakpoint will be estimated
+from the data</li>
+<li><code>fit_res1</code> to <code>fit_res5</code> have 0 to 4 unknown
+breakpoints. Note the <code>fit_res1</code> is actually an exponential
+model since there is NO breakpoint.</li>
+</ul>
+<pre class="r"><code>fit_res0 &lt;- pwexp.fit(train$followT, train$event, breakpoint = c(5,14), max_set = 100)
+fit_res01 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14), max_set = 100)
+fit_res1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 0, max_set = 100)
+fit_res2 &lt;- pwexp.fit(train$followT, train$event, nbreak = 1, max_set = 100)
+fit_res3 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, max_set = 100)
+fit_res4 &lt;- pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100)
+fit_res5 &lt;- pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100)</code></pre>
+<p>We plot BIC of these models and find that among the models without
+pre-specified breakpoints, <code>fit_res3</code> with the correct number
+of breakpionts has the lowest BIC value. We also plot the fitted curve
+of some of these models.</p>
+<pre class="r"><code># Plot BIC for each model
+plot(c(fit_res0$BIC, fit_res01$BIC, fit_res1$BIC, fit_res2$BIC, fit_res3$BIC, fit_res4$BIC, fit_res5$BIC), type=&#39;l&#39;, lwd=2, xlab=&#39;Models&#39;, ylab=&#39;BIC&#39;)
+# Plot fitted survival curves
+plot_survival(train$followT, train$event, xlim=c(0,40))
+plot_survival(fit_res1, col=&#39;red&#39;, lwd=2)
+plot_survival(fit_res2, col=&#39;blue&#39;, lwd=3, show_breakpoint = F)
+plot_survival(fit_res3,  col=&#39;green&#39;, lwd=3, breakpoint_par = list(col=&#39;grey50&#39;, lty=2))
+plot_survival(fit_res4, col=&#39;orange&#39;, lwd=3, show_breakpoint = F)
+legend(&#39;topright&#39;,c(&#39;0 breakpoints&#39;,&#39;1 breakpoint&#39;,&#39;2 breakpoints&#39;,&#39;3 breakpoints&#39;), lwd=3, col=c(&#39;red&#39;,&#39;blue&#39;,&#39;green&#39;,&#39;orange&#39;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="50%" height="100%" />
+We can also use cross validation to help us choose the model. The model
+`fit_res3`` with the correct number of breakpionts has the highest CV
+log likelihood.</p>
+<pre class="r"><code># Cross validate a fitted model or specify new model
+fit_res1_cv &lt;- cv.pwexp.fit(fit_res1, max_set = 100, nsim = 10)
+fit_res2_cv &lt;- cv.pwexp.fit(fit_res2, max_set = 100, nsim = 10)
+fit_res3_cv &lt;- cv.pwexp.fit(fit_res3, max_set = 100, nsim = 10)
+fit_res4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100, nsim = 10)
+fit_res5_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100, nsim = 10)
+boxplot(cv~nbreak, data.frame(cv=c(fit_res1_cv, fit_res2_cv, fit_res3_cv, fit_res4_cv, fit_res5_cv), nbreak=rep(0:4, each=10)), ylab=&#39;CV log likelihood&#39;)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="480" /></p>
+</div>
+<div id="bootstrap-model" class="section level1">
+<h1>4. Bootstrap model</h1>
+<p>We will use boostrap to estimate the uncertainty of the parameters.
+We take mode <code>fit_res3</code> as an example.</p>
+<pre class="r"><code>fit_res3_boot &lt;- boot.pwexp.fit(fit_res3, nsim = 10)
+# plot data and the fitted model with 95% CI
+plot_survival(train$followT, train$event, xlim=c(0,40))
+plot_survival(fit_res3_boot, col=&#39;red&#39;, alpha=0.05, CI_par = list(col=&#39;#FFCCCB&#39;))
+# plot 95% CI of estimated breakpoints
+brk_ci &lt;- apply(attr(fit_res3_boot, &#39;brk&#39;), 2, function(x)quantile(x,c(0.025,0.975)))
+abline(v=brk_ci, col=&#39;grey&#39;, lwd=2)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="480" /></p>
 </div>
 <div id="piecewise-exponential-distribution" class="section level1">
 <h1>1. Piecewise Exponential Distribution</h1>
@@ -511,11 +715,6 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("show" === "show");
-});
-</script>
 
 <script>
 $(document).ready(function ()  {

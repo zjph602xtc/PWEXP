@@ -49,12 +49,14 @@ Valid options are:
   \item{deathT}{death time (from \code{enrollT})}
   \item{deathT_abs}{death time (from the beginning of the trial)}
   \item{censor}{censoring (drop-out or death) indicator}
-  \item{censor_reason}{censoring reason ('drop_out','death','never_event'(eventT=inf))}
+  \item{censor_reason}{censoring reason ('drop_out','death','never_event'(followT=inf))}
   \item{event}{event indicator}
   \item{followT}{follow-up time / observed time (from \code{enrollT})}
   \item{followT_abs}{follow-up time / observed time (from the beginning of the trial)}
 }
 \details{
+See webpage \url{https://zjph602xtc.github.io/PWEXP/} for a diagram illustration of the relationship between returned variables.
+
 The total number of subgroups will be '# treatment groups' * '# strata'. The \code{strata} variable will be distributed into each treatment group. For example, if \code{group = c('trt','placebo')}, \code{strata=c('A','B','C')}, then there will be 6 subgroups: trt+A, trt+B, trt+C, placebo+A, placebo+B, placebo+C. The lengths of \code{allocation}, \code{event_lambda}, \code{drop_rate}, \code{death_lambda} should be 6 as well. Note that the values will be recycled for these variables. For example, if \code{allocation=c(1,2,3)}, then the proportion of 6 subgroups is actually 1:2:3:1:2:3, which means 1:1 ratio for groups, 1:2:3 ratio in each stratum.
 
 The \code{event_lambda} (\eqn{\lambda}) is the hazard rate of the interested events. The density function of events is \eqn{f(t)=\lambda e^{-\lambda*t}}. Similarly, the \code{death_lambda} is the hazard rate of death.
@@ -85,8 +87,6 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 
 \note{
 \code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have an Inf value for each variable.
-
-See webpage \url{https://zjph602xtc.github.io/PWEXP/} for a diagram illustration of the relationship between returned variables.
 }
 \examples{
 # Two groups with two strata. In the treatment group, there is a treatment

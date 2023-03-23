@@ -1,4 +1,5 @@
 \name{boot.pwexp.fit}
+\alias{boot.pwexp.fit}
 \alias{boot.pwexp.fit.default}
 \alias{boot.pwexp.fit.pwexp.fit}
 \title{Bootstrap a Piecewise Exponential Model}
@@ -15,6 +16,7 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
   \item{object}{an object of class \code{pwexp.fit} returned by the \code{\link{pwexp.fit}} function.}
   \item{time}{observed time from enrollment. See \code{\link{pwexp.fit}}.}
   \item{event}{the status indicator.  See \code{\link{pwexp.fit}}.}
+  \item{nsim}{the number of repeated bootstraping.}
   \item{breakpoint}{pre-specified breakpoints.   See \code{\link{pwexp.fit}}.}
   \item{nbreak}{total number of breakpoints.  See \code{\link{pwexp.fit}}.}
   \item{max_set}{maximum estimated combination of breakpoints.  See \code{\link{pwexp.fit}}.}
@@ -34,8 +36,22 @@ A data frame containing these columns:
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
-\seealso{\code{\link{boot.pwexp.fit}}, \code{\link{cv.pwexp.fit}}}
+\seealso{\code{\link{pwexp.fit}}}
 
 \examples{
+event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
+dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
+               advanced_dist = list(event_dist=event_dist),
+               add_column = c('censor_reason','event','followT','followT_abs'))
+cut <- quantile(dat$enrollT, 0.8)
+train <- cut_dat(var_enrollT = 'enrollT', cut = cut, data = dat,
+                 var_followT = 'followT', var_followT_abs = 'followT_abs',
+                 var_event = 'event', var_censor_reason = 'censor_reason')
 
+fit_res3 <- pwexp.fit(train$followT, train$event, nbreak = 2)
+fit_res_boot <- boot.pwexp.fit(fit_res3, nsim = 100)
+plot_survival(train$followT, train$event, xlim=c(0,40))
+plot_survival(fit_res_boot, col='red', CI_par = list(col='red'))
+brk_ci <- apply(attr(fit_res_boot, 'brk'), 2, function(x)quantile(x,c(0.025,0.975)))
+abline(v=brk_ci, col='grey', lwd=2)
 }

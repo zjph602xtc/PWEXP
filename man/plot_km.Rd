@@ -22,9 +22,9 @@
  \item{show_breakpoint}{logical; if TRUE add vertial dashed lines to indicate breakpoints.}
  \item{breakpoint_par}{a list of parameters to control the apperance of vertical lines of breakpoionts. The values pass to \code{\link[graphics]{abline}}.}
  \item{alpha}{the significance level of the confidence interval. }
-  \item{show_CI}{logical; if TRUE add confidence interval of the estimated curve.}
+  \item{show_CI}{logical; if TRUE add confidence interval of the estimated curve. For KM esitmator, use \code{conf.int} to show CI band.}
  \item{CI_par}{a list of parameters to control the apperance of lines of confidence intervals. The values pass to \code{\link[graphics]{lines}}.}
- \item{...}{pass over to \code{\link[survival]{plot.survfit}} (default method) or \code{\link[base]{plot}} (for class \code{pwexp.fit}).}
+ \item{...}{other arguments (e.g., \code{conf.int}, \code{mark.time}, \code{lwd}, etc.) are passed over to \code{\link[survival]{plot.survfit}} (default method) or \code{\link[base]{plot}} (for class \code{pwexp.fit}).}
 }
 \details{
 For the default method, this a  wrapper of \code{\link[survival]{plot.survfit}} function to plot right censoring data.

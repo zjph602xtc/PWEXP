@@ -1,7 +1,8 @@
 \name{pwexp.fit}
+\alias{pwexp.fit}
 \title{Fit the Piecewise Exponential Distribution}
 \description{
-Fit the piecewise exponential distribution with right censoring data. User can specifity all breakpoints, some of the breakpoints and let the function estimate the breakpoints.
+Fit the piecewise exponential distribution with right censoring data. User can specifity all breakpoints, some of the breakpoints or let the function estimate the breakpoints.
 }
 \usage{
 pwexp.fit(time, event, breakpoint=NULL, nbreak=0, max_set=10000,
