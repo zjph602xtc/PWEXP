@@ -407,8 +407,8 @@ CI for object <code>boot.pwexp.fit</code></li>
 </ul></li>
 <li><strong>Prediction</strong>
 <ul>
-<li>the <code>predict()</code> takes event model and censor model
-(optional) to make event prediction and timeline prediction</li>
+<li>the <code>predict()</code> takes event model and drop-out (censor)
+model (optional) to make event prediction and timeline prediction</li>
 <li>provide the CI of predicted number of event or timeline</li>
 <li>the <code>plot_event()</code> plots predicted number of events (for
 object <code>predict.pwexp.fit</code>) and its CI (if applicable, for
@@ -459,20 +459,20 @@ probability 3%/month (equivalently, drop-out hazard rate is
                      drop_rate = 0.03, death_lambda = c(0, 0.005), 
                      add_column = c(&#39;eventT_abs&#39;,&#39;dropT_abs&#39;,&#39;deathT_abs&#39;,&#39;followT&#39;,&#39;followT_abs&#39;,&#39;censor&#39;,&#39;event&#39;,&#39;censor_reason&#39;))
 head(demo_dat0)</code></pre>
-<pre><code>##   ID group   enrollT    eventT     dropT deathT eventT_abs dropT_abs deathT_abs
-## 1  1   trt 16.529422  80.71931  7.186174    Inf   97.24874  23.71560        Inf
-## 2  2   trt  9.048920  16.95343 11.380695    Inf   26.00235  20.42961        Inf
-## 3  3   trt  8.615620 110.08967 10.955580    Inf  118.70529  19.57120        Inf
-## 4  4   trt 19.962546 188.81322 55.954349    Inf  208.77577  75.91689        Inf
-## 5  5   trt 16.833389 176.74101 31.028997    Inf  193.57440  47.86239        Inf
-## 6  6   trt  5.443188  17.27667  9.374143    Inf   22.71986  14.81733        Inf
-##     followT followT_abs censor event censor_reason
-## 1  7.186174    23.71560      1     0      drop_out
-## 2 11.380695    20.42961      1     0      drop_out
-## 3 10.955580    19.57120      1     0      drop_out
-## 4 55.954349    75.91689      1     0      drop_out
-## 5 31.028997    47.86239      1     0      drop_out
-## 6  9.374143    14.81733      1     0      drop_out</code></pre>
+<pre><code>##   ID group    enrollT    eventT    dropT deathT eventT_abs dropT_abs deathT_abs
+## 1  1   trt  0.6225994  80.20827 37.49508    Inf   80.83087  38.11768        Inf
+## 2  2   trt  8.9574934  12.73224 34.16406    Inf   21.68974  43.12155        Inf
+## 3  3   trt 19.7647359  41.60280 17.98190    Inf   61.36754  37.74663        Inf
+## 4  4   trt  1.9460523 254.63692 46.49410    Inf  256.58297  48.44016        Inf
+## 5  5   trt 17.5764884 215.03632 33.89415    Inf  232.61281  51.47063        Inf
+## 6  6   trt  5.5198916  39.81326 16.37645    Inf   45.33315  21.89634        Inf
+##    followT followT_abs censor event censor_reason
+## 1 37.49508    38.11768      1     0      drop_out
+## 2 12.73224    21.68974      0     1          &lt;NA&gt;
+## 3 17.98190    37.74663      1     0      drop_out
+## 4 46.49410    48.44016      1     0      drop_out
+## 5 33.89415    51.47063      1     0      drop_out
+## 6 16.37645    21.89634      1     0      drop_out</code></pre>
 <p>In the generated dataset:</p>
 <ul>
 <li><code>enrollT</code> is the enrollment time</li>
@@ -529,59 +529,89 @@ train &lt;- cut_dat(var_enrollT = &#39;enrollT&#39;, cut = cut, data = dat,
 <p>We will fit several piecewise exponential model on the training
 set:</p>
 <ul>
-<li><code>fit_res0</code> has pre-specified breakpoints</li>
-<li><code>fit_res01</code> has one pre-specified breakpoint 14, and the
+<li><code>fit_a0</code> has pre-specified breakpoints</li>
+<li><code>fit_a1</code> has one pre-specified breakpoint 14, and the
 total number of breakpoint is 2. The other breakpoint will be estimated
 from the data</li>
-<li><code>fit_res1</code> to <code>fit_res5</code> have 0 to 4 unknown
-breakpoints. Note the <code>fit_res1</code> is actually an exponential
+<li><code>fit_b0</code> to <code>fit_b4</code> have 0 to 4 unknown
+breakpoints. Note the <code>fit_b0</code> is actually an exponential
 model since there is NO breakpoint.</li>
 </ul>
-<pre class="r"><code>fit_res0 &lt;- pwexp.fit(train$followT, train$event, breakpoint = c(5,14), max_set = 100)
-fit_res01 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14), max_set = 100)
-fit_res1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 0, max_set = 100)
-fit_res2 &lt;- pwexp.fit(train$followT, train$event, nbreak = 1, max_set = 100)
-fit_res3 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, max_set = 100)
-fit_res4 &lt;- pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100)
-fit_res5 &lt;- pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100)</code></pre>
+<pre class="r"><code>fit_a0 &lt;- pwexp.fit(train$followT, train$event, breakpoint = c(5,14), max_set = 100)
+fit_a1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14), max_set = 100)
+fit_b0 &lt;- pwexp.fit(train$followT, train$event, nbreak = 0, max_set = 100)
+fit_b1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 1, max_set = 100)
+fit_b2 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, max_set = 100)
+fit_b3 &lt;- pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100)
+fit_b4 &lt;- pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100)</code></pre>
 <p>We plot BIC of these models and find that among the models without
-pre-specified breakpoints, <code>fit_res3</code> with the correct number
-of breakpionts has the lowest BIC value. We also plot the fitted curve
-of some of these models.</p>
-<pre class="r"><code># Plot BIC for each model
-plot(c(fit_res0$BIC, fit_res01$BIC, fit_res1$BIC, fit_res2$BIC, fit_res3$BIC, fit_res4$BIC, fit_res5$BIC), type=&#39;l&#39;, lwd=2, xlab=&#39;Models&#39;, ylab=&#39;BIC&#39;)
-# Plot fitted survival curves
+pre-specified breakpoints, <code>fit_b2</code> with the correct number
+of breakpionts has the lowest BIC value. We can also use cross
+validation to help us choose the model. The model `fit_b2`` with the
+correct number of breakpionts has the highest CV log likelihood.</p>
+<pre class="r"><code>library(&#39;RColorBrewer&#39;)
+model_name &lt;- c(&#39;2 fixed breakpoints&#39;, &#39;1 fixed + 1 unknown bkp&#39;, &#39;0 unknown bkp (exp model)&#39;, &#39;1 unknown bkp&#39;, &#39;2 unknown bkp&#39;, &#39;3 unknown bkp&#39;, &#39;4 unknown bkp&#39;)
+model_ind &lt;- c(&#39;a0&#39;,&#39;a1&#39;,paste0(&#39;b&#39;,0:4))
+col &lt;- c(brewer.pal(3, &#39;Pastel1&#39;)[1:2], brewer.pal(9, &#39;Greens&#39;)[3:7])
+
+# Plot BIC for each model
+barplot(c(fit_a0$BIC, fit_a1$BIC, fit_b0$BIC, fit_b1$BIC, fit_b2$BIC, fit_b3$BIC, fit_b4$BIC), xlab=&#39;Model&#39;, ylab=&#39;BIC&#39;, ylim=c(2700,3400), xpd=F, col=col, names.arg=model_ind)
+legend(&#39;topleft&#39;, model_name, fill=col, ncol=2, text.width=3.5)
+
+# Cross validate a fitted model
+fit_a0_cv &lt;- cv.pwexp.fit(fit_a0, max_set = 100, nsim = 10)
+fit_a1_cv &lt;- cv.pwexp.fit(fit_a1, max_set = 100, nsim = 10)
+fit_b0_cv &lt;- cv.pwexp.fit(fit_b0, max_set = 100, nsim = 10)
+fit_b1_cv &lt;- cv.pwexp.fit(fit_b1, max_set = 100, nsim = 10)
+fit_b2_cv &lt;- cv.pwexp.fit(fit_b2, max_set = 100, nsim = 10)
+fit_b3_cv &lt;- cv.pwexp.fit(fit_b3, max_set = 100, nsim = 10)
+# alternatively, we can specify a new model instead of CV a fitted model, for example;
+fit_b4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100, nsim = 10)
+boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=10)), ylab=&#39;CV log likelihood&#39;, xlab=&#39;Model&#39;, ylim=c(-320,-250), col=col)
+legend(&#39;topleft&#39;, model_name, fill=col, ncol=2, text.width=3)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="50%" height="100%" /></p>
+<p>We also plot the fitted curves of some of these models.</p>
+<pre class="r"><code># Plot fitted survival curves
 plot_survival(train$followT, train$event, xlim=c(0,40))
-plot_survival(fit_res1, col=&#39;red&#39;, lwd=2)
-plot_survival(fit_res2, col=&#39;blue&#39;, lwd=3, show_breakpoint = F)
-plot_survival(fit_res3,  col=&#39;green&#39;, lwd=3, breakpoint_par = list(col=&#39;grey50&#39;, lty=2))
-plot_survival(fit_res4, col=&#39;orange&#39;, lwd=3, show_breakpoint = F)
+plot_survival(fit_b0, col=&#39;red&#39;, lwd=2)
+plot_survival(fit_b1, col=&#39;blue&#39;, lwd=3, show_breakpoint = F)
+plot_survival(fit_b2,  col=&#39;green&#39;, lwd=3, breakpoint_par = list(col=&#39;grey50&#39;, lty=2))
+plot_survival(fit_b3, col=&#39;orange&#39;, lwd=3, show_breakpoint = F)
 legend(&#39;topright&#39;,c(&#39;0 breakpoints&#39;,&#39;1 breakpoint&#39;,&#39;2 breakpoints&#39;,&#39;3 breakpoints&#39;), lwd=3, col=c(&#39;red&#39;,&#39;blue&#39;,&#39;green&#39;,&#39;orange&#39;))</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="50%" height="100%" />
-We can also use cross validation to help us choose the model. The model
-`fit_res3`` with the correct number of breakpionts has the highest CV
-log likelihood.</p>
-<pre class="r"><code># Cross validate a fitted model or specify new model
-fit_res1_cv &lt;- cv.pwexp.fit(fit_res1, max_set = 100, nsim = 10)
-fit_res2_cv &lt;- cv.pwexp.fit(fit_res2, max_set = 100, nsim = 10)
-fit_res3_cv &lt;- cv.pwexp.fit(fit_res3, max_set = 100, nsim = 10)
-fit_res4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100, nsim = 10)
-fit_res5_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100, nsim = 10)
-boxplot(cv~nbreak, data.frame(cv=c(fit_res1_cv, fit_res2_cv, fit_res3_cv, fit_res4_cv, fit_res5_cv), nbreak=rep(0:4, each=10)), ylab=&#39;CV log likelihood&#39;)</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="480" /></p>
 </div>
 <div id="bootstrap-model" class="section level1">
 <h1>4. Bootstrap model</h1>
 <p>We will use boostrap to estimate the uncertainty of the parameters.
-We take mode <code>fit_res3</code> as an example.</p>
-<pre class="r"><code>fit_res3_boot &lt;- boot.pwexp.fit(fit_res3, nsim = 10)
+We take mode <code>fit_b2</code> as an example.</p>
+<pre class="r"><code># bootstrap the model.
+fit_b2_boot &lt;- boot.pwexp.fit(fit_b2, nsim = 10)
 # plot data and the fitted model with 95% CI
 plot_survival(train$followT, train$event, xlim=c(0,40))
-plot_survival(fit_res3_boot, col=&#39;red&#39;, alpha=0.05, CI_par = list(col=&#39;#FFCCCB&#39;))
+plot_survival(fit_b2_boot, col=&#39;red&#39;, alpha=0.05, CI_par = list(col=&#39;#ff9896&#39;))
 # plot 95% CI of estimated breakpoints
-brk_ci &lt;- apply(attr(fit_res3_boot, &#39;brk&#39;), 2, function(x)quantile(x,c(0.025,0.975)))
-abline(v=brk_ci, col=&#39;grey&#39;, lwd=2)</code></pre>
+brk_ci &lt;- apply(attr(fit_b2_boot, &#39;brk&#39;), 2, function(x)quantile(x,c(0.025,0.975)))
+abline(v=brk_ci, col=&#39;grey&#39;, lwd=2, lty=3)</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="480" /></p>
+</div>
+<div id="prediction-future-events-timeline" class="section level1">
+<h1>5. Prediction Future Events &amp; Timeline</h1>
+<p>In order to do prediction, we also need to build a model for drop-out
+and death (the censoring model) in addition to the event model. The
+censoring model is very similar to the event model in Section 3, but the
+response of the model is drop-out and death instead of the primary
+events. The model is optional when the drop-out (and death) rate is very
+low.</p>
+<p>Here, <code>drop_indicator</code> is a time-to-event endpoint that
+represent the time of drop-out (and we do not have death in the
+simulated data), and it will be used as the response variable in the
+censoring model. We will fit an exponential model with
+bootstrapping.</p>
+<pre class="r"><code>drop_indicator &lt;-  ifelse(train$censor_reason==&#39;drop_out&#39; &amp; !is.na(train$censor_reason),1,0)
+plot_survival(train$followT, drop_indicator, xlim=c(0,40), ylab=&#39;Survival Function of Drop-out&#39;)
+fit_censor_boot &lt;- boot.pwexp.fit(train$followT, drop_indicator, nbreak = 0)
+plot_survival(fit_censor_boot, col=&#39;red&#39;, alpha=0.01, CI_par = list(col=&#39;#ff9896&#39;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" width="480" /></p>
 </div>
 <div id="piecewise-exponential-distribution" class="section level1">
 <h1>1. Piecewise Exponential Distribution</h1>

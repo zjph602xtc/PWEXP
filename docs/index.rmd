@@ -46,7 +46,7 @@ The `PWEXP'package provides a complete set of tools to work with survival data w
   * the ``boot.pwexp.fit()`` conducts bootstrapping of an existing model
   * the ``plot_survival()`` plots fitted survival curve and its CI for object ``boot.pwexp.fit``
 * **Prediction**
-  * the ``predict()`` takes event model and censor model (optional) to make event prediction and timeline prediction
+  * the ``predict()`` takes event model and drop-out (censor) model (optional) to make event prediction and timeline prediction
   * provide the CI of predicted number of event or timeline
   * the ``plot_event()`` plots predicted number of events (for object ``predict.pwexp.fit``) and its CI (if applicable, for object ``predict.boot.pwexp.fit()``)  
   * auxiliary functions ``ppwexp_conditional()``, ``qpwexp_conditional()``, ``rpwexp`_conditional()` are the CDF, quantile function, generator function for conditional piecewise exponential distribution (See 'Conditional Piecewise Exponential Distribution' Section for more details)
@@ -64,6 +64,8 @@ library('PWEXP')
 ```
 ```{r echo=FALSE, message=FALSE}
 library('PWEXP')
+library('RColorBrewer')
+set.seed(1818)
 ```
 
 <br>
@@ -129,55 +131,80 @@ train <- cut_dat(var_enrollT = 'enrollT', cut = cut, data = dat,
 # 3. Fit a Piecewise Exponential Model
 We will fit several piecewise exponential model on the training set:
 
-* ``fit_res0`` has pre-specified breakpoints
-* ``fit_res01`` has one pre-specified breakpoint 14, and the total number of breakpoint is 2. The other breakpoint will be estimated from the data
-* ``fit_res1`` to ``fit_res5`` have 0 to 4 unknown breakpoints. Note the ``fit_res1`` is actually an exponential model since there is NO breakpoint. 
+* ``fit_a0`` has pre-specified breakpoints
+* ``fit_a1`` has one pre-specified breakpoint 14, and the total number of breakpoint is 2. The other breakpoint will be estimated from the data
+* ``fit_b0`` to ``fit_b4`` have 0 to 4 unknown breakpoints. Note the ``fit_b0`` is actually an exponential model since there is NO breakpoint. 
 ```{r}
-fit_res0 <- pwexp.fit(train$followT, train$event, breakpoint = c(5,14), max_set = 100)
-fit_res01 <- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14), max_set = 100)
-fit_res1 <- pwexp.fit(train$followT, train$event, nbreak = 0, max_set = 100)
-fit_res2 <- pwexp.fit(train$followT, train$event, nbreak = 1, max_set = 100)
-fit_res3 <- pwexp.fit(train$followT, train$event, nbreak = 2, max_set = 100)
-fit_res4 <- pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100)
-fit_res5 <- pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100)
+fit_a0 <- pwexp.fit(train$followT, train$event, breakpoint = c(5,14), max_set = 100)
+fit_a1 <- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14), max_set = 100)
+fit_b0 <- pwexp.fit(train$followT, train$event, nbreak = 0, max_set = 100)
+fit_b1 <- pwexp.fit(train$followT, train$event, nbreak = 1, max_set = 100)
+fit_b2 <- pwexp.fit(train$followT, train$event, nbreak = 2, max_set = 100)
+fit_b3 <- pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100)
+fit_b4 <- pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100)
 ```
 
-We plot BIC of these models and find that among the models without pre-specified breakpoints, ``fit_res3`` with the correct number of breakpionts has the lowest BIC value. We also plot the fitted curve of some of these models. 
+We plot BIC of these models and find that among the models without pre-specified breakpoints, ``fit_b2`` with the correct number of breakpionts has the lowest BIC value.  We can also use cross validation to help us choose the model. The model `fit_b2`` with the correct number of breakpionts has the highest CV log likelihood.
 ```{r fig.show="hold", out.width="50%", out.height="100%", fig.width=6, fig.height=5}
+library('RColorBrewer')
+model_name <- c('2 fixed breakpoints', '1 fixed + 1 unknown bkp', '0 unknown bkp (exp model)', '1 unknown bkp', '2 unknown bkp', '3 unknown bkp', '4 unknown bkp')
+model_ind <- c('a0','a1',paste0('b',0:4))
+col <- c(brewer.pal(3, 'Pastel1')[1:2], brewer.pal(9, 'Greens')[3:7])
+
 # Plot BIC for each model
-plot(c(fit_res0$BIC, fit_res01$BIC, fit_res1$BIC, fit_res2$BIC, fit_res3$BIC, fit_res4$BIC, fit_res5$BIC), type='l', lwd=2, xlab='Models', ylab='BIC')
+barplot(c(fit_a0$BIC, fit_a1$BIC, fit_b0$BIC, fit_b1$BIC, fit_b2$BIC, fit_b3$BIC, fit_b4$BIC), xlab='Model', ylab='BIC', ylim=c(2700,3400), xpd=F, col=col, names.arg=model_ind)
+legend('topleft', model_name, fill=col, ncol=2, text.width=3.5)
+
+# Cross validate a fitted model
+fit_a0_cv <- cv.pwexp.fit(fit_a0, max_set = 100, nsim = 10)
+fit_a1_cv <- cv.pwexp.fit(fit_a1, max_set = 100, nsim = 10)
+fit_b0_cv <- cv.pwexp.fit(fit_b0, max_set = 100, nsim = 10)
+fit_b1_cv <- cv.pwexp.fit(fit_b1, max_set = 100, nsim = 10)
+fit_b2_cv <- cv.pwexp.fit(fit_b2, max_set = 100, nsim = 10)
+fit_b3_cv <- cv.pwexp.fit(fit_b3, max_set = 100, nsim = 10)
+# alternatively, we can specify a new model instead of CV a fitted model, for example;
+fit_b4_cv <- cv.pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100, nsim = 10)
+boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=10)), ylab='CV log likelihood', xlab='Model', ylim=c(-320,-250), col=col)
+legend('topleft', model_name, fill=col, ncol=2, text.width=3)
+```
+
+We also plot the fitted curves of some of these models.
+```{r fig.width=5,fig.height=4.5}
 # Plot fitted survival curves
 plot_survival(train$followT, train$event, xlim=c(0,40))
-plot_survival(fit_res1, col='red', lwd=2)
-plot_survival(fit_res2, col='blue', lwd=3, show_breakpoint = F)
-plot_survival(fit_res3,  col='green', lwd=3, breakpoint_par = list(col='grey50', lty=2))
-plot_survival(fit_res4, col='orange', lwd=3, show_breakpoint = F)
+plot_survival(fit_b0, col='red', lwd=2)
+plot_survival(fit_b1, col='blue', lwd=3, show_breakpoint = F)
+plot_survival(fit_b2,  col='green', lwd=3, breakpoint_par = list(col='grey50', lty=2))
+plot_survival(fit_b3, col='orange', lwd=3, show_breakpoint = F)
 legend('topright',c('0 breakpoints','1 breakpoint','2 breakpoints','3 breakpoints'), lwd=3, col=c('red','blue','green','orange'))
 ```
-We can also use cross validation to help us choose the model. The model `fit_res3`` with the correct number of breakpionts has the highest CV log likelihood.
-```{r fig.width=5,fig.height=4.5}
-# Cross validate a fitted model or specify new model
-fit_res1_cv <- cv.pwexp.fit(fit_res1, max_set = 100, nsim = 10)
-fit_res2_cv <- cv.pwexp.fit(fit_res2, max_set = 100, nsim = 10)
-fit_res3_cv <- cv.pwexp.fit(fit_res3, max_set = 100, nsim = 10)
-fit_res4_cv <- cv.pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100, nsim = 10)
-fit_res5_cv <- cv.pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100, nsim = 10)
-boxplot(cv~nbreak, data.frame(cv=c(fit_res1_cv, fit_res2_cv, fit_res3_cv, fit_res4_cv, fit_res5_cv), nbreak=rep(0:4, each=10)), ylab='CV log likelihood')
-```
+
 
 # 4. Bootstrap model
-We will use boostrap to estimate the uncertainty of the parameters. We take mode ``fit_res3`` as an example. 
+We will use boostrap to estimate the uncertainty of the parameters. We take mode ``fit_b2`` as an example. 
 ```{r fig.width=5,fig.height=4.5}
-fit_res3_boot <- boot.pwexp.fit(fit_res3, nsim = 10)
+# bootstrap the model.
+fit_b2_boot <- boot.pwexp.fit(fit_b2, nsim = 10)
 # plot data and the fitted model with 95% CI
 plot_survival(train$followT, train$event, xlim=c(0,40))
-plot_survival(fit_res3_boot, col='red', alpha=0.05, CI_par = list(col='#FFCCCB'))
+plot_survival(fit_b2_boot, col='red', alpha=0.05, CI_par = list(col='#ff9896'))
 # plot 95% CI of estimated breakpoints
-brk_ci <- apply(attr(fit_res3_boot, 'brk'), 2, function(x)quantile(x,c(0.025,0.975)))
-abline(v=brk_ci, col='grey', lwd=2)
+brk_ci <- apply(attr(fit_b2_boot, 'brk'), 2, function(x)quantile(x,c(0.025,0.975)))
+abline(v=brk_ci, col='grey', lwd=2, lty=3)
 ```
 
+# 5. Prediction Future Events & Timeline
+In order to do prediction, we also need to build a model for drop-out and death (the censoring model) in addition to the event model. The censoring model is very similar to the event model in Section 3, but the response of the model is drop-out and death instead of the primary events. The model is optional when the drop-out (and death) rate is very low. 
 
+Here, ``drop_indicator`` is a time-to-event endpoint that represent the time of drop-out (and we do not have death in the simulated data), and it will be used as the response variable in the censoring model. We will fit an exponential model with bootstrapping. 
+```{r fig.width=5,fig.height=4.5}
+drop_indicator <-  ifelse(train$censor_reason=='drop_out' & !is.na(train$censor_reason),1,0)
+plot_survival(train$followT, drop_indicator, xlim=c(0,40), ylab='Survival Function of Drop-out')
+fit_censor_boot <- boot.pwexp.fit(train$followT, drop_indicator, nbreak = 0)
+plot_survival(fit_censor_boot, col='red', alpha=0.01, CI_par = list(col='#ff9896'))
+```
+
+Finally, we can 
 
 # 1. Piecewise Exponential Distribution
 

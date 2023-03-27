@@ -191,9 +191,13 @@ predict.pwexp.fit <- function(event_model, cut_indicator, cut_time, censor_model
   return(res)
 }
 
-predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator, cut_time, censor_model_boot, n_each=10, future_enroll, seed=1818, plot=F){
+predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, cut_time, censor_model_boot, n_each=10, future_enroll, seed=1818, plot=F){
   # future_enroll is a list containing parameters in simdata
   # model is a fitted model
+
+  if (is.null(cut_indicator)){
+
+  }
   if (NROW(event_model_boot)!=NROW(censor_model_boot)){
     stop('event_model_boot should have same number of rows as censor_model_boot')
   }
