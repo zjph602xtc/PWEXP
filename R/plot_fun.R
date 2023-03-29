@@ -1,5 +1,5 @@
 plot.pwexp.fit <- function(x){
-  stop('Please use \'plot_survival\' or \' XXX  \' function to visualize the model.')
+  stop('Please use \'plot_survival\' or \'plot_event\' function to visualize the model.')
 }
 
 plot_survival <- function (x, ...){
@@ -21,8 +21,8 @@ plot_survival.default <- function(time, event, add=FALSE, ...){
 plot_survival.pwexp.fit <- function(object, add=TRUE, show_breakpoint=TRUE,
                                     breakpoint_par=NULL, ...){
   arg <- list(...)
-  option <- c('lwd', 'xlab', 'ylab','type')
-  default <- list(2, 'Follow-up time', 'Survival function','l')
+  option <- c('lwd', 'col', 'xlab', 'ylab','type')
+  default <- list(2, 'red', 'Follow-up time', 'Survival function','l')
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
@@ -76,7 +76,7 @@ plot_survival.boot.pwexp.fit <- function(object, add=TRUE, alpha=0.05, show_brea
   plot_survival.pwexp.fit(obj, add=add, show_breakpoint = show_breakpoint, breakpoint_par = breakpoint_par, ...)
 
   option_ci <- c('lwd', 'col', 'lty')
-  default_ci <- list(2, 'grey', 2)
+  default_ci <- list(2, '#ff9896', 2)
   ind_ci <- option_ci %in% names(CI_par)
   CI_par[option_ci[!ind_ci]] <- default_ci[!ind_ci]
 
@@ -135,10 +135,10 @@ plot_event.default <- function(time, abs_time=TRUE, event, additional_event=0, a
 
 
 plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, xyswitch=FALSE, add=TRUE,
-                                         plot=TRUE, eval_at = NULL, ...){
+                                         plot=TRUE, eval_at=NULL, ...){
   arg <- list(...)
-  option <- c('lwd', 'xlab', 'ylab', 'type')
-  default <- list(2, 'Time from the start of the trial', 'Cumulative events', 'l')
+  option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
+  default <- list(2, 'red', 'Time from the start of the trial', 'Cumulative events', 'l')
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
@@ -150,7 +150,7 @@ plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, xyswitch=
     arg$xlab <- 'Cumulative events'
   }
 
-  #  to predicttype='event' or 'time'
+  #  to predict type='event' or 'time'
   if (plot){
     if (add){
       xrange <- seq(0, par('usr')[2], length=200)
@@ -181,22 +181,26 @@ plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, xyswitch=
     na_include <- rowMeans(is.na(pre)) < 0.05
     pre <- apply(pre, 1,  function(x)median(x,na.rm=T))
     pre[!na_include] <- NA
-    pre <- rbind(eval_at, pre)
-    return(t(pre))
+    pre <- t(rbind(eval_at, pre))
+    if (xyswitch){
+      colnames(pre) <- c('n_event', 'time')
+    }else{
+      colnames(pre) <- c('time','n_event')
+    }
+    return(pre)
   }
-
 }
 
 plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE, xyswitch=FALSE, alpha=0.05, add=TRUE,
-                                         plot=TRUE, eval_at = NULL, show_CI=TRUE, CI_par=NULL, ...){
+                                              plot=TRUE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
   arg <- list(...)
-  option <- c('lwd', 'xlab', 'ylab', 'type')
-  default <- list(2, 'Time from the start of the trial', 'Cumulative events', 'l')
+  option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
+  default <- list(2, 'red', 'Time from the start of the trial', 'Cumulative events', 'l')
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
   option_ci <- c('lwd', 'col', 'lty')
-  default_ci <- list(2, 'grey', 2)
+  default_ci <- list(2, '#ff9896', 2)
   ind_ci <- option_ci %in% names(CI_par)
   CI_par[option_ci[!ind_ci]] <- default_ci[!ind_ci]
 
@@ -208,7 +212,7 @@ plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE, xysw
     arg$xlab <- 'Cumulative events'
   }
 
-  #  to predicttype='event' or 'time'
+  #  to predict type='event' or 'time'
   if (plot){
     if (add){
       xrange <- seq(0, par('usr')[2], length=200)
@@ -243,8 +247,16 @@ plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE, xysw
     na_include <- rowMeans(is.na(pre)) < 0.05
     pre <- apply(pre, 1, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
     pre[,!na_include] <- NA
-    pre <- rbind(eval_at, pre)
-    return(t(pre))
+    pre <- t(rbind(eval_at, pre))
+    if (xyswitch){
+      pre <- pre[,c(1,3,2,4)]
+      colnames(pre) <- c('n_event', 'time', paste0(alpha/2*100, '% time'), paste0((1-alpha/2)*100, '% time'))
+    }else{
+      pre <- pre[,c(1,3,2,4)]
+      colnames(pre) <- c('time','n_event', paste0(alpha/2*100, '% n_event'), paste0((1-alpha/2)*100, '% n_event'))
+    }
+
+    return(pre)
   }
 
 }

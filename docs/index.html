@@ -348,7 +348,7 @@ div.tocify {
 
 <p><br><br></p>
 <div id="structure-of-package-pwexp" class="section level1">
-<h1>0.1. Structure of Package ‘PWEXP’</h1>
+<h1>Structure of Package ‘PWEXP’</h1>
 <p>The `PWEXP’package provides a complete set of tools to work with
 survival data with piecewise exponential distribution. It also makes
 event prediction based on the fitted model. Specifically, it has five
@@ -361,21 +361,22 @@ with an existing dataset)
 dataset with
 <ul>
 <li>enrollment time defined by enrollment rate or enrollment curve</li>
-<li>multiple treatment groups with stratification by pre-fixed
-allocation</li>
+<li>multiple treatment groups with stratification by user-defined
+allocation ratio</li>
 <li>primary endpoint (event), drop-out (censor) and death with
-exponential distribution or user-defined distribution (e.g., piecewise
+exponential distribution or user-defined distributions (e.g., piecewise
 exponential, mixture distribution, etc.) for each stratification in each
 group</li>
 </ul></li>
-<li>the <code>plot_survival()</code> function plots KM estimator for
+<li>the <code>plot_survival()</code> function plots KM estimator for the
 right censored data</li>
 <li>the <code>plot_event()</code> function plots the number of
 cumulative events</li>
 <li>auxiliary functions <code>dpwexp</code>, <code>ppwexp</code>,
 <code>qpwexp</code>, <code>rpwexp</code> are the PDF, CDF, quantile
 function, generator function for piecewise exponential distribution (See
-‘Piecewise Exponential Distribution’ Section for more details)</li>
+<a href="#dist">‘Piecewise Exponential Distribution’ Section</a> for
+more details)</li>
 </ul></li>
 <li><strong>Split Data:</strong>
 <ul>
@@ -391,41 +392,43 @@ model to right censored data
 <ul>
 <li>with pre-specified breakpoints</li>
 <li>or with partially pre-specified breakpoints</li>
-<li>or with unknown breakpionts (to be fitted from the data)</li>
+<li>or with unknown breakpoints (to be fitted from the data)</li>
 </ul></li>
-<li>obtain model AIC, BIC</li>
-<li>the <code>cv.pwexp.fit()</code> conducts model cross validation</li>
+<li>the <code>pwexp.fit()</code> function obtains model AIC, BIC</li>
+<li>the <code>cv.pwexp.fit()</code> conducts model cross validation and
+obtains the CV log likelihood</li>
 <li>the <code>plot_survival()</code> plots fitted survival curve for
 object <code>pwexp.fit</code></li>
 </ul></li>
 <li><strong>Bootstrap the Model to Get CI (optional):</strong>
 <ul>
-<li>the <code>boot.pwexp.fit()</code> conducts bootstrapping of an
+<li>the <code>boot.pwexp.fit()</code> conducts bootstrapping for an
 existing model</li>
 <li>the <code>plot_survival()</code> plots fitted survival curve and its
 CI for object <code>boot.pwexp.fit</code></li>
 </ul></li>
-<li><strong>Prediction</strong>
+<li><strong>Prediction Events and Timeline</strong>
 <ul>
-<li>the <code>predict()</code> takes event model and drop-out (censor)
-model (optional) to make event prediction and timeline prediction</li>
-<li>provide the CI of predicted number of event or timeline</li>
+<li>the <code>predict()</code> function takes event model and drop-out
+(censor) model (optional) to make event prediction and timeline
+prediction</li>
+<li>the <code>predict()</code> function provides the CI of predicted
+number of events or timeline (for bootstrapping model)</li>
 <li>the <code>plot_event()</code> plots predicted number of events (for
 object <code>predict.pwexp.fit</code>) and its CI (if applicable, for
-object <code>predict.boot.pwexp.fit()</code>)<br />
-</li>
+object <code>predict.boot.pwexp.fit()</code>)</li>
 <li>auxiliary functions <code>ppwexp_conditional()</code>,
-<code>qpwexp_conditional()</code>, `<code>rpwexp</code>_conditional()`
-are the CDF, quantile function, generator function for conditional
-piecewise exponential distribution (See ‘Conditional Piecewise
-Exponential Distribution’ Section for more details)</li>
+<code>qpwexp_conditional()</code>, <code>rpwexp_conditional()</code> are
+the CDF, quantile function, generator function for conditional piecewise
+exponential distribution (See <a href="#con_dist">‘Conditional Piecewise
+Exponential Distribution’ Section</a> for more details)</li>
 </ul></li>
 </ul>
 <p><img src="images/structure%202.png" /></p>
 <p><br></p>
 </div>
 <div id="install-package-pwexp" class="section level1">
-<h1>0.2. Install Package ‘PWEXP’</h1>
+<h1>0. Install Package ‘PWEXP’</h1>
 <p>You need to install package <a
 href="https://CRAN.R-project.org/package=fastmatch">fastmatch</a> before
 installing <a href="https://github.com/zjph602xtc/PWEXP">PWEXP</a>.</p>
@@ -481,34 +484,36 @@ underlying primary event, drop-out, death time</li>
 <li><code>followT</code> is the follow-up time, which is the minimum
 value of <code>eventT</code>, <code>dropT</code>,
 <code>deathT</code></li>
-<li><code>eventT</code>, <code>dropT</code>, <code>deathT</code>,
-<code>followT</code> are the corresponding time from the beginning of
-the trial</li>
-<li><code>cenosr</code>, <code>event</code> indicator whether the
-primary event happen at the end of follow-up; if a subject is censored,
+<li><code>eventT_abs</code>, <code>dropT_abs</code>,
+<code>deathT_abs</code>, <code>followT_abs</code> are the corresponding
+time from the beginning of the trial</li>
+<li><code>cenosr</code>, <code>event</code> indicate whether the primary
+event happened at the end of follow-up; if a subject is censored,
 <code>censor_reason</code> shows the type of censoring (i.e.,
-‘drop_out’,‘death’ or ‘never_event’(if followT=inf)))</li>
+‘drop_out’,‘death’ or ‘never_event’(when followT=inf)))</li>
 </ul>
 <p>The diagram below shows the relationship between these variables:
 <img src="images/simudata.png" /></p>
 <p><br></p>
 </div>
-<div id="piecewise-distribution-example" class="section level2">
-<h2>1.2 Piecewise Distribution Example</h2>
+<div id="generate-data-with-user-defined-distributions"
+class="section level2">
+<h2>1.2 Generate Data with User-defined Distributions</h2>
 <p><span style="color: #EB6864;font-weight:bold">In the follow parts of
 the demonstration</span>, we will use a single group with piecewise
 exponential distribution endpoint:</p>
 <pre class="r"><code># define the event generation function
-event_dist &lt;- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
-# use advanced_dist to adopt user-defined distribution
+event_dist &lt;- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
+# use advanced_dist to adopt user-defined distribution, see function help for more details
 dat &lt;- simdata(enroll_rate = 20, total_sample = 1000, drop_rate = 0.03,  
                advanced_dist = list(event_dist=event_dist),
                add_column = c(&#39;censor_reason&#39;,&#39;event&#39;,&#39;followT&#39;,&#39;followT_abs&#39;))</code></pre>
 <p>We can use the <code>plot_survival()</code> function to plot the
 survival curve and cumulative number of events:</p>
-<pre class="r"><code>plot_survival(dat$eventT, dat$event, conf.int = F, mark.time = T, xlim = c(0,25))
-plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0,25))</code></pre>
-<p><img src="index_files/figure-html/figures-side-1.png" width="50%" height="100%" /><img src="index_files/figure-html/figures-side-2.png" width="50%" height="100%" /></p>
+<pre class="r"><code>plot_survival(dat$eventT, dat$event, conf.int = F, mark.time = T, xlim = c(0, 25), main=&#39;Survival Function of the Simu Data&#39;)
+plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0, 25), main=&#39;Number of Cumulative Events of the Simu Data&#39;)</code></pre>
+<p><img src="index_files/figure-html/figures-side-1.png" width="50%" height="100%" /><img src="index_files/figure-html/figures-side-2.png" width="50%" height="100%" />
+<br></p>
 </div>
 </div>
 <div id="split-data-to-obtain-training-set" class="section level1">
@@ -524,100 +529,150 @@ train &lt;- cut_dat(var_enrollT = &#39;enrollT&#39;, cut = cut, data = dat,
                  var_event = &#39;event&#39;, var_censor_reason = &#39;censor_reason&#39;)</code></pre>
 <p><br></p>
 </div>
-<div id="fit-a-piecewise-exponential-model" class="section level1">
+<div id="model" class="section level1">
 <h1>3. Fit a Piecewise Exponential Model</h1>
-<p>We will fit several piecewise exponential model on the training
+<p>We will fit several piecewise exponential models on the training
 set:</p>
 <ul>
-<li><code>fit_a0</code> has pre-specified breakpoints</li>
-<li><code>fit_a1</code> has one pre-specified breakpoint 14, and the
-total number of breakpoint is 2. The other breakpoint will be estimated
-from the data</li>
+<li><code>fit_a0</code> has pre-specified breakpoints at time = 5,
+14</li>
+<li><code>fit_a1</code> has one pre-specified breakpoint at time = 14,
+and the total number of breakpoint is 2. The other breakpoint will be
+estimated from the data</li>
 <li><code>fit_b0</code> to <code>fit_b4</code> have 0 to 4 unknown
-breakpoints. Note the <code>fit_b0</code> is actually an exponential
-model since there is NO breakpoint.</li>
+breakpoints. Note the <code>fit_b0</code> model is actually an
+exponential model since there is NO breakpoints.</li>
 </ul>
-<pre class="r"><code>fit_a0 &lt;- pwexp.fit(train$followT, train$event, breakpoint = c(5,14), max_set = 100)
-fit_a1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14), max_set = 100)
-fit_b0 &lt;- pwexp.fit(train$followT, train$event, nbreak = 0, max_set = 100)
-fit_b1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 1, max_set = 100)
-fit_b2 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, max_set = 100)
-fit_b3 &lt;- pwexp.fit(train$followT, train$event, nbreak = 3, max_set = 100)
-fit_b4 &lt;- pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100)</code></pre>
-<p>We plot BIC of these models and find that among the models without
+<pre class="r"><code>fit_a0 &lt;- pwexp.fit(train$followT, train$event, breakpoint = c(5,14))
+fit_a1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14))
+fit_b0 &lt;- pwexp.fit(train$followT, train$event, nbreak = 0)
+fit_b1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 1)
+fit_b2 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2)
+fit_b3 &lt;- pwexp.fit(train$followT, train$event, nbreak = 3)
+fit_b4 &lt;- pwexp.fit(train$followT, train$event, nbreak = 4)</code></pre>
+<p>We plot BIC of these models and find that among all models without
 pre-specified breakpoints, <code>fit_b2</code> with the correct number
-of breakpionts has the lowest BIC value. We can also use cross
-validation to help us choose the model. The model `fit_b2`` with the
-correct number of breakpionts has the highest CV log likelihood.</p>
+of breakpoints has the lowest BIC value. We can also use cross
+validation to help us choose the model. The model <code>fit_b2</code>
+with the correct number of breakpoints has the highest CV log
+likelihood.</p>
 <pre class="r"><code>library(&#39;RColorBrewer&#39;)
 model_name &lt;- c(&#39;2 fixed breakpoints&#39;, &#39;1 fixed + 1 unknown bkp&#39;, &#39;0 unknown bkp (exp model)&#39;, &#39;1 unknown bkp&#39;, &#39;2 unknown bkp&#39;, &#39;3 unknown bkp&#39;, &#39;4 unknown bkp&#39;)
 model_ind &lt;- c(&#39;a0&#39;,&#39;a1&#39;,paste0(&#39;b&#39;,0:4))
 col &lt;- c(brewer.pal(3, &#39;Pastel1&#39;)[1:2], brewer.pal(9, &#39;Greens&#39;)[3:7])
 
 # Plot BIC for each model
-barplot(c(fit_a0$BIC, fit_a1$BIC, fit_b0$BIC, fit_b1$BIC, fit_b2$BIC, fit_b3$BIC, fit_b4$BIC), xlab=&#39;Model&#39;, ylab=&#39;BIC&#39;, ylim=c(2700,3400), xpd=F, col=col, names.arg=model_ind)
+barplot(c(fit_a0$BIC, fit_a1$BIC, fit_b0$BIC, fit_b1$BIC, fit_b2$BIC, fit_b3$BIC, fit_b4$BIC), xlab=&#39;Model&#39;, ylab=&#39;BIC&#39;, ylim=c(2700,3400), xpd=F, col=col, names.arg=model_ind, main=&#39;BIC of Fitted Models&#39;)
 legend(&#39;topleft&#39;, model_name, fill=col, ncol=2, text.width=3.5)
 
-# Cross validate a fitted model
-fit_a0_cv &lt;- cv.pwexp.fit(fit_a0, max_set = 100, nsim = 10)
-fit_a1_cv &lt;- cv.pwexp.fit(fit_a1, max_set = 100, nsim = 10)
-fit_b0_cv &lt;- cv.pwexp.fit(fit_b0, max_set = 100, nsim = 10)
-fit_b1_cv &lt;- cv.pwexp.fit(fit_b1, max_set = 100, nsim = 10)
-fit_b2_cv &lt;- cv.pwexp.fit(fit_b2, max_set = 100, nsim = 10)
-fit_b3_cv &lt;- cv.pwexp.fit(fit_b3, max_set = 100, nsim = 10)
-# alternatively, we can specify a new model instead of CV a fitted model, for example;
-fit_b4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak = 4, max_set = 100, nsim = 10)
-boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=10)), ylab=&#39;CV log likelihood&#39;, xlab=&#39;Model&#39;, ylim=c(-320,-250), col=col)
+# Cross validate fitted models
+nsim &lt;- 50
+fit_a0_cv &lt;- cv.pwexp.fit(fit_a0, nsim = nsim)
+fit_a1_cv &lt;- cv.pwexp.fit(fit_a1, nsim = nsim)
+fit_b0_cv &lt;- cv.pwexp.fit(fit_b0, nsim = nsim)
+fit_b1_cv &lt;- cv.pwexp.fit(fit_b1, nsim = nsim)
+fit_b2_cv &lt;- cv.pwexp.fit(fit_b2, nsim = nsim)
+fit_b3_cv &lt;- cv.pwexp.fit(fit_b3, nsim = nsim)
+# alternatively, we can specify a new model in the cv.pwexp.fit function instead of CV a fitted model, for example:
+fit_b4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak=4, max_set=100, nsim=nsim)
+boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=nsim)), ylab=&#39;CV log likelihood&#39;, xlab=&#39;Model&#39;, ylim=c(-320,-250), col=col, main=&#39;CV log likelihood of Fitted Models&#39;)
 legend(&#39;topleft&#39;, model_name, fill=col, ncol=2, text.width=3)</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="50%" height="100%" /></p>
-<p>We also plot the fitted curves of some of these models.</p>
+<p>We then plot the fitted curves of some of these models.</p>
 <pre class="r"><code># Plot fitted survival curves
-plot_survival(train$followT, train$event, xlim=c(0,40))
-plot_survival(fit_b0, col=&#39;red&#39;, lwd=2)
+plot_survival(train$followT, train$event, xlim=c(0,40), main=&#39;Fitted Models with Different \nNumber of Breakpoints&#39;)
+plot_survival(fit_b0, col=&#39;green&#39;, lwd=2)
 plot_survival(fit_b1, col=&#39;blue&#39;, lwd=3, show_breakpoint = F)
-plot_survival(fit_b2,  col=&#39;green&#39;, lwd=3, breakpoint_par = list(col=&#39;grey50&#39;, lty=2))
+plot_survival(fit_b2,  col=&#39;red&#39;, lwd=3, breakpoint_par = list(col=&#39;grey50&#39;, lty=2))
 plot_survival(fit_b3, col=&#39;orange&#39;, lwd=3, show_breakpoint = F)
-legend(&#39;topright&#39;,c(&#39;0 breakpoints&#39;,&#39;1 breakpoint&#39;,&#39;2 breakpoints&#39;,&#39;3 breakpoints&#39;), lwd=3, col=c(&#39;red&#39;,&#39;blue&#39;,&#39;green&#39;,&#39;orange&#39;))</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="480" /></p>
+legend(&#39;topright&#39;,c(&#39;0 breakpoints&#39;,&#39;1 breakpoint&#39;,&#39;2 breakpoints&#39;,&#39;3 breakpoints&#39;), lwd=3, col=c(&#39;green&#39;,&#39;blue&#39;,&#39;red&#39;,&#39;orange&#39;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="480" />
+<br></p>
 </div>
-<div id="bootstrap-model" class="section level1">
-<h1>4. Bootstrap model</h1>
-<p>We will use boostrap to estimate the uncertainty of the parameters.
-We take mode <code>fit_b2</code> as an example.</p>
-<pre class="r"><code># bootstrap the model.
-fit_b2_boot &lt;- boot.pwexp.fit(fit_b2, nsim = 10)
+<div id="bootstrap-model-optional" class="section level1">
+<h1>4. Bootstrap Model (optional)</h1>
+<p>We will use bootstrap to estimate the uncertainty of estimated
+parameters. We take model <code>fit_b2</code> as an example.</p>
+<pre class="r"><code># bootstrap the model
+fit_b2_boot &lt;- boot.pwexp.fit(fit_b2, nsim = 50)
+
 # plot data and the fitted model with 95% CI
-plot_survival(train$followT, train$event, xlim=c(0,40))
+plot_survival(train$followT, train$event, xlim=c(0,40), main=&#39;Fitted Model for Primary Events with 95% CI&#39;)
 plot_survival(fit_b2_boot, col=&#39;red&#39;, alpha=0.05, CI_par = list(col=&#39;#ff9896&#39;))
 # plot 95% CI of estimated breakpoints
 brk_ci &lt;- apply(attr(fit_b2_boot, &#39;brk&#39;), 2, function(x)quantile(x,c(0.025,0.975)))
 abline(v=brk_ci, col=&#39;grey&#39;, lwd=2, lty=3)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="480" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="480" />
+<br></p>
 </div>
 <div id="prediction-future-events-timeline" class="section level1">
 <h1>5. Prediction Future Events &amp; Timeline</h1>
 <p>In order to do prediction, we also need to build a model for drop-out
 and death (the censoring model) in addition to the event model. The
-censoring model is very similar to the event model in Section 3, but the
-response of the model is drop-out and death instead of the primary
-events. The model is optional when the drop-out (and death) rate is very
-low.</p>
+censoring model is very similar to the event model in <a
+href="#model">Section 3</a>, but the response of the model is drop-out
+and death instead of the primary events. The model is optional when the
+drop-out (and death) rate is very low.</p>
 <p>Here, <code>drop_indicator</code> is a time-to-event endpoint that
-represent the time of drop-out (and we do not have death in the
+represents the time of drop-out (and we do not have death in the
 simulated data), and it will be used as the response variable in the
 censoring model. We will fit an exponential model with
 bootstrapping.</p>
 <pre class="r"><code>drop_indicator &lt;-  ifelse(train$censor_reason==&#39;drop_out&#39; &amp; !is.na(train$censor_reason),1,0)
-plot_survival(train$followT, drop_indicator, xlim=c(0,40), ylab=&#39;Survival Function of Drop-out&#39;)
-fit_censor_boot &lt;- boot.pwexp.fit(train$followT, drop_indicator, nbreak = 0)
+plot_survival(train$followT, drop_indicator, xlim=c(0,40), ylab=&#39;Survival function of drop-out&#39;, main=&#39;Fitted Censoring Model for Drop-out with 95% CI&#39;)
+fit_censor_boot &lt;- boot.pwexp.fit(train$followT, drop_indicator, nbreak = 0, nsim = 50)
 plot_survival(fit_censor_boot, col=&#39;red&#39;, alpha=0.01, CI_par = list(col=&#39;#ff9896&#39;))</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-10-1.png" width="480" /></p>
+<p>Finally, we use <code>predict()</code> function to predict the number
+of events in the future. Note the returned object from
+<code>predict()</code> contains event curve functions and it should be
+used in <code>plot_event()</code> function to obtain the estimated
+events and to plot the curve.</p>
+<pre class="r"><code>predicted_boot &lt;- predict(event_model_boot=fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_enroll=list(enroll_rate=20, total_sample=NROW(dat)-NROW(train)))</code></pre>
+<p>We use <code>plot_event()</code> function to plot the event
+curve:</p>
+<pre class="r"><code>plot_event(dat$followT_abs, abs_time=T, event=dat$event, ylim=c(0, 800), main=&#39;Predicted Number of Events&#39;)
+plot_event(train$followT_abs, abs_time=T, event=train$event, add=T, col=&#39;blue&#39;)
+pred_event &lt;- plot_event(predicted_boot, eval_at = seq(40, 90, 5))
+legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true event curve&#39;, &#39;predicted event curve&#39;), lwd=2, col=c(&#39;blue&#39;, &#39;black&#39;, &#39;red&#39;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" width="480" /></p>
+<p>Here is the estimated number of events specified by argument
+<code>eval_at</code>:</p>
+<pre class="r"><code>head(pred_event)</code></pre>
+<pre><code>##      time  n_event 2.5% n_event 97.5% n_event
+## [1,]   40       NA           NA            NA
+## [2,]   45 521.1822     505.6762      537.5411
+## [3,]   50 598.0000     577.3775      618.1988
+## [4,]   55 649.3363     628.3097      669.4947
+## [5,]   60 681.4305     661.8929      701.6942
+## [6,]   65 710.5583     691.0315      730.6668</code></pre>
+<p><br></p>
+<p>By adding argument <code>xyswitch=TRUE</code>, we can use
+<code>predict()</code> function to obtain the timeline given the number
+of events in the future.</p>
+<pre class="r"><code>plot_event(dat$followT_abs, xlim=c(0, 800), event=dat$event, xyswitch=T, main=&#39;Predicted Timeline&#39;)
+plot_event(train$followT_abs, abs_time=T, event=train$event, add=T, xyswitch=T, col=&#39;blue&#39;)
+pred_time &lt;- plot_event(predicted_boot, xyswitch=T, eval_at = seq(500, 700, 50))
+legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true timeline&#39;, &#39;predicted timeline&#39;), lwd=2, col=c(&#39;blue&#39;, &#39;black&#39;, &#39;red&#39;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" width="480" /></p>
+<pre class="r"><code>head(pred_time)</code></pre>
+<pre><code>##      n_event     time 2.5% time 97.5% time
+## [1,]     500 43.62064  42.85611   44.62480
+## [2,]     550 46.86073  45.83986   48.18994
+## [3,]     600 50.14580  48.97355   51.65315
+## [4,]     650 55.11904  52.57456   58.19827
+## [5,]     700 63.07147  59.76205   67.37757</code></pre>
+<p><br></p>
 </div>
-<div id="piecewise-exponential-distribution" class="section level1">
-<h1>1. Piecewise Exponential Distribution</h1>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
+<div id="a.distribution" class="section level2">
+<h2>A.Distribution</h2>
+<div id="dist" class="section level3">
+<h3>A.1 Piecewise Exponential Distribution</h3>
 <p>The hazard function, cumulative hazard function, PDF, CDF, quantile
 function of an exponential distribution r.v. <span
-class="math inline">\(t\)</span> is: <span
+class="math inline">\(t\)</span> are: <span
 class="math display">\[\begin{align*}
     h(t)&amp;=\lambda\\
     H(t)&amp;=\lambda t\\
@@ -626,7 +681,8 @@ class="math display">\[\begin{align*}
     Q(p)&amp;=\frac{-\log(1-p)}{\lambda}
 \end{align*}\]</span> The hazard function, cumulative hazard function,
 PDF, survival function, quantile function of a piecewise exponential
-distribution r.v. <span class="math inline">\(t\)</span> is: <span
+distribution r.v. <span class="math inline">\(t\)</span> with
+breakpoints <span class="math inline">\(d_i\)</span> are: <span
 class="math display">\[\begin{align*}
     h(t)&amp;=\begin{cases}
         \lambda_1, &amp; t&lt;d_1\\
@@ -668,10 +724,43 @@ t&lt;d_2\\
 1-e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}d_r}\\
     \end{cases}
 \end{align*}\]</span></p>
+<p>The <code>PWEXP</code> package provides <code>dpwexp()</code>,
+<code>ppwexp()</code>, <code>qpwexp()</code>, <code>rpwexp()</code>
+functions to the piecewise exponential distribution:</p>
+<pre class="r"><code># Left Figure ------------------------------------------------------------
+# use rpwexp function to generate piecewise exp samples with rate 2, 1, 3
+r_sample &lt;- rpwexp(50000, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+hist(r_sample, freq=F, breaks=200, main=&quot;Density of Piecewsie Exp Dist&quot;, xlab=&#39;t&#39;, xlim=c(0, 1.2))
+
+# piecewise exp density with rate 2, 1, 3 
+t &lt;- seq(0, 1.5, 0.01)
+f2 &lt;- dpwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+points(t, f2, col=&#39;red&#39;, pch=16)
+
+# exp distribution can be a special case of piecewise exp distribution
+f1 &lt;- dpwexp(t, rate=2) 
+lines(t, f1, lwd=2)
+legend(&#39;topright&#39;, c(&#39;exp dist with rate 2&#39;,&#39;piecewise exp dist with rate 2, 1, 3&#39;,&#39;histogram of piecewise exp dist with rate 2, 1, 3&#39;), col=c(&#39;black&#39;,&#39;red&#39;), fill=c(NA, NA, &#39;grey&#39;), border=c(&#39;white&#39;, &#39;white&#39;, &#39;black&#39;), lty=c(1, NA, NA), pch=c(NA, 16, NA), lwd=2)
+
+# Right Figure ------------------------------------------------------------
+# CDF of piecewise exp with rate 2, 1, 3
+F2 &lt;- ppwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8), lower.tail=T)
+plot(t, F2, type=&#39;l&#39;, col=&#39;red&#39;, lwd=2, main=&quot;CDF and Quantile Function of Piecewsie Exp Dist&quot;, xlim=c(0, 1.5), ylim=c(0, 1.5))
+
+# CDF of exp dist is compatible with our package
+F1 &lt;- ppwexp(t, rate=2, lower.tail=T)
+lines(t, F1, lwd=2)
+
+# plot quantile functions of both distributions
+lines(F1, qpwexp(F1, rate=2, lower.tail=T), lty=2, lwd=2)
+lines(F2, qpwexp(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8), lower.tail=T), col=&#39;red&#39;, lty=2, lwd=2)
+
+abline(0, 1, col=&#39;grey&#39;)
+legend(&#39;topleft&#39;, c(&#39;CDF of piecewise exp with rate 2, 1, 3&#39;, &#39;quantile function of piecewise exp with rate 2, 1, 3&#39;, &#39;CDF of exp with rate 2&#39;, &#39;quantile function of exp with rate 2&#39;), col=c(&#39;red&#39;, &#39;red&#39;, &#39;black&#39;, &#39;black&#39;), lty=c(1, 2, 1, 2), lwd=2)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-15-2.png" width="50%" height="100%" /></p>
 </div>
-<div id="conditional-piecewise-exponential-distribution"
-class="section level1">
-<h1>2. Conditional Piecewise Exponential Distribution</h1>
+<div id="con_dist" class="section level3">
+<h3>A.2 Conditional Piecewise Exponential Distribution</h3>
 <p>The conditional survival function, CDF, PFD and quantile function of
 an exponential distribution <span class="math inline">\(t\)</span> given
 <span class="math inline">\(t&gt;T\)</span> is <span
@@ -707,7 +796,43 @@ T &lt;d_{1}\\
         &amp;\hspace{-60pt} F(d_{k-1}|t&gt;T)\le p &lt;F(d_{k}|t&gt;T),
 d_{m-1}\le T &lt;d_{m}
     \end{cases}
-\end{align*}\]</span></p>
+\end{align*}\]</span> The <code>PWEXP</code> package provides
+<code>ppwexp_conditional()</code>, <code>qpwexp_conditional()</code>,
+<code>rpwexp_conditional()</code> functions for conditional piecewise
+exponential distribution:</p>
+<pre class="r"><code># Left Figure ------------------------------------------------------------
+# CDF and qunatile function of conditional piecewise exp with rate 2, 1, 3 given t &gt; 0.1
+t &lt;- seq(0.1, 1.2, 0.01)
+F2_con &lt;- ppwexp_conditional(t, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+plot(t, F2_con, type=&#39;l&#39;, col=&#39;red&#39;, lwd=2, main=&quot;CDF and Quantile Function of Conditional \nPiecewsie Exp Dist&quot;, xlim=c(0, 1.2), ylim=c(0, 1.2))
+lines(F2_con, qpwexp_conditional(F2_con, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2, col=&#39;red&#39;)
+
+# compare with CDF and quantile function of unconditional piecewise exp with rate 2, 1, 3
+t &lt;- seq(0, 1.2, 0.01)
+F2 &lt;- ppwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
+lines(t, F2, lwd=2)
+lines(F2, qpwexp(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2)
+abline(v=0.1, col=&#39;grey&#39;)
+abline(h=0.1, col=&#39;grey&#39;)
+legend(&#39;topleft&#39;, c(&#39;CDF of piecewise exp dist given t &gt; 0.1&#39;, &#39;quantile function of piecewise exp dist given t &gt; 0.1&#39;, &#39;CDF of piecewise exp dist&#39;, &#39;quantile function of piecewise exp dist&#39;), col=c(&#39;red&#39;, &#39;red&#39;, &#39;black&#39;, &#39;black&#39;), lty=c(1, 2, 1, 2), lwd=2)
+
+# Right Figure ------------------------------------------------------------
+# use rpwexp_conditional function to generate piecewise exp samples with rate 2, 1, 3 given t &gt; 0.1
+r_sample_con &lt;- rpwexp_conditional(3000, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
+plot(ecdf(r_sample_con), col=&#39;red&#39;, lwd=2,  main=&quot;Empirical CDF of Conditional Piecewsie Exp Dist&quot;, xlim=c(0, 1.2), ylim=c(0, 1))
+
+# compare with its CDF
+lines(seq(0.1, 1.2, 0.01), F2_con, lwd=2)
+legend(&#39;topleft&#39;, c(&#39;empirial CDF of piecewise exp dist given t &gt; 0.1&#39;, &#39;true CDF of piecewise exp dist given t &gt; 0.1&#39;), col=c(&#39;red&#39;, &#39;black&#39;), lty=c(1,2), lwd=2)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-16-2.png" width="50%" height="100%" />
+<br></p>
+</div>
+</div>
+<div id="b.-estimation-of-piecewise-exponential-model"
+class="section level2">
+<h2>B. Estimation of Piecewise Exponential Model</h2>
+<p>to do..</p>
+</div>
 </div>
 
 

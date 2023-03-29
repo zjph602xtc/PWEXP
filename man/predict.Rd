@@ -6,41 +6,40 @@
  Obtians event prediction and (optionally) confidence interval from a piecewise exponential model.
 }
 \usage{
-\method{predict}{pwexp.fit}(event_model, cut_indicator, cut_time, censor_model,
-      n_each=100, future_enroll, seed=1818, plot=F)
-\method{predict}{boot.pwexp.fit}(event_model_boot, cut_indicator, cut_time,
-      censor_model_boot, n_each=10, future_enroll, seed=1818, plot=F)
+\method{predict}{pwexp.fit}(event_model, cut_indicator=NULL, analysis_time, censor_model=NULL,
+      type='predictive', n_each=100, future_enroll=NULL, seed=1818)
+\method{predict}{boot.pwexp.fit}(event_model_boot, cut_indicator=NULL, analysis_time,
+      censor_model_boot=NULL, type='predictive', n_each=10, future_enroll=NULL,
+      seed=1818)
 }
 \arguments{
   \item{event_model}{an object of class \code{pwexp.fit} returned by the \code{\link{pwexp.fit}} function. It is the event model for the primary endpoint. }
     \item{event_model_boot}{an object of class \code{boot.pwexp.fit} returned by the \code{\link{boot.pwexp.fit}} function. It is the event model with bootstrapping for the primary endpoint. }
   \item{cut_indicator}{(optional) A vector indicates which subject is censored due to the end of the trial. The length of the vector is the number of rows of the data used in \code{event_model}/\code{event_model_boot}. Value 0 means the subject had event or drop-out or death before the end of the trial; 1 means the subject didn't have any of these. See details. }
-  \item{cut_time}{the weight of each subject. It should be in the same length of \code{train.y}.}
-  \item{censor_model_boot}{if \code{FALSE}, any subjects in the training data and the validation data (if exist) with zero (or negative) weights will be removed.}
-  \item{n_each}{if \code{TRUE}, we prefit the model with partitioned training data using the first set of parameters in \code{range}. If fails (i.e., too many zero weight subjects in the partitioned training data), we re-partition the data and re-try the model for up to 10 times. This is useful when \code{use_zero_weight=TRUE} and there many zero weights subjects in the data. }
-  \item{future_enroll}{data, if a formula interface is used. Ignored, if predictor matrix and response are supplied directly.}
+  \item{analysis_time}{the analysis time. This is the time length from the start of the trial to the time collecting data for the model. }
+    \item{censor_model_boot}{an object of class \code{boot.pwexp.fit} returned by the \code{\link{boot.pwexp.fit}} function. It is the censoring model with bootstrapping for drop-out and death. }
+  \item{type}{the type of prediction required. The default \code{predictive} returns the predictive interval; the alternative \code{confidence} returns the confidence interval without random error.}
+  \item{n_each}{the number of iterations for each bootstrapping sample to obtain predicitive CI. Typically, a value of 10 to 100 should be enough. }
+  \item{future_enroll}{the enrollment curve in the following times. You can specify enroll rate and total sample size by \code{list(enroll_rate= ,total_sample= )} or specify the number of enrollment each month by \code{list(enroll_n= )}. See details.}
   \item{seed}{a random seed.}
-  \item{plot}{}
 }
 \value{
-  For \code{tune_wsvm}, an object of class \code{tune_wsvm}, including the components:
-  \item{best.parameters}{a 1 x k data frame, k number of parameters.}
-  \item{best.performance}{best achieved performance.}
-  \item{performances}{if requested, a data frame of all parameter
-    combinations along with the corresponding performance results.}
-  \item{train.ind}{list of index vectors used for splits into
-    training and validation sets.}
-  \item{best.model}{if requested, the model trained on the complete training data
-    using the best parameter combination.}
-
-  \code{best.tune_wsvm()} returns the best model detected by \code{tune_wsvm}.
+  A list containing:
+    \itemize{
+      \item \code{event_fun} number of events vs. time curve function in each bootstrap.
+      \item \code{time_fun} time vs. number of events curve function in each bootstrap.
+    }
+  This returned list should be used in \code{\link{plot_event}} function for summarizing its result.
 }
 \details{
+The prediction will have a confidence interval only if the event model and censor model are bootstrap models.
+
 \code{cut_indicator} indicates the status of each subject in the \code{event_model}/\code{event_model_boot} model at the end of the trial. Value 1 means the subject didn't have events, drop-out or death at the end of the trial (or say, the subject was censored due to the end of the trial). When \code{cut_indicator} is NOT provided, we assign value 1 to the subject who didn't have event (or drop-out, or death) in both  \code{event_model}/\code{event_model_boot} and \code{censor_model}/\code{censor_model_boot} models.
+
+\code{future_enroll} is a list determining the parameter of enrollment curve in the following times. For example, you specify enroll rate=10pt/month and total sample size=1000 by \code{list(enroll_rate=10 ,total_sample=1000)} or specify the number of enrollment each month (e.g., 10,15,30,30 in four months) by \code{list(n_enroll=c(10,15,30,30))}.
 }
 \author{
-  David Meyer \cr
-  Modified by Tianchen Xu \email{tx2155@columbia.edu}
+Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
 \seealso{\code{\link{tune.control}}, \code{\link{plot.tune_wsvm}}}
 \examples{
@@ -65,7 +64,8 @@ cut_indicator <- train$censor_reason=='cut'
 cut_indicator[is.na(cut_indicator)] <- 0
 
 predicted_boot <- predict(event_model_boot=fit_res_boot, cut_indicator = cut_indicator,
-                     cut_time = cut,  censor_model_boot=fit_res_censor_boot,
+                     analysis_time = cut,  censor_model_boot=fit_res_censor_boot,
                      future_enroll=list(enroll_rate=20, total_sample=NROW(dat)-NROW(train)))
-
+plot_event(predicted_boot, eval_at = 40:90)
+plot_event(predicted_boot, xyswitch = T, eval_at = 600:900)
 }
