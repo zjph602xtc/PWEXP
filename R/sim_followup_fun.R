@@ -4,7 +4,7 @@
 
 simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lambda=NA, drop_rate=NA,
                     death_lambda=NA, n_enroll=NULL, enroll_rate=NULL, total_sample=NULL, add_column=c('followT'),
-                    simplify=T, advanced_dist=NULL) {
+                    simplify=TRUE, advanced_dist=NULL) {
   # total number of subgroups will be '# treatment groups'*'# strata'
   # strata variable will be distributed into each treatment group. For example,
   # group <- c('trt','placebo'), strata <- c('A','B','C'), then there will be six subgroups:

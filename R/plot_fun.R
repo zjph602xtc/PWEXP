@@ -6,10 +6,11 @@ plot_survival <- function (x, ...){
   UseMethod ("plot_survival")
 }
 
-plot_survival.default <- function(time, event, add=FALSE, ...){
+plot_survival.default <- function(time, event, add=FALSE, conf.int=FALSE, mark.time=TRUE,
+                                  lwd=2, xlab='Follow-up time', ylab='Survival function', ...){
   arg <- list(...)
   option <- c('conf.int', 'mark.time', 'lwd', 'xlab', 'ylab')
-  default <- list(FALSE, TRUE, 2, 'Follow-up time', 'Survival function')
+  default <- list(conf.int, mark.time, lwd, xlab, ylab)
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
@@ -100,13 +101,13 @@ plot_event <- function (x, ...){
   UseMethod ("plot_event")
 }
 
-plot_event.default <- function(time, abs_time=TRUE, event, additional_event=0, add=FALSE,
+plot_event.default <- function(time, event, abs_time=TRUE, additional_event=0, add=FALSE,
                                plot=TRUE, xyswitch=FALSE, ...){
   # here dat$followT_abs may be followT or followT_abs, depending on the user input
   arg <- list(...)
   option <- c('lwd', 'xlab', 'ylab', 'type')
-  default <- list(2, ifelse(abs_time, 'Time from the start of the trial', 'Individual time
-                            from enrollment'), 'Cumulative events', 'l')
+  default <- list(2, ifelse(abs_time, 'Time from first randomization', 'Time
+                            from randomization of each subject'), 'Cumulative events', 'l')
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
@@ -134,11 +135,11 @@ plot_event.default <- function(time, abs_time=TRUE, event, additional_event=0, a
 
 
 
-plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, xyswitch=FALSE, add=TRUE,
-                                         plot=TRUE, eval_at=NULL, ...){
+plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, add=TRUE, plot=TRUE, xyswitch=FALSE,
+                                          eval_at=NULL, ...){
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
-  default <- list(2, 'red', 'Time from the start of the trial', 'Cumulative events', 'l')
+  default <- list(2, 'red', 'Time from first randomization',  'Cumulative events', 'l')
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
@@ -191,11 +192,11 @@ plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, xyswitch=
   }
 }
 
-plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE, xyswitch=FALSE, alpha=0.05, add=TRUE,
-                                              plot=TRUE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
+plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE,  alpha=0.05, add=TRUE,
+                                              plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
-  default <- list(2, 'red', 'Time from the start of the trial', 'Cumulative events', 'l')
+  default <- list(2, 'red', 'Time from first randomization', 'Cumulative events', 'l')
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 

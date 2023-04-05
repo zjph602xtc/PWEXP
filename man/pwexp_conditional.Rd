@@ -19,7 +19,7 @@ rpwexp_conditional(n, qT, rate, breakpoint=NULL)
   \item{qT}{the distribution is conditional on \eqn{t>}\code{qT}. \code{qT} can be a scalar or a vector with the same length of \code{q} or \code{p}.}
   \item{n}{number of observations. Must be a positive integer with length 1. }
   \item{rate}{a vector of rates in each piece.}
-  \item{breakpiont}{a vector of breakpoints. The length is \code{length(rate)-1}. Can be NULL if rate is a single value.}
+  \item{breakpoint}{a vector of breakpoints. The length is \code{length(rate)-1}. Can be NULL if rate is a single value.}
   \item{log, log.p}{logical; if TRUE, probabilities p are given as log(p).}
   \item{lower.tail}{logical; if TRUE (default), probabilities are \eqn{P[X \le x]}, otherwise, \eqn{P[X > x]}.}
   \item{one_piece}{(only required when \code{safety_check=FALSE}) whether the distribution only has one piece (i.e.,
@@ -52,32 +52,28 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
   \code{\link{rpwexp}}
 }
 \examples{
-t <- seq(0,1.2,0.01)
+# CDF and qunatile function of conditional piecewise exp with rate 2, 1, 3 given t > 0.1
+t <- seq(0.1, 1.2, 0.01)
+F2_con <- ppwexp_conditional(t, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+plot(t, F2_con, type='l', col='red', lwd=2, main="CDF and Quantile Function of Conditional \nPiecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1.2))
+lines(F2_con, qpwexp_conditional(F2_con, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2, col='red')
 
-# distribution function
-F2 <- ppwexp(t, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = F)
-plot(t, F2, type='l', lwd=2, xlim=c(0,1.2), ylim=c(0,1.2))
-t <- seq(0.1,1.2,0.01)
-F2_con <- ppwexp_conditional(t, qT = 0.1, rate = c(2, 1, 3), breakpoint = c(0.3,0.8),
-                             lower.tail = F)
-lines(t, F2_con, col='red', lwd=2)
-abline(v=0.1,col='grey')
+# compare with CDF and quantile function of unconditional piecewise exp with rate 2, 1, 3
+t <- seq(0, 1.2, 0.01)
+F2 <- ppwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
+lines(t, F2, lwd=2)
+lines(F2, qpwexp(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2)
+abline(v=0.1, col='grey')
+abline(h=0.1, col='grey')
+legend('topleft', c('CDF of piecewise exp dist given t > 0.1', 'quantile function of piecewise exp dist given t > 0.1', 'CDF of piecewise exp dist', 'quantile function of piecewise exp dist'), col=c('red', 'red', 'black', 'black'), lty=c(1, 2, 1, 2), lwd=2)
 
-# quantile function
-abline(0,1,col='grey')
-lines(F2, qpwexp(F2, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = F), lty=2, lwd=2)
-lines(F2_con, qpwexp_conditional(F2_con, qT = 0.1, rate = c(2, 1, 3), breakpoint = c(0.3,0.8),
-                                 lower.tail = F), lty=2, lwd=2, col='red')
+# use rpwexp_conditional function to generate piecewise exp samples with rate 2, 1, 3 given t > 0.1
+r_sample_con <- rpwexp_conditional(3000, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
+plot(ecdf(r_sample_con), col='red', lwd=2,  main="Empirical CDF of Conditional Piecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1))
 
-# data generation
-plot(t, 1-F2_con, type='l', lwd=2, xlim=c(0,1.2), ylim=c(0,1))
-lines(ecdf(rpwexp_conditional(3000, qT = 0.1, rate = c(2, 1, 3),
-                              breakpoint = c(0.3,0.8))), col='red', lwd=2)
-
-# when qT is a vector
-t <- seq(0.1,1.2,0.1)
-ppwexp_conditional(t, qT = seq(0.1,0.5,length=12), rate = c(2, 1, 3),
-                   breakpoint = c(0.3,0.8), lower.tail = F)
+# compare with its CDF
+lines(seq(0.1, 1.2, 0.01), F2_con, lwd=2)
+legend('topleft', c('empirial CDF of piecewise exp dist given t > 0.1', 'true CDF of piecewise exp dist given t > 0.1'), col=c('red', 'black'), lty=c(1,2), lwd=2)
 }
 
 

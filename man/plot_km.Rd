@@ -2,16 +2,17 @@
 \alias{plot_survival}
 \alias{plot_survival.default}
 \alias{plot_survival.pwexp.fit}
+\alias{plot_survival.boot.pwexp.fit}
 \title{Plot Survival Curve}
 \description{
-  Plot KM curve  with right censoring data or the survival curve of a fitted piecewise exponential model.
+  Plot KM curve with right censoring data or the survival curve of a fitted piecewise exponential model.
 }
 \usage{
 \method{plot_survival}{default}(time, event, add=FALSE, conf.int=FALSE, mark.time=TRUE,
        lwd=2, xlab='Follow-up time', ylab='Survival function', ...)
 \method{plot_survival}{pwexp.fit}(object, add=TRUE, show_breakpoint=TRUE,
        breakpoint_par=NULL, ...)
-\method{plot_survival}{boot.pwexp.fit}(object, add=TRUE, alpah=0.05, show_breakpoint=TRUE,
+\method{plot_survival}{boot.pwexp.fit}(object, add=TRUE, alpha=0.05, show_breakpoint=TRUE,
        breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...)
 }
 \arguments{
@@ -24,7 +25,12 @@
  \item{alpha}{the significance level of the confidence interval. }
   \item{show_CI}{logical; if TRUE add confidence interval of the estimated curve. For KM esitmator, use \code{conf.int=TRUE} to show CI band.}
  \item{CI_par}{a list of parameters to control the apperance of lines of confidence intervals. The values pass to \code{\link[graphics]{lines}}.}
- \item{...}{other arguments (e.g., \code{conf.int}, \code{mark.time}, \code{lwd}, etc.) are passed over to \code{\link[survival]{plot.survfit}} (default method) or \code{\link[base]{plot}} (for class \code{pwexp.fit}).}
+ \item{conf.int}{determines whether pointwise confidence intervals will be plotted. Passed over to \code{\link[survival]{plot.survfit}}.}
+ \item{mark.time}{controls the labeling of the curves. Passed over to \code{\link[survival]{plot.survfit}}.}
+ \item{lwd}{line width of the KM curve. }
+ \item{xlab}{x label.}
+ \item{ylab}{y label.}
+ \item{...}{other arguments are passed over to \code{\link[survival]{plot.survfit}} (default method) or \code{\link[base]{plot}} (for class \code{pwexp.fit}).}
 }
 \details{
 For the default method, this a  wrapper of \code{\link[survival]{plot.survfit}} function to plot right censoring data.
@@ -43,10 +49,10 @@ dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
 
-# plot_survival(dat$followT, dat$event, xlim=c(0,40))
+plot_survival(dat$followT, dat$event, xlim=c(0,40))
 
 fit_res <- pwexp.fit(dat$followT, dat$event, nbreak = 2)
-# plot_survival(fit_res, col='red', lwd=3, breakpoint_par = list(col='grey', lwd=2.5))
+plot_survival(fit_res, col='red', lwd=3, breakpoint_par = list(col='grey', lwd=2.5))
 }
 
 \seealso{\code{\link{plot_event}}}

@@ -35,5 +35,18 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 \seealso{\code{\link{boot.pwexp.fit}}, \code{\link{cv.pwexp.fit}}}
 
 \examples{
+event_dist <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
+dat <- simdata(enroll_rate = 20, total_sample = 1000, drop_rate = 0.03,
+               advanced_dist = list(event_dist=event_dist),
+               add_column = c('censor_reason','event','followT','followT_abs'))
+cut <- quantile(dat$enrollT, 0.8)
+train <- cut_dat(var_enrollT = 'enrollT', cut = cut, data = dat,
+                 var_followT = 'followT', var_followT_abs = 'followT_abs',
+                 var_event = 'event', var_censor_reason = 'censor_reason')
 
+fit_a0 <- pwexp.fit(train$followT, train$event, breakpoint = c(5,14))
+fit_a1 <- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14))
+fit_b0 <- pwexp.fit(train$followT, train$event, nbreak = 0)
+fit_b1 <- pwexp.fit(train$followT, train$event, nbreak = 1)
+fit_b2 <- pwexp.fit(train$followT, train$event, nbreak = 2)
 }

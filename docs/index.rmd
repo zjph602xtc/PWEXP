@@ -25,6 +25,8 @@ library(knitr)
 
 # Structure of Package 'PWEXP'
 
+![](./images/structure2.png)
+
 The `PWEXP'package provides a complete set of tools to work with
 survival data with piecewise exponential distribution. It also makes
 event prediction based on the fitted model. Specifically, it has five
@@ -80,8 +82,6 @@ components for different tasks:
         quantile function, generator function for conditional piecewise
         exponential distribution (See ['Conditional Piecewise Exponential
         Distribution' Section](#con_dist) for more details)
-
-![](./images/structure 2.png)
 
 <br>
 
@@ -158,11 +158,13 @@ demonstration]{style="color: #EB6864;font-weight:bold"}, we will use a
 single group with piecewise exponential distribution endpoint:
 
 ```{r}
-# define the event generation function
-event_dist <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
+# define the piecewiese exponential event generation function
+myevent_dist <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
+# you can use any generation function in simdata function, for example, use a weibull density:
+# myevent_dist <- function(n)rweibull(n, shape=0.5, scale=10)
 # use advanced_dist to adopt user-defined distribution, see function help for more details
 dat <- simdata(enroll_rate = 20, total_sample = 1000, drop_rate = 0.03,  
-               advanced_dist = list(event_dist=event_dist),
+               advanced_dist = list(event_dist=myevent_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
 ```
 
@@ -175,7 +177,7 @@ plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0, 25), main='Number of
 ```
 <br>
 
-# 2. Split Data to Obtain Training Set
+# 2. Split Data to Obtain Training/Interim Data
 
 We cut the dataset by the time when 80% percent subject are enrolled.
 Only subjects who are enrolled before the specified time will be kept in
@@ -220,7 +222,7 @@ breakpoints has the lowest BIC value. We can also use cross validation
 to help us choose the model. The model `fit_b2` with the correct
 number of breakpoints has the highest CV log likelihood.
 
-```{r fig.show="hold", out.width="50%", out.height="100%", fig.width=6, fig.height=5}
+```{r fig.show="hold", out.width="50%", out.height="100%", fig.width=6, fig.height=5, message=FALSE, results='hide'}
 library('RColorBrewer')
 model_name <- c('2 fixed breakpoints', '1 fixed + 1 unknown bkp', '0 unknown bkp (exp model)', '1 unknown bkp', '2 unknown bkp', '3 unknown bkp', '4 unknown bkp')
 model_ind <- c('a0','a1',paste0('b',0:4))
@@ -253,7 +255,7 @@ plot_survival(fit_b0, col='green', lwd=2)
 plot_survival(fit_b1, col='blue', lwd=3, show_breakpoint = F)
 plot_survival(fit_b2,  col='red', lwd=3, breakpoint_par = list(col='grey50', lty=2))
 plot_survival(fit_b3, col='orange', lwd=3, show_breakpoint = F)
-legend('topright',c('0 breakpoints','1 breakpoint','2 breakpoints','3 breakpoints'), lwd=3, col=c('green','blue','red','orange'))
+legend('topright',c('training data', '0 breakpoints','1 breakpoint','2 breakpoints','3 breakpoints'), lwd=3, col=c('black', 'green','blue','red','orange'))
 ```
 <br>
 
@@ -262,7 +264,7 @@ legend('topright',c('0 breakpoints','1 breakpoint','2 breakpoints','3 breakpoint
 We will use bootstrap to estimate the uncertainty of estimated parameters. We
 take model `fit_b2` as an example.
 
-```{r fig.width=5,fig.height=4.5}
+```{r fig.width=5,fig.height=4.5, message=FALSE, results='hide'}
 # bootstrap the model
 fit_b2_boot <- boot.pwexp.fit(fit_b2, nsim = 50)
 
@@ -289,7 +291,7 @@ time of drop-out (and we do not have death in the simulated data), and
 it will be used as the response variable in the censoring model. We will
 fit an exponential model with bootstrapping.
 
-```{r fig.width=5,fig.height=4.5}
+```{r fig.width=5,fig.height=4.5, message=FALSE, results='hide'}
 drop_indicator <-  ifelse(train$censor_reason=='drop_out' & !is.na(train$censor_reason),1,0)
 plot_survival(train$followT, drop_indicator, xlim=c(0,40), ylab='Survival function of drop-out', main='Fitted Censoring Model for Drop-out with 95% CI')
 fit_censor_boot <- boot.pwexp.fit(train$followT, drop_indicator, nbreak = 0, nsim = 50)
@@ -297,7 +299,7 @@ plot_survival(fit_censor_boot, col='red', alpha=0.01, CI_par = list(col='#ff9896
 ```
 
 Finally, we use `predict()` function to predict the number of events in the future. Note the returned object from  `predict()` contains event curve functions and it should be used in `plot_event()` function to obtain the estimated events and to plot the curve. 
-```{r}
+```{r, message=FALSE, results='hide'}
 predicted_boot <- predict(event_model_boot=fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_enroll=list(enroll_rate=20, total_sample=NROW(dat)-NROW(train)))
 ```
 
@@ -326,7 +328,7 @@ head(pred_time)
 <br>
 
 # Appendix
-## A.Distribution
+## A. Distribution
 ### A.1 Piecewise Exponential Distribution {#dist}
 
 The hazard function, cumulative hazard function, PDF, CDF, quantile
@@ -455,7 +457,7 @@ r_sample_con <- rpwexp_conditional(3000, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0
 plot(ecdf(r_sample_con), col='red', lwd=2,  main="Empirical CDF of Conditional Piecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1))
 
 # compare with its CDF
-lines(seq(0.1, 1.2, 0.01), F2_con, lwd=2)
+lines(seq(0.1, 1.2, 0.01), F2_con, lwd=2, lty=2)
 legend('topleft', c('empirial CDF of piecewise exp dist given t > 0.1', 'true CDF of piecewise exp dist given t > 0.1'), col=c('red', 'black'), lty=c(1,2), lwd=2)
 ```
 <br>

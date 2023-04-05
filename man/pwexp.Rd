@@ -20,7 +20,7 @@ rpwexp(n, rate = 1, breakpoint = NULL)
   \item{p}{vector of probabilities.}
   \item{n}{number of observations. Must be a positive integer with length 1. }
   \item{rate}{a vector of rates in each piece.}
-  \item{breakpiont}{a vector of breakpoints. The length is \code{length(rate)-1}. Can be NULL if rate is a single value.}
+  \item{breakpoint}{a vector of breakpoints. The length is \code{length(rate)-1}. Can be NULL if rate is a single value.}
   \item{log, log.p}{logical; if TRUE, probabilities p are given as log(p).}
   \item{lower.tail}{logical; if TRUE (default), probabilities are \eqn{P[X \le x]}, otherwise, \eqn{P[X > x]}.}
   \item{one_piece}{(only required when \code{safety_check=FALSE}) whether the distribution only has one piece (i.e.,
@@ -36,7 +36,7 @@ The length of the result is determined by \code{x}, \code{q}, \code{p} or \code{
 Arguments \code{rate} and \code{breakpoint} must match. The length of rate is the length of breakpoint + 1.
 }
 \details{
-The piecewise distribution function with piecewise rate \eqn{\lambda1, \dots, \lambdar} is
+The piecewise distribution function with piecewise rate \eqn{\lambda_1, \dots, \lambda_r} is
 \deqn{f(t)=\lambda_{r+1} exp{[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i-\lambda_{r+1}t}}
 for \eqn{d_{r} \le t < d_{r+1}}.
 
@@ -56,27 +56,34 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
   \code{\link{rpwexp_conditional}}
 }
 \examples{
-t <- seq(0,1.2,0.01)
+# use rpwexp function to generate piecewise exp samples with rate 2, 1, 3
+r_sample <- rpwexp(50000, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+hist(r_sample, freq=FALSE, breaks=200, main="Density of Piecewsie Exp Dist", xlab='t', xlim=c(0, 1.2))
 
-# density function
-f1 <- dpwexp(t, rate = 2)
-plot(t, f1, type='l', lwd=2)
-f2 <- dpwexp(t, rate = c(2, 1, 3), breakpoint = c(0.3,0.8))
+# piecewise exp density with rate 2, 1, 3
+t <- seq(0, 1.5, 0.01)
+f2 <- dpwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
 points(t, f2, col='red', pch=16)
 
-# generation function
-hist(rpwexp(50000, rate = c(2, 1, 3), breakpoint = c(0.3,0.8)), freq = FALSE, add = TRUE, breaks = 500)
+# exp distribution can be a special case of piecewise exp distribution
+f1 <- dpwexp(t, rate=2)
+lines(t, f1, lwd=2)
+legend('topright', c('exp dist with rate 2','piecewise exp dist with rate 2, 1, 3','histogram of piecewise exp dist with rate 2, 1, 3'), col=c('black','red'), fill=c(NA, NA, 'grey'), border=c('white', 'white', 'black'), lty=c(1, NA, NA), pch=c(NA, 16, NA), lwd=2)
 
-# distribution function
-F1 <- ppwexp(t, rate = 2, lower.tail = FALSE)
-plot(t, F1, type='l', lwd=2, xlim=c(0,1.2), ylim=c(0,1.2))
-F2 <- ppwexp(t, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = FALSE)
-lines(t, F2, col='red', lwd=2)
+# CDF of piecewise exp with rate 2, 1, 3
+F2 <- ppwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8), lower.tail=TRUE)
+plot(t, F2, type='l', col='red', lwd=2, main="CDF and Quantile Function of Piecewsie Exp Dist", xlim=c(0, 1.5), ylim=c(0, 1.5))
 
-# quantile function
-abline(0,1,col='grey')
-lines(F1, qpwexp(F1, rate = 2, lower.tail = FALSE), lty=2, lwd=2)
-lines(F2, qpwexp(F2, rate = c(2, 1, 3), breakpoint = c(0.3,0.8), lower.tail = FALSE), col='red', lty=2, lwd=2)
+# CDF of exp dist is compatible with our package
+F1 <- ppwexp(t, rate=2, lower.tail=TRUE)
+lines(t, F1, lwd=2)
+
+# plot quantile functions of both distributions
+lines(F1, qpwexp(F1, rate=2, lower.tail=TRUE), lty=2, lwd=2)
+lines(F2, qpwexp(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8), lower.tail=TRUE), col='red', lty=2, lwd=2)
+
+abline(0, 1, col='grey')
+legend('topleft', c('CDF of piecewise exp with rate 2, 1, 3', 'quantile function of piecewise exp with rate 2, 1, 3', 'CDF of exp with rate 2', 'quantile function of exp with rate 2'), col=c('red', 'red', 'black', 'black'), lty=c(1, 2, 1, 2), lwd=2)
 }
 
 

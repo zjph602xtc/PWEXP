@@ -8,19 +8,18 @@
   Plot cumulative event curve with right censoring data.
 }
 \usage{
-\method{plot_event}{default}(time, abs_time=TRUE, event, additional_event=0,
+\method{plot_event}{default}(time, event, abs_time=TRUE, additional_event=0,
          add=FALSE, plot=TRUE, xyswitch=FALSE, ...)
 \method{plot_event}{predict.pwexp.fit}(predict_model, abs_time=TRUE, add=TRUE, plot=TRUE,
          xyswitch=FALSE, eval_at=NULL, ...)
-\method{plot_event}{predict.boot.pwexp.fit}(predict_model_boot, abs_time=TRUE, alpha=0.05, add=TRUE,
+\method{plot_event}{predict.boot.pwexp.fit}(predict_model, abs_time=TRUE, alpha=0.05, add=TRUE,
          plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...)
 }
 \arguments{
  \item{time}{observed/follow-up time from  the enrollment time or from the beginning of the trial.}
- \item{abs_time}{logical; if TRUE, \code{time} is the time from the beginning of the trial. }
+ \item{abs_time}{logical; if TRUE, \code{time} is the time from first randomization of the trial. if FALSE, \code{time} is the time from the randomization of each subject. }
  \item{event}{the status indicator, 0=censor, 1=event. Other choices are TRUE/FALSE (TRUE = event).}
- \item{predict_model}{a predicted object of class inheriting from \code{\link{predict.pwexp.fit}}.}
- \item{predict_model_boot}{a predicted object with bootstrapping of class inheriting from \code{\link{predict.boot.pwexp.fit}}.}
+ \item{predict_model}{a predicted object from \code{\link{predict.pwexp.fit}}, or a predicted object with bootstrapping  from \code{\link{predict.boot.pwexp.fit}}.}
  \item{additional_event}{adding the cumulative number of events by a constant number from the beginning. }
  \item{add}{logical; if TRUE add lines to current plot.}
  \item{plot}{logical; if FALSE, do not plot any lines, but return the line data}
@@ -48,6 +47,7 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
 
 \examples{
+\dontrun{
 set.seed(1818)
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
 dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
@@ -77,6 +77,7 @@ plot_event(predicted_boot, eval_at = seq(40,90,5), CI_par = list(lty=3, lwd=2))
 
 plot_event(dat$followT_abs, xlim=c(0,800), event=dat$event, xyswitch = T)
 plot_event(predicted_boot, xyswitch = T, eval_at = seq(600,900,50))
+}
 }
 
 

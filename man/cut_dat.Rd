@@ -5,18 +5,18 @@
   Take a subset of a dataset by constraining the enrollment time <= cut time. Additionally, it updates the follow-up time, censor/event indicator, censor reason, accordingly.
 }
 \usage{
-cut_dat(var_enrollT, cut, data, var_followT=NULL, var_followT_abs=NULL,
-      var_censor=NULL, var_event=NULL, var_censor_reason=NULL)
+cut_dat(cut, data, var_enrollT=NULL, var_followT=NULL, var_followT_abs=NULL,
+      var_censor=NULL, var_event=NULL, var_censor_reason=='status_at_end')
 }
 \arguments{
- \item{var_enrollT}{character; the variable name of enrollment time}
  \item{cut}{cut time (from the beginning of the trial); only rows with enrollment time <= \code{cut} will be kept.}
  \item{data}{a data frame.}
+ \item{var_enrollT}{character; the variable name of enrollment time. If missing, then the enrollment time will be treated as 0 and NO subjects will be filtered by \code{cut} time.}
  \item{var_followT}{character; the variable name of follow-up time (from enrollment)}
  \item{var_followT_abs}{character; the variable name of follow-up time (from the beginning of the trial)}
  \item{var_censor}{character; the variable name of censoring (drop-out or death) indicator (1=censor, 0=event)}
  \item{var_event}{character; the variable name of event indicator (1=event, 0=censor)}
- \item{var_censor_reason}{character; the variable name of censoring reason (character variable)}
+ \item{var_censor_reason}{character; the variable name of censoring reason (character variable). This variable will be created, if \code{data} does not contain it.}
 }
 \details{
 We first filter rows that enrollment time is equal to or less then \code{cut} time. Then we modify these columns (if provided):
@@ -33,6 +33,8 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
 \value{
  A subset data frame with the same columns as \code{data}.
+
+ \code{var_censor_reason} is the only variable that is allowed to be absent in \code{data}. The function will create this variable in the returned data frame and set values 'cut' to the subjects whose (follow-up time from beginning) > \code{cut}.
 }
 
 

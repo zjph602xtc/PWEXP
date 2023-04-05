@@ -39,6 +39,7 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 \seealso{\code{\link{pwexp.fit}}}
 
 \examples{
+\dontrun{
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
 dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
                advanced_dist = list(event_dist=event_dist),
@@ -54,4 +55,5 @@ plot_survival(train$followT, train$event, xlim=c(0,40))
 plot_survival(fit_res_boot, col='red', CI_par = list(col='red'))
 brk_ci <- apply(attr(fit_res_boot, 'brk'), 2, function(x)quantile(x,c(0.025,0.975)))
 abline(v=brk_ci, col='grey', lwd=2)
+}
 }

@@ -17,10 +17,11 @@
     \item{event_model_boot}{an object of class \code{boot.pwexp.fit} returned by the \code{\link{boot.pwexp.fit}} function. It is the event model with bootstrapping for the primary endpoint. }
   \item{cut_indicator}{(optional) A vector indicates which subject is censored due to the end of the trial. The length of the vector is the number of rows of the data used in \code{event_model}/\code{event_model_boot}. Value 0 means the subject had event or drop-out or death before the end of the trial; 1 means the subject didn't have any of these. See details. }
   \item{analysis_time}{the analysis time. This is the time length from the start of the trial to the time collecting data for the model. }
-    \item{censor_model_boot}{an object of class \code{boot.pwexp.fit} returned by the \code{\link{boot.pwexp.fit}} function. It is the censoring model with bootstrapping for drop-out and death. }
+  \item{censor_model}{an object of class \code{pwexp.fit} returned by the \code{\link{pwexp.fit}} function. It is the censoring model for drop-out and death. }
+  \item{censor_model_boot}{an object of class \code{boot.pwexp.fit} returned by the \code{\link{boot.pwexp.fit}} function. It is the censoring model with bootstrapping for drop-out and death. }
   \item{type}{the type of prediction required. The default \code{predictive} returns the predictive interval; the alternative \code{confidence} returns the confidence interval without random error.}
   \item{n_each}{the number of iterations for each bootstrapping sample to obtain predicitive CI. Typically, a value of 10 to 100 should be enough. }
-  \item{future_enroll}{the enrollment curve in the following times. You can specify enroll rate and total sample size by \code{list(enroll_rate= ,total_sample= )} or specify the number of enrollment each month by \code{list(enroll_n= )}. See details.}
+  \item{future_enroll}{the enrollment curve in the following times. Can be \code{NULL} if all subjects have been enrolled. You can specify enroll rate and total sample size by \code{list(enroll_rate= ,total_sample= )} or specify the number of enrollment each month by \code{list(enroll_n= )}. See details.}
   \item{seed}{a random seed.}
 }
 \value{
@@ -41,8 +42,9 @@ The prediction will have a confidence interval only if the event model and censo
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
-\seealso{\code{\link{tune.control}}, \code{\link{plot.tune_wsvm}}}
+\seealso{\code{\link{plot_event}}}
 \examples{
+\dontrun{
 set.seed(1818)
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
 dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
@@ -68,4 +70,5 @@ predicted_boot <- predict(event_model_boot=fit_res_boot, cut_indicator = cut_ind
                      future_enroll=list(enroll_rate=20, total_sample=NROW(dat)-NROW(train)))
 plot_event(predicted_boot, eval_at = 40:90)
 plot_event(predicted_boot, xyswitch = T, eval_at = 600:900)
+}
 }
