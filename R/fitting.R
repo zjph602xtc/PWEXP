@@ -47,6 +47,7 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, max_set=10000, see
   # f is event data, s is censored data
 
   # auto search if breakpoint=NULL
+  event <- as.numeric(event)
   breakpoint <- sort(breakpoint)
   brk_backup <- breakpoint
   time_backup <- time
@@ -174,9 +175,13 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
 boot.pwexp.fit.pwexp.fit <- function(object, nsim=100, max_set=1000, seed=1818){
   para <- attr(object, 'para')
   res <- boot.pwexp.fit.default(time=para$time, event=para$event,
-                                nsim=nsim, breakpoint=para$breakpoint, nbreak=para$nbreak,
+                                nsim=max(1,nsim-1), breakpoint=para$breakpoint, nbreak=para$nbreak,
                                 max_set=max_set, seed=seed)
-  return(res)
+  res_combined <- rbind(object, res)
+  attr(res_combined, 'brk') <- rbind(attr(object, 'brk'), attr(res, 'brk'))
+  attr(res_combined, 'lam') <- rbind(attr(object, 'lam'), attr(res, 'lam'))
+  class(res_combined) <- c('boot.pwexp.fit', 'data.frame')
+  return(res_combined)
 }
 
 

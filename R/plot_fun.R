@@ -136,7 +136,7 @@ plot_event.default <- function(time, event, abs_time=TRUE, additional_event=0, a
 
 
 plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, add=TRUE, plot=TRUE, xyswitch=FALSE,
-                                          eval_at=NULL, ...){
+                                         eval_at=NULL, ...){
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
   default <- list(2, 'red', 'Time from first randomization',  'Cumulative events', 'l')
@@ -167,6 +167,9 @@ plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, add=TRUE,
     }else {
       pre <- sapply(predict_model$time_fun, function(f)f(xrange))
     }
+    if (!is.matrix(pre) | is.data.frame(pre)){
+      pre <- matrix(pre, nrow=1)
+    }
     na_include <- rowMeans(is.na(pre)) < 0.05
     pre <- apply(pre, 1, function(x)median(x,na.rm=T))
     pre[!na_include] <- NA
@@ -178,6 +181,9 @@ plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, add=TRUE,
       pre <- sapply(predict_model$event_fun, function(f)f(eval_at))
     }else {
       pre <- sapply(predict_model$time_fun, function(f)f(eval_at))
+    }
+    if (!is.matrix(pre) | is.data.frame(pre)){
+      pre <- matrix(pre, nrow=1)
     }
     na_include <- rowMeans(is.na(pre)) < 0.05
     pre <- apply(pre, 1,  function(x)median(x,na.rm=T))
@@ -229,6 +235,9 @@ plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE,  alp
     }else {
       pre <- sapply(predict_model$time_fun, function(f)f(xrange))
     }
+    if (!is.matrix(pre) | is.data.frame(pre)){
+      pre <- matrix(pre, nrow=1)
+    }
     na_include <- rowMeans(is.na(pre)) < 0.05
     pre <- apply(pre, 1, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
     pre[,!na_include] <- NA
@@ -245,15 +254,18 @@ plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE,  alp
     }else {
       pre <- sapply(predict_model$time_fun, function(f)f(eval_at))
     }
+    if (!is.matrix(pre) | is.data.frame(pre)){
+      pre <- matrix(pre, nrow=1)
+    }
     na_include <- rowMeans(is.na(pre)) < 0.05
     pre <- apply(pre, 1, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
     pre[,!na_include] <- NA
     pre <- t(rbind(eval_at, pre))
     if (xyswitch){
-      pre <- pre[,c(1,3,2,4)]
+      pre <- pre[,c(1,3,2,4),drop=F]
       colnames(pre) <- c('n_event', 'time', paste0(alpha/2*100, '% time'), paste0((1-alpha/2)*100, '% time'))
     }else{
-      pre <- pre[,c(1,3,2,4)]
+      pre <- pre[,c(1,3,2,4),drop=F]
       colnames(pre) <- c('time','n_event', paste0(alpha/2*100, '% n_event'), paste0((1-alpha/2)*100, '% n_event'))
     }
 
