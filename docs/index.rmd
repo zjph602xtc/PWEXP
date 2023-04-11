@@ -498,12 +498,12 @@ When breakpoints $d_1$ to $d_r$ are known, we can take a derivative of $\log(L)$
 \end{align}
 where $n_{D_r}$ is the number of events that fall into the $r$th interval; $n_{r^+}$ is the number of events and censoring that fall into the $r$th to the end intervals. 
 
-Let all derivatives equal to $0$, we obtain the MLE estimator of hazard rates:
+Let all derivatives equal to 0, we obtain the MLE estimator of hazard rates:
 \begin{align}
     \hat\lambda_1=&\frac{n_{D_1}}{\sum_{j\in C_1}t_j+ n_{2^+}d_1}\\
     \hat\lambda_2=&\frac{n_{D_2}}{\sum_{j\in D_2, C_2}(t_j-d_1)+ n_{3^+}(d_2-d_1)}\\
     &\cdots\\
-    \hat\lambda_r=&\frac{n_{D_r}}{\sum_{j\in D_r, C_r}(t_j-d_{r-1})+ n_{r+1}^+}(d_r-d_{r-1})}\\
+    \hat\lambda_r=&\frac{n_{D_r}}{\sum_{j\in D_r, C_r}(t_j-d_{r-1})+ n_{{r+1}^+}(d_r-d_{r-1})}\\
     \hat\lambda_{r+1}=&\frac{n_{D_{r+1}}}{\sum_{j\in D_{r+1}, C_{r+1}}(t_j-d_r)}
 \end{align}
 
