@@ -1,4 +1,12 @@
 plot.pwexp.fit <- function(x){
+  stop('Please use \'plot_survival\' function to visualize the model.')
+}
+
+plot.cv.pwexp.fit <- function(x){
+  stop('Please use \'plot_survival\' or \'plot_event\' function to visualize the model.')
+}
+
+plot.boot.pwexp.fit <- function(x){
   stop('Please use \'plot_survival\' or \'plot_event\' function to visualize the model.')
 }
 
@@ -54,7 +62,7 @@ plot_survival.pwexp.fit <- function(object, add=TRUE, show_breakpoint=TRUE,
   }
 }
 
-plot_survival.boot.pwexp.fit <- function(object, add=TRUE, alpha=0.05, show_breakpoint=TRUE,
+plot_survival.boot.pwexp.fit <- function(object, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
                                          breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...){
   # arg <- list(...)
   # option <- c('lwd', 'xlab', 'ylab')
@@ -198,7 +206,7 @@ plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, add=TRUE,
   }
 }
 
-plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE,  alpha=0.05, add=TRUE,
+plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE,  alpha=0.1, add=TRUE,
                                               plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab', 'type')

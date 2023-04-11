@@ -1,7 +1,7 @@
 Package: PWEXP
 Type: Package
 Title: Piecewise exponential distribution prediction model
-Imports: graphics, grDevices, stats, methods, utils, survival, fastmatch
+Imports: graphics, grDevices, stats, methods, utils, survival, fastmatch, segmented
 Suggests: knitr
 Version: 0.1.0
 Author: Tianchen Xu [aut, cre] (<https://orcid.org/0000-0002-0102-7630>)

@@ -13,7 +13,7 @@
 
 <title>Piecewise Exponential Prediction Model</title>
 
-<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -146,11 +146,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -179,8 +183,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -188,16 +192,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -364,7 +361,9 @@ with an existing dataset)
 <li>the <code>simdata()</code> function generates synthetic survival
 dataset with
 <ul>
-<li>enrollment time defined by enrollment rate or enrollment curve</li>
+<li>randomization time defined by randomization rate (number of subjects
+per month) or randomization curve (number of subjects in each
+month)</li>
 <li>multiple treatment groups with stratification by user-defined
 allocation ratio</li>
 <li>primary endpoint (event), drop-out (censor) and death with
@@ -385,7 +384,7 @@ more details)</li>
 <li><strong>Split Data:</strong>
 <ul>
 <li>the <code>cut_dat()</code> function cuts the data by a specified
-time point. Only subjects who are enrolled before the specified time
+time point. Only subjects who are randomized before the specified time
 will be kept. It also recensors the data at the specified time. It is
 useful to create a training set.</li>
 </ul></li>
@@ -437,7 +436,12 @@ href="https://CRAN.R-project.org/package=fastmatch">fastmatch</a> before
 installing <a href="https://github.com/zjph602xtc/PWEXP">PWEXP</a>.</p>
 <pre class="r"><code>install.packages(&#39;fastmatch&#39;)
 library(&#39;fastmatch&#39;)
-library(&#39;PWEXP&#39;)</code></pre>
+library(&#39;PWEXP&#39;)
+
+# or install package from Github
+install.packages(&quot;devtools&quot;)
+library(devtools)
+install_github(&quot;zjph602xtc/PWEXP&quot;)</code></pre>
 <p><br></p>
 </div>
 <div id="simulate-data" class="section level1">
@@ -449,8 +453,8 @@ use <code>simdata()</code> function to generate a simple example
 dataset:</p>
 <ul>
 <li>two groups with sample size ratio 1:2 (treatment vs. control);</li>
-<li>enrollment curve is defined as 10 pt/month in the first 2 months and
-5 pt/month in the following 20 months;</li>
+<li>randomization curve is defined as 10 pt/month in the first 2 months
+and 5 pt/month in the following 20 months;</li>
 <li>the primary endpoint (event) follows an exponential distribution
 with hazard rate 0.01, 0.05 for treatment and control group;</li>
 <li>the drop-out follows an exponential distribution with drop-out
@@ -460,12 +464,12 @@ probability 3%/month (equivalently, drop-out hazard rate is
 0, 0.005 for each group;</li>
 <li>argument <code>add_column</code> request some extra variables.</li>
 </ul>
-<pre class="r"><code>demo_dat0 &lt;- simdata(group = c(&#39;trt&#39;,&#39;control&#39;), n_enroll = c(10,10,rep(5,20)),
+<pre class="r"><code>demo_dat0 &lt;- simdata(group = c(&#39;trt&#39;,&#39;control&#39;), n_rand = c(10,10,rep(5,20)),
                      allocation = c(1,2), event_lambda = c(0.01, 0.05), 
                      drop_rate = 0.03, death_lambda = c(0, 0.005), 
                      add_column = c(&#39;eventT_abs&#39;,&#39;dropT_abs&#39;,&#39;deathT_abs&#39;,&#39;followT&#39;,&#39;followT_abs&#39;,&#39;censor&#39;,&#39;event&#39;,&#39;censor_reason&#39;))
 head(demo_dat0)</code></pre>
-<pre><code>##   ID group    enrollT    eventT    dropT deathT eventT_abs dropT_abs deathT_abs
+<pre><code>##   ID group      randT    eventT    dropT deathT eventT_abs dropT_abs deathT_abs
 ## 1  1   trt  0.6225994  80.20827 37.49508    Inf   80.83087  38.11768        Inf
 ## 2  2   trt  8.9574934  12.73224 34.16406    Inf   21.68974  43.12155        Inf
 ## 3  3   trt 19.7647359  41.60280 17.98190    Inf   61.36754  37.74663        Inf
@@ -481,7 +485,7 @@ head(demo_dat0)</code></pre>
 ## 6 16.37645    21.89634      1     0      drop_out</code></pre>
 <p>In the generated dataset:</p>
 <ul>
-<li><code>enrollT</code> is the enrollment time</li>
+<li><code>randT</code> is the randomization time</li>
 <li><code>eventT</code>, <code>dropT</code>, <code>deathT</code> are the
 underlying primary event, drop-out, death time</li>
 <li><code>followT</code> is the follow-up time, which is the minimum
@@ -510,7 +514,7 @@ myevent_dist &lt;- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,1
 # you can use any generation function in simdata function, for example, use a weibull density:
 # myevent_dist &lt;- function(n)rweibull(n, shape=0.5, scale=10)
 # use advanced_dist to adopt user-defined distribution, see function help for more details
-dat &lt;- simdata(enroll_rate = 20, total_sample = 1000, drop_rate = 0.03,  
+dat &lt;- simdata(rand_rate = 20, total_sample = 1000, drop_rate = 0.03,  
                advanced_dist = list(event_dist=myevent_dist),
                add_column = c(&#39;censor_reason&#39;,&#39;event&#39;,&#39;followT&#39;,&#39;followT_abs&#39;))</code></pre>
 <p>We can use the <code>plot_survival()</code> function to plot the
@@ -524,13 +528,13 @@ plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0, 25), main=&#39;Numbe
 <div id="split-data-to-obtain-traininginterim-data"
 class="section level1">
 <h1>2. Split Data to Obtain Training/Interim Data</h1>
-<p>We cut the dataset by the time when 80% percent subject are enrolled.
-Only subjects who are enrolled before the specified time will be kept in
-the returned data. The returned data will be recensored at the specified
-time. This step is to create a training set. In real data analysis, this
-step may not be needed.</p>
-<pre class="r"><code>cut &lt;- quantile(dat$enrollT, 0.8)
-train &lt;- cut_dat(var_enrollT = &#39;enrollT&#39;, cut = cut, data = dat,
+<p>We cut the dataset by the time when 80% percent subject are
+randomized. Only subjects who are randomized before the specified time
+will be kept in the returned data. The returned data will be recensored
+at the specified time. This step is to create a training set. In real
+data analysis, this step may not be needed.</p>
+<pre class="r"><code>cut &lt;- quantile(dat$randT, 0.8)
+train &lt;- cut_dat(cut = cut, data = dat, var_randT = &#39;randT&#39;, 
                  var_followT = &#39;followT&#39;, var_followT_abs = &#39;followT_abs&#39;,
                  var_event = &#39;event&#39;, var_censor_reason = &#39;censor_reason&#39;)</code></pre>
 <p><br></p>
@@ -551,6 +555,8 @@ exponential model since there is NO breakpoints.</li>
 </ul>
 <pre class="r"><code>fit_a0 &lt;- pwexp.fit(train$followT, train$event, breakpoint = c(5,14))
 fit_a1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14))
+# argument &#39;exclude_int&#39; defines an interval that excludes any estimated breakpoints. for example:
+# fit_a1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(5), exclude_int=c(8,Inf))
 fit_b0 &lt;- pwexp.fit(train$followT, train$event, nbreak = 0)
 fit_b1 &lt;- pwexp.fit(train$followT, train$event, nbreak = 1)
 fit_b2 &lt;- pwexp.fit(train$followT, train$event, nbreak = 2)
@@ -580,7 +586,7 @@ fit_b1_cv &lt;- cv.pwexp.fit(fit_b1, nsim = nsim)
 fit_b2_cv &lt;- cv.pwexp.fit(fit_b2, nsim = nsim)
 fit_b3_cv &lt;- cv.pwexp.fit(fit_b3, nsim = nsim)
 # alternatively, we can specify a new model in the cv.pwexp.fit function instead of CV a fitted model, for example:
-fit_b4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak=4, max_set=100, nsim=nsim)
+fit_b4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak=4, nsim=nsim)
 boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=nsim)), ylab=&#39;CV log likelihood&#39;, xlab=&#39;Model&#39;, ylim=c(-320,-250), col=col, main=&#39;CV log likelihood of Fitted Models&#39;)
 legend(&#39;topleft&#39;, model_name, fill=col, ncol=2, text.width=3)</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="50%" height="100%" /></p>
@@ -634,7 +640,7 @@ of events in the future. Note the returned object from
 <code>predict()</code> contains event curve functions and it should be
 used in <code>plot_event()</code> function to obtain the estimated
 events and to plot the curve.</p>
-<pre class="r"><code>predicted_boot &lt;- predict(event_model_boot=fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_enroll=list(enroll_rate=20, total_sample=NROW(dat)-NROW(train)))</code></pre>
+<pre class="r"><code>predicted_boot &lt;- predict(event_model_boot=fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_rand=list(rand_rate=20, total_sample=NROW(dat)-NROW(train)))</code></pre>
 <p>We use <code>plot_event()</code> function to plot the event
 curve:</p>
 <pre class="r"><code>plot_event(dat$followT_abs, abs_time=T, event=dat$event, ylim=c(0, 800), main=&#39;Predicted Number of Events&#39;)
@@ -647,11 +653,11 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ev
 <pre class="r"><code>head(pred_event)</code></pre>
 <pre><code>##      time  n_event 2.5% n_event 97.5% n_event
 ## [1,]   40       NA           NA            NA
-## [2,]   45 521.1822     505.6762      537.5411
-## [3,]   50 598.0000     577.3775      618.1988
-## [4,]   55 649.3363     628.3097      669.4947
-## [5,]   60 681.4305     661.8929      701.6942
-## [6,]   65 710.5583     691.0315      730.6668</code></pre>
+## [2,]   45 521.3411     506.3146      536.3226
+## [3,]   50 598.3542     578.0000      617.8705
+## [4,]   55 649.0046     629.3894      670.0000
+## [5,]   60 681.0858     662.4157      703.6169
+## [6,]   65 709.7883     691.2985      732.9183</code></pre>
 <p><br></p>
 <p>By adding argument <code>xyswitch=TRUE</code>, we can use
 <code>predict()</code> function to obtain the timeline given the number
@@ -663,11 +669,11 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ti
 <p><img src="index_files/figure-html/unnamed-chunk-14-1.png" width="480" /></p>
 <pre class="r"><code>head(pred_time)</code></pre>
 <pre><code>##      n_event     time 2.5% time 97.5% time
-## [1,]     500 43.62064  42.85611   44.62480
-## [2,]     550 46.86073  45.83986   48.18994
-## [3,]     600 50.14580  48.97355   51.65315
-## [4,]     650 55.11904  52.57456   58.19827
-## [5,]     700 63.07147  59.76205   67.37757</code></pre>
+## [1,]     500 43.61689  42.87224   44.54371
+## [2,]     550 46.87314  45.83440   48.05943
+## [3,]     600 50.11711  48.92004   51.73132
+## [4,]     650 55.15592  52.53246   57.93580
+## [5,]     700 63.22742  59.46033   67.22713</code></pre>
 <p><br></p>
 </div>
 <div id="appendix" class="section level1">
@@ -837,8 +843,161 @@ legend(&#39;topleft&#39;, c(&#39;empirial CDF of piecewise exp dist given t &gt;
 <div id="b.-estimation-of-piecewise-exponential-model"
 class="section level2">
 <h2>B. Estimation of Piecewise Exponential Model</h2>
-<p>to do..</p>
+<div id="b.1-parameter-estimation" class="section level3">
+<h3>B.1 Parameter Estimation</h3>
+<div id="hazard" class="section level4">
+<h4>B.1.1 Hazard Rate Estimation with Known Breakpoints</h4>
+<p>The log likelihood function can be constructed as following: <span
+class="math display">\[\begin{align}
+    \log(L)=&amp;\sum_{j\in D_1}\left[\log(\lambda_1)-\lambda_1
+t_j\right]+\sum_{j\in C_1}\left[-\lambda_1 t_j\right]\\
+    &amp;\quad +\sum_{j\in
+D_2}\left[\log(\lambda_2)+(\lambda_2-\lambda_1)d_1-\lambda_2
+t_j\right]+\sum_{j\in C_2}\left[(\lambda_2-\lambda_1)d_1-\lambda_2
+t_j\right]\\
+    &amp;\quad +\cdots \\
+    &amp;\quad +\sum_{j\in D_{r+1}}\left\{\log(\lambda_{r+1})
++\sum_{i=1}^r \left[(\lambda_{i+1}-\lambda_i)d_i\right]-\lambda_{r+1}
+t_j\right\}+\sum_{j\in C_{r+1}}\left\{\sum_{i=1}^r
+\left[(\lambda_{i+1}-\lambda_i)d_i\right]-\lambda_{r+1} t_j\right\}
+\end{align}\]</span> where <span class="math inline">\(D_r\)</span> or
+<span class="math inline">\(C_r\)</span> are the index set of event time
+or censoring time that fall into <span
+class="math inline">\(r\)</span>th interval of the piecewise exponential
+distribution.</p>
+<p>When breakpoints <span class="math inline">\(d_1\)</span> to <span
+class="math inline">\(d_r\)</span> are known, we can take a derivative
+of <span class="math inline">\(\log(L)\)</span> wrt <span
+class="math inline">\(\lambda\)</span>: <span
+class="math display">\[\begin{align}
+    \frac{\partial \log(L)}{\partial \lambda_1}=&amp;\sum_{j\in
+D_1}\left[1/\lambda_1- t_j\right]+\sum_{j\in C_1}\left[-t_j\right]
+    +\sum_{j\in D_2}\left[-d_1\right]+\sum_{j\in C_2}\left[-d_1\right]
+     +\cdots
+    +\sum_{j\in D_{r+1}}\left[-d_1\right]+\sum_{j\in
+C_{r+1}}\left[-d_1\right]\\
+    =&amp;\frac{n_{D_1}}{\lambda_1}-\sum_{j\in C_1}t_j- n_{2^+}d_1\\
+    \frac{\partial \log(L)}{\partial \lambda_2}=&amp;\sum_{j\in
+D_2}\left[1/\lambda_2+d_1-t_j\right]+\sum_{j\in C_2}\left[d_1-
+t_j\right]
+    +\cdots
+    +\sum_{j\in D_{r+1}}\left[-d_2+d_1\right]+\sum_{j\in
+C_{r+1}}\left[-d_2+d_1\right]\\
+    =&amp;\frac{n_{D_2}}{\lambda_2}-\sum_{j\in D_2, C_2}(t_j-d_1)-
+n_{3^+}(d_2-d_1)\\
+    &amp;\cdots\\
+    \frac{\partial \log(L)}{\partial
+\lambda_r}=&amp;\frac{n_{D_r}}{\lambda_r}-\sum_{j\in D_r,
+C_r}(t_j-d_{r-1})- n_{{r+1}^+}(d_r-d_{r-1})\\
+    \frac{\partial \log(L)}{\partial
+\lambda_{r+1}}=&amp;\frac{n_{D_{r+1}}}{\lambda_{r+1}}-\sum_{j\in
+D_{r+1}, C_{r+1}}(t_j-d_{r})
+\end{align}\]</span> where <span class="math inline">\(n_{D_r}\)</span>
+is the number of events that fall into the <span
+class="math inline">\(r\)</span>th interval; <span
+class="math inline">\(n_{r^+}\)</span> is the number of events and
+censoring that fall into the <span class="math inline">\(r\)</span>th to
+the end intervals.</p>
+<p>Let all derivatives equal to <span class="math inline">\(0\)</span>,
+we obtain the MLE estimator of hazard rates: <span
+class="math display">\[\begin{align}
+    \hat\lambda_1=&amp;\frac{n_{D_1}}{\sum_{j\in C_1}t_j+ n_{2^+}d_1}\\
+    \hat\lambda_2=&amp;\frac{n_{D_2}}{\sum_{j\in D_2, C_2}(t_j-d_1)+
+n_{3^+}(d_2-d_1)}\\
+    &amp;\cdots\\
+    \hat\lambda_r=&amp;\frac{n_{D_r}}{\sum_{j\in D_r, C_r}(t_j-d_{r-1})+
+n_{r+1^+}(d_r-d_{r-1})}\\
+    \hat\lambda_{r+1}=&amp;\frac{n_{D_{r+1}}}{\sum_{j\in D_{r+1},
+C_{r+1}}(t_j-d_r)}
+\end{align}\]</span></p>
 </div>
+</div>
+<div id="b.2-estimation-of-breakpoints" class="section level3">
+<h3>B.2 Estimation of Breakpoints</h3>
+<div id="mle" class="section level4">
+<h4>B.2.1 MLE by Brute-force Search</h4>
+<p>The log likelihood function is differentiable wrt <span
+class="math inline">\(d_r\)</span> as long as <span
+class="math inline">\(d_r\)</span> is not equal to any event time or
+censoring time. We take the derivative of <span
+class="math inline">\(\log(L)\)</span> wrt <span
+class="math inline">\(d_r\)</span>: <span
+class="math display">\[\begin{align}
+    \frac{\partial \log(L)}{\partial d_r}=&amp;\sum_{j\in
+D_{r+1}}\left[\lambda_{r+1}-\lambda_r\right]+\sum_{j\in
+C_{r+1}}\left[\lambda_{r+1}-\lambda_r\right]\\
+    =&amp;n_{{r+1}^+}(\lambda_{r+1}-\lambda_r)
+\end{align}\]</span> Since <span class="math inline">\(\lambda_{r+1}\ne
+\lambda_r\)</span>, then the derivative cannot be zero when <span
+class="math inline">\(d_r\)</span> is between two consecutive sample
+time points. This fact implies that only when <span
+class="math inline">\(d_r\)</span> is equal to any of the sample values,
+the log likelihood function achieves the maximum value.</p>
+<p>Therefore, we can use a brute-force search to calculate the log
+likelihood function values for all potential breakpoint combinations.
+For each candidate, hazard rates can be estimated by the formula in <a
+href="#hazard">Section B.1.1</a> and thus the log likelihood can be
+obtained. The breakpoints and hazard rates with the largest log
+likelihood value are the MLE estimator.</p>
+<p>When the number of samples or the number of breakpoints are
+relatively large, the combination of breakpoints will be very large and
+the brute-force search may not be feasible. We will draw a random
+sub-sample first and then do exhaustive search based on the sub-sample.
+The argument in function controls the maximum combination candidates to
+try.</p>
+</div>
+<div id="ols" class="section level4">
+<h4>B.2.2 OLS on Survival Function</h4>
+<p>The second method to estimate breakpoints is based on the survival
+curve. Once we take a log transformation of the piecewise survival
+function, we will obtain a piecewise linear function: <span
+class="math display">\[\begin{align}
+    \log(S(t))=&amp;\begin{cases}
+        {-\lambda_1 t}, &amp; t&lt;d_1\\
+        {(\lambda_2-\lambda_1)d_1-\lambda_2t} , &amp; d_1\le t&lt;d_2\\
+        \vdots\\
+        {\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t},
+&amp; t\ge d_r
+    \end{cases}\\
+    =&amp;-\lambda_1 t +(\lambda_1-\lambda_2) (t-d_1)_+\cdots
++(\lambda_r-\lambda_{r+1})(t-d_r)_+
+\end{align}\]</span></p>
+<p>Let <span class="math inline">\(Y_i\)</span> be the log value of KM
+estimate at <span class="math inline">\(t_i\)</span>. Following <a
+href="#ref">Muggeo (2003)</a>, we use <span class="math inline">\((t_i,
+Y_i)\)</span> to fit the piecewise log survival function <span
+class="math inline">\(\log(S(t))\)</span> and obtain the OLS breakpoints
+<span class="math inline">\(\hat d_r\)</span>. Once breakpoints are
+determined, hazard rates can be estimated by the formula in <a
+href="#hazard">Section B.1.1</a>.</p>
+</div>
+<div id="b.2.3-hybrid-method" class="section level4">
+<h4>B.2.3 Hybrid Method</h4>
+<p>The breakpoints estimated in <a href="#ols">Section B.2.2</a> are not
+exactly but very close to the MLE estimator. In order to obtain the MLE
+estimator, we combine brute-force search with OLS method.</p>
+<p>Specifically, instead of drawing a random sub-sample in <a
+href="#mle">Section B.2.1</a>, we draw a sub-sample from the values
+within 95% percent confidence intervals of the estimated breakpoints
+from <a href="#ols">Section B.2.2</a>. Then we do exhaustive search
+based on the sub-sample. The argument in function controls the maximum
+combination candidates to try. The hybrid method improves the efficiency
+and accuracy of the estimation procedure.</p>
+</div>
+</div>
+<div id="b.3-summary" class="section level3">
+<h3>B.3 Summary</h3>
+<p>The procedure of parameter estimation is summarized in the diagram
+below:</p>
+<p><img src="images/estimation.png" width="650" /></p>
+<p><br></p>
+</div>
+</div>
+</div>
+<div id="ref" class="section level1">
+<h1>Reference</h1>
+<p>[1] Muggeo, V. M. (2003). Estimating regression models with unknown
+break-points. Statistics in medicine, 22(19), 3055-3071.</p>
 </div>
 
 

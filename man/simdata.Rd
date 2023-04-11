@@ -6,8 +6,8 @@
 }
 \usage{
 simdata(group="Group 1", strata="Strata 1", allocation=1,
-    event_lambda=NA, drop_rate=NA, death_lambda=NA, n_enroll=NULL,
-    enroll_rate=NULL, total_sample=NULL, add_column=c('followT'),
+    event_lambda=NA, drop_rate=NA, death_lambda=NA, n_rand=NULL,
+    rand_rate=NULL, total_sample=NULL, add_column=c('followT'),
     simplify=TRUE, advanced_dist=NULL)
 }
 \arguments{
@@ -17,20 +17,20 @@ simdata(group="Group 1", strata="Strata 1", allocation=1,
   \item{event_lambda}{the hazard rate of the primary endpoint (event). See details. The value will be recycled if the length is less than needed.}
   \item{drop_rate}{(optional) the drop-out rate (patients/month). Not hazard rate. See details. The value will be recycled if the length is less than needed.}
   \item{death_lambda}{(optional) the hazard rate of death. The value will be recycled if the length is less than needed.}
-  \item{n_enroll}{(required when \code{enroll_rate=NULL}) a vector of the number of enrollment each month.}
-  \item{enroll_rate}{(required when \code{n_enroll=NULL}) the enrollment rate (patients/month).}
-  \item{total_sample}{(required when \code{n_enroll=NULL}) total scheduled sample size.}
+  \item{n_rand}{(required when \code{rand_rate=NULL}) a vector of the number of randomization each month.}
+  \item{rand_rate}{(required when \code{n_rand=NULL}) the randomization rate (patients/month).}
+  \item{total_sample}{(required when \code{n_rand=NULL}) total scheduled sample size.}
   \item{add_column}{request additional columns of the returned data frame. \cr
 Valid options are:
     \itemize{
-      \item \code{'eventT_abs'}: absolute event time from the beginning of the trial (=eventT+enrollT)
-      \item \code{'dropT_abs'}: absolute drop-out time from the beginning of the trial (=dropT+enrollT)
-      \item \code{'deathT_abs'}: absolute death time from the beginning of the trial (=deathT+enroolT)
+      \item \code{'eventT_abs'}: absolute event time from the beginning of the trial (=eventT+randT)
+      \item \code{'dropT_abs'}: absolute drop-out time from the beginning of the trial (=dropT+randT)
+      \item \code{'deathT_abs'}: absolute death time from the beginning of the trial (=deathT+randT)
       \item \code{'censor'}: censoring (drop-out or death) indicator
       \item \code{'event'}: event indicator
       \item \code{'censor_reason'}: censoring reason ('drop_out','death','never_event'(eventT=inf))
-      \item \code{'followT'}: follow-up time (true observed time) from enrollT
-      \item \code{'followT_abs'}: absolute follow-up time from the beginning of the trial (=followT+enrollT)
+      \item \code{'followT'}: follow-up time (true observed time) from randT
+      \item \code{'followT_abs'}: absolute follow-up time from the beginning of the trial (=followT+randT)
     }}
   \item{simplify}{whether drop unused columns (e.g., the group variable when there is only one group). See details.}
   \item{advanced_dist}{use user-specified distributions for event, drop-out and death. A list containing random generation functions. See details and examples. }
@@ -41,17 +41,17 @@ Valid options are:
   \item{ID}{subject ID}
   \item{group}{group indicator}
   \item{strata}{stratum indicator}
-  \item{enrollT}{enrollment time (from the beginning of the trial)}
-  \item{eventT}{event time (from \code{enrollT})}
+  \item{randT}{randomization time (from the beginning of the trial)}
+  \item{eventT}{event time (from \code{randT})}
   \item{eventT_abs}{event time (from the beginning of the trial)}
-  \item{dropT}{drop-out time (from \code{enrollT})}
+  \item{dropT}{drop-out time (from \code{randT})}
   \item{dropT_abs}{drop-out time (from the beginning of the trial)}
-  \item{deathT}{death time (from \code{enrollT})}
+  \item{deathT}{death time (from \code{randT})}
   \item{deathT_abs}{death time (from the beginning of the trial)}
   \item{censor}{censoring (drop-out or death) indicator}
   \item{censor_reason}{censoring reason ('drop_out','death','never_event'(followT=inf))}
   \item{event}{event indicator}
-  \item{followT}{follow-up time / observed time (from \code{enrollT})}
+  \item{followT}{follow-up time / observed time (from \code{randT})}
   \item{followT_abs}{follow-up time / observed time (from the beginning of the trial)}
 }
 \details{
@@ -93,13 +93,13 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 # sensitive stratum and a non-sensitive stratum. In the placebo group, all
 # subjects are the same. Treatment:place=1:2. Drop rate=1\% only in treatment group.
 dat <- simdata(group=c('trt', 'place'), strata = c('sensitive','non-sensitive'),
-               allocation = c(1,1,2,2), enroll_rate = 20, total_sample = 1000,
+               allocation = c(1,1,2,2), rand_rate = 20, total_sample = 1000,
                event_lambda = c(0.1, 0.2, 0.01, 0.01),
                drop_rate = c(0.01, 0.01, 0, 0))
-# enrolled subjects
+# randomized subjects
 table(dat$group,dat$strata)
-# enrollment curve
-plot(sort(dat$enrollT), 1:1000, xlab='time', ylab='enrolled subjects')
+# randomization curve
+plot(sort(dat$randT), 1:1000, xlab='time', ylab='randomized subjects')
 # event time in treatment group
 plot(ecdf(dat$eventT[dat$group=='trt' & dat$strata=='sensitive']))
 lines(ecdf(dat$eventT[dat$group=='trt' & dat$strata=='non-sensitive']), col='red')
@@ -109,14 +109,14 @@ lines(ecdf(dat$eventT[dat$group=='trt' & dat$strata=='non-sensitive']), col='red
 # a Weibull; death follows a exponential.
 dist_trt <- function(n)rpwexp(n, rate=c(0.01, 0.05, 0.01), breakpoint = c(30,60))
 dist_placebo <- function(n)rpwexp(n, rate=c(0.01, 0.005), breakpoint = c(50))
-dat <- simdata(group = c('trt','placebo'), n_enroll = c(rep(10,50),rep(20,10)),
+dat <- simdata(group = c('trt','placebo'), n_rand = c(rep(10,50),rep(20,10)),
                death_lambda = 0.01,
                advanced_dist = list(event_dist=c(dist_trt, dist_placebo),
                                     drop_dist=function(n)rweibull(n,3,40)))
-# enrolled subjects
+# randomized subjects
 table(dat$group)
-# enrollment curve
-plot(sort(dat$enrollT), 1:700, xlab='time', ylab='enrolled subjects')
+# randomization curve
+plot(sort(dat$randT), 1:700, xlab='time', ylab='randomized subjects')
 # event time in both groups
 plot(ecdf(dat$eventT[dat$group=='trt']), xlim=c(0,100))
 lines(ecdf(dat$eventT[dat$group=='placebo']), col='red')
@@ -126,7 +126,7 @@ plot(ecdf(dat$dropT), xlim=c(0,100))
 
 # mixture cure distribution, 20\% of the subject are cured and will not have events
 dat <- simdata(strata=c('cure','non-cure'), allocation=c(20,80),
-        event_lambda=c(0, 0.38), n_enroll = rep(20,30),
+        event_lambda=c(0, 0.38), n_rand = rep(20,30),
         add_column = c('eventT_abs', 'censor', 'event',
                        'censor_reason', 'followT', 'followT_abs'))
 }

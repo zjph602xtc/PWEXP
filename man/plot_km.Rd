@@ -12,11 +12,11 @@
        lwd=2, xlab='Follow-up time', ylab='Survival function', ...)
 \method{plot_survival}{pwexp.fit}(object, add=TRUE, show_breakpoint=TRUE,
        breakpoint_par=NULL, ...)
-\method{plot_survival}{boot.pwexp.fit}(object, add=TRUE, alpha=0.05, show_breakpoint=TRUE,
+\method{plot_survival}{boot.pwexp.fit}(object, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
        breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...)
 }
 \arguments{
- \item{time}{observed time from enrollment. For right censored data, this is the follow-up time. }
+ \item{time}{observed time from randomization. For right censored data, this is the follow-up time. }
  \item{event}{the status indicator, normally 0=censor, 1=event. Other choices are TRUE/FALSE (TRUE = event). }
  \item{object}{an object of class \code{pwexp.fit} or \code{boot.pwexp.fit} returned by the \code{\link{pwexp.fit}} or \code{\link{boot.pwexp.fit}} function.}
  \item{add}{logical; if TRUE add lines to current plot.}
@@ -45,7 +45,7 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 
 \examples{
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
-dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
+dat <- simdata(rand_rate = 20, drop_rate = 0.03,  total_sample = 1000,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
 

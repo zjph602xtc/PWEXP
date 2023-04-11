@@ -1,5 +1,5 @@
-predict.pwexp.fit <- function(event_model, cut_indicator=NULL, analysis_time, censor_model=NULL, type='predictive', n_each=100, future_enroll=NULL, seed=1818){
-  # future_enroll is a list containing parameters in simdata
+predict.pwexp.fit <- function(event_model, cut_indicator=NULL, analysis_time, censor_model=NULL, type='predictive', n_each=100, future_rand=NULL, seed=1818){
+  # future_rand is a list containing parameters in simdata
   # model is a fitted model
   attr(event_model,'lam') <- matrix(attr(event_model,'lam'),nrow=1)
   if (!is.null(attr(event_model,'brk'))){
@@ -11,13 +11,13 @@ predict.pwexp.fit <- function(event_model, cut_indicator=NULL, analysis_time, ce
       attr(censor_model,'brk') <- matrix(attr(censor_model,'brk'),nrow=1)
     }
   }
-  res <- predict.boot.pwexp.fit(event_model_boot = event_model, cut_indicator = cut_indicator, analysis_time = analysis_time, censor_model_boot = censor_model, type = type, n_each = n_each, future_enroll = future_enroll, seed = seed)
+  res <- predict.boot.pwexp.fit(event_model_boot = event_model, cut_indicator = cut_indicator, analysis_time = analysis_time, censor_model_boot = censor_model, type = type, n_each = n_each, future_rand = future_rand, seed = seed)
   class(res) <- c('predict.pwexp.fit','list')
   return(res)
 }
 
-predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysis_time, censor_model_boot=NULL, type='predictive', n_each=10, future_enroll=NULL, seed=1818){
-  # future_enroll is a list containing parameters in simdata
+predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysis_time, censor_model_boot=NULL, type='predictive', n_each=10, future_rand=NULL, seed=1818){
+  # future_rand is a list containing parameters in simdata
   # model is a fitted model
 
   if (!(type %in% c('predictive','confidence'))){
@@ -44,7 +44,7 @@ predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysi
     warning('\'cut_indactor\' contains missing values. All missing values are set to 0')
     cut_indicator[is.na(cut_indicator)] <- 0
   }
-  future <- ifelse(is.null(future_enroll), FALSE, TRUE)
+  future <- ifelse(is.null(future_rand), FALSE, TRUE)
 
   censor_l <- 0
   censor_b <- NULL
@@ -72,7 +72,7 @@ predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysi
         dat_t <- simdata(advanced_dist = list(
           event_dist=function(n)rpwexp(n,event_l,event_b),
           drop_dist=function(n)rpwexp(n,censor_l,censor_b)),
-          n_enroll=future_enroll$n_enroll, enroll_rate=future_enroll$enroll_rate, total_sample=future_enroll$total_sample,
+          n_rand=future_rand$n_rand, rand_rate=future_rand$rand_rate, total_sample=future_rand$total_sample,
           add_column = c('event','censor_reason','followT_abs','followT'))
         dat_t$followT_abs <- dat_t$followT_abs+analysis_time
       }else{
@@ -83,7 +83,7 @@ predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysi
       dat_t_cut <- simdata(advanced_dist = list(
         event_dist=function(n)rpwexp_conditional(n,para$time[cut_indicator==1], event_l,event_b),
         drop_dist=function(n)rpwexp_conditional(n,para$time[cut_indicator==1], censor_l,censor_b)),
-        n_enroll = sum(cut_indicator), add_column = c('event','censor_reason','followT_abs','followT'))
+        n_rand = sum(cut_indicator), add_column = c('event','censor_reason','followT_abs','followT'))
       dat_t_cut$followT_abs <- dat_t_cut$followT
       dat_t_cut$followT_abs <- dat_t_cut$followT_abs-para$time[cut_indicator==1]+analysis_time
       dat_pre <- rbind(dat_t, dat_t_cut)

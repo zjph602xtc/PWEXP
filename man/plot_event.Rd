@@ -12,11 +12,11 @@
          add=FALSE, plot=TRUE, xyswitch=FALSE, ...)
 \method{plot_event}{predict.pwexp.fit}(predict_model, abs_time=TRUE, add=TRUE, plot=TRUE,
          xyswitch=FALSE, eval_at=NULL, ...)
-\method{plot_event}{predict.boot.pwexp.fit}(predict_model, abs_time=TRUE, alpha=0.05, add=TRUE,
+\method{plot_event}{predict.boot.pwexp.fit}(predict_model, abs_time=TRUE, alpha=0.1, add=TRUE,
          plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...)
 }
 \arguments{
- \item{time}{observed/follow-up time from  the enrollment time or from the beginning of the trial.}
+ \item{time}{observed/follow-up time from  the randomization time or from the beginning of the trial.}
  \item{abs_time}{logical; if TRUE, \code{time} is the time from first randomization of the trial. if FALSE, \code{time} is the time from the randomization of each subject. }
  \item{event}{the status indicator, 0=censor, 1=event. Other choices are TRUE/FALSE (TRUE = event).}
  \item{predict_model}{a predicted object from \code{\link{predict.pwexp.fit}}, or a predicted object with bootstrapping  from \code{\link{predict.boot.pwexp.fit}}.}
@@ -50,11 +50,11 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 \dontrun{
 set.seed(1818)
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
-dat <- simdata(enroll_rate = 20, drop_rate = 0.03,  total_sample = 1000,
+dat <- simdata(rand_rate = 20, drop_rate = 0.03,  total_sample = 1000,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
-cut <- quantile(dat$enrollT, 0.8)
-train <- cut_dat(var_enrollT = 'enrollT', cut = cut, data = dat,
+cut <- quantile(dat$randT, 0.8)
+train <- cut_dat(var_randT = 'randT', cut = cut, data = dat,
                  var_followT = 'followT', var_followT_abs = 'followT_abs',
                  var_event = 'event', var_censor_reason = 'censor_reason')
 
@@ -70,7 +70,7 @@ cut_indicator[is.na(cut_indicator)] <- 0
 
 predicted_boot <- predict(event_model_boot=fit_res_boot, cut_indicator = cut_indicator,
                      analysis_time = cut,  censor_model_boot=fit_res_censor_boot,
-                     future_enroll=list(enroll_rate=20, total_sample=NROW(dat)-NROW(train)))
+                     future_rand=list(rand_rate=20, total_sample=NROW(dat)-NROW(train)))
 
 plot_event(dat$followT_abs, abs_time = T, event=dat$event, ylim=c(0,800))
 plot_event(predicted_boot, eval_at = seq(40,90,5), CI_par = list(lty=3, lwd=2))

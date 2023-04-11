@@ -36,8 +36,8 @@ components for different tasks:
     existing dataset)
     -   the `simdata()` function generates synthetic survival dataset
         with
-        -   enrollment time defined by enrollment rate or enrollment
-            curve
+        -   randomization time defined by randomization rate (number of subjects per month) or randomization
+            curve (number of subjects in each month)
         -   multiple treatment groups with stratification by user-defined allocation ratio
         -   primary endpoint (event), drop-out (censor) and death with
             exponential distribution or user-defined distributions (e.g.,
@@ -53,7 +53,7 @@ components for different tasks:
         Distribution' Section](#dist) for more details)
 -   **Split Data:**
     -   the `cut_dat()` function cuts the data by a specified time
-        point. Only subjects who are enrolled before the specified time
+        point. Only subjects who are randomized before the specified time
         will be kept. It also recensors the data at the specified time.
         It is useful to create a training set.
 -   **Fit a Piecewise Exponential Model:**
@@ -95,6 +95,11 @@ installing [PWEXP](https://github.com/zjph602xtc/PWEXP).
 install.packages('fastmatch')
 library('fastmatch')
 library('PWEXP')
+
+# or install package from Github
+install.packages("devtools")
+library(devtools)
+install_github("zjph602xtc/PWEXP")
 ```
 
 ```{r echo=FALSE, message=FALSE}
@@ -113,7 +118,7 @@ You can skip this part if you work with an existing dataset. Here we use
 `simdata()` function to generate a simple example dataset:
 
 -   two groups with sample size ratio 1:2 (treatment vs. control);
--   enrollment curve is defined as 10 pt/month in the first 2 months and
+-   randomization curve is defined as 10 pt/month in the first 2 months and
     5 pt/month in the following 20 months;
 -   the primary endpoint (event) follows an exponential distribution
     with hazard rate 0.01, 0.05 for treatment and control group;
@@ -125,7 +130,7 @@ You can skip this part if you work with an existing dataset. Here we use
 -   argument `add_column` request some extra variables.
 
 ```{r}
-demo_dat0 <- simdata(group = c('trt','control'), n_enroll = c(10,10,rep(5,20)),
+demo_dat0 <- simdata(group = c('trt','control'), n_rand = c(10,10,rep(5,20)),
                      allocation = c(1,2), event_lambda = c(0.01, 0.05), 
                      drop_rate = 0.03, death_lambda = c(0, 0.005), 
                      add_column = c('eventT_abs','dropT_abs','deathT_abs','followT','followT_abs','censor','event','censor_reason'))
@@ -134,7 +139,7 @@ head(demo_dat0)
 
 In the generated dataset:
 
--   `enrollT` is the enrollment time
+-   `randT` is the randomization time
 -   `eventT`, `dropT`, `deathT` are the underlying primary event,
     drop-out, death time
 -   `followT` is the follow-up time, which is the minimum value of
@@ -163,7 +168,7 @@ myevent_dist <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
 # you can use any generation function in simdata function, for example, use a weibull density:
 # myevent_dist <- function(n)rweibull(n, shape=0.5, scale=10)
 # use advanced_dist to adopt user-defined distribution, see function help for more details
-dat <- simdata(enroll_rate = 20, total_sample = 1000, drop_rate = 0.03,  
+dat <- simdata(rand_rate = 20, total_sample = 1000, drop_rate = 0.03,  
                advanced_dist = list(event_dist=myevent_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
 ```
@@ -179,15 +184,15 @@ plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0, 25), main='Number of
 
 # 2. Split Data to Obtain Training/Interim Data
 
-We cut the dataset by the time when 80% percent subject are enrolled.
-Only subjects who are enrolled before the specified time will be kept in
+We cut the dataset by the time when 80% percent subject are randomized.
+Only subjects who are randomized before the specified time will be kept in
 the returned data. The returned data will be recensored at the specified
 time. This step is to create a training set. In real data analysis, this
 step may not be needed.
 
 ```{r}
-cut <- quantile(dat$enrollT, 0.8)
-train <- cut_dat(var_enrollT = 'enrollT', cut = cut, data = dat,
+cut <- quantile(dat$randT, 0.8)
+train <- cut_dat(cut = cut, data = dat, var_randT = 'randT', 
                  var_followT = 'followT', var_followT_abs = 'followT_abs',
                  var_event = 'event', var_censor_reason = 'censor_reason')
 ```
@@ -209,6 +214,8 @@ We will fit several piecewise exponential models on the training set:
 ```{r}
 fit_a0 <- pwexp.fit(train$followT, train$event, breakpoint = c(5,14))
 fit_a1 <- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14))
+# argument 'exclude_int' defines an interval that excludes any estimated breakpoints. for example:
+# fit_a1 <- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(5), exclude_int=c(8,Inf))
 fit_b0 <- pwexp.fit(train$followT, train$event, nbreak = 0)
 fit_b1 <- pwexp.fit(train$followT, train$event, nbreak = 1)
 fit_b2 <- pwexp.fit(train$followT, train$event, nbreak = 2)
@@ -241,7 +248,7 @@ fit_b1_cv <- cv.pwexp.fit(fit_b1, nsim = nsim)
 fit_b2_cv <- cv.pwexp.fit(fit_b2, nsim = nsim)
 fit_b3_cv <- cv.pwexp.fit(fit_b3, nsim = nsim)
 # alternatively, we can specify a new model in the cv.pwexp.fit function instead of CV a fitted model, for example:
-fit_b4_cv <- cv.pwexp.fit(train$followT, train$event, nbreak=4, max_set=100, nsim=nsim)
+fit_b4_cv <- cv.pwexp.fit(train$followT, train$event, nbreak=4, nsim=nsim)
 boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=nsim)), ylab='CV log likelihood', xlab='Model', ylim=c(-320,-250), col=col, main='CV log likelihood of Fitted Models')
 legend('topleft', model_name, fill=col, ncol=2, text.width=3)
 ```
@@ -300,7 +307,7 @@ plot_survival(fit_censor_boot, col='red', alpha=0.01, CI_par = list(col='#ff9896
 
 Finally, we use `predict()` function to predict the number of events in the future. Note the returned object from  `predict()` contains event curve functions and it should be used in `plot_event()` function to obtain the estimated events and to plot the curve. 
 ```{r, message=FALSE, results='hide'}
-predicted_boot <- predict(event_model_boot=fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_enroll=list(enroll_rate=20, total_sample=NROW(dat)-NROW(train)))
+predicted_boot <- predict(event_model_boot=fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_rand=list(rand_rate=20, total_sample=NROW(dat)-NROW(train)))
 ```
 
 We use `plot_event()` function to plot the event curve:
@@ -463,4 +470,83 @@ legend('topleft', c('empirial CDF of piecewise exp dist given t > 0.1', 'true CD
 <br>
 
 ## B. Estimation of Piecewise Exponential Model
-to do..
+### B.1 Parameter Estimation
+#### B.1.1 Hazard Rate Estimation with Known Breakpoints {#hazard}
+The log likelihood function can be constructed as following:
+\begin{align}
+    \log(L)=&\sum_{j\in D_1}\left[\log(\lambda_1)-\lambda_1 t_j\right]+\sum_{j\in C_1}\left[-\lambda_1 t_j\right]\\
+    &\quad +\sum_{j\in D_2}\left[\log(\lambda_2)+(\lambda_2-\lambda_1)d_1-\lambda_2 t_j\right]+\sum_{j\in C_2}\left[(\lambda_2-\lambda_1)d_1-\lambda_2 t_j\right]\\
+    &\quad +\cdots \\
+    &\quad +\sum_{j\in D_{r+1}}\left\{\log(\lambda_{r+1}) +\sum_{i=1}^r \left[(\lambda_{i+1}-\lambda_i)d_i\right]-\lambda_{r+1} t_j\right\}+\sum_{j\in C_{r+1}}\left\{\sum_{i=1}^r \left[(\lambda_{i+1}-\lambda_i)d_i\right]-\lambda_{r+1} t_j\right\}
+\end{align}
+where $D_r$ or $C_r$ are the index set of event time or censoring time that fall into $r$th interval of the piecewise exponential distribution.
+
+When breakpoints $d_1$ to $d_r$ are known, we can take a derivative of $\log(L)$ wrt $\lambda$:
+\begin{align}
+    \frac{\partial \log(L)}{\partial \lambda_1}=&\sum_{j\in D_1}\left[1/\lambda_1- t_j\right]+\sum_{j\in C_1}\left[-t_j\right]
+    +\sum_{j\in D_2}\left[-d_1\right]+\sum_{j\in C_2}\left[-d_1\right]
+     +\cdots 
+    +\sum_{j\in D_{r+1}}\left[-d_1\right]+\sum_{j\in C_{r+1}}\left[-d_1\right]\\
+    =&\frac{n_{D_1}}{\lambda_1}-\sum_{j\in C_1}t_j- n_{2^+}d_1\\
+    \frac{\partial \log(L)}{\partial \lambda_2}=&\sum_{j\in D_2}\left[1/\lambda_2+d_1-t_j\right]+\sum_{j\in C_2}\left[d_1- t_j\right]
+    +\cdots
+    +\sum_{j\in D_{r+1}}\left[-d_2+d_1\right]+\sum_{j\in C_{r+1}}\left[-d_2+d_1\right]\\
+    =&\frac{n_{D_2}}{\lambda_2}-\sum_{j\in D_2, C_2}(t_j-d_1)- n_{3^+}(d_2-d_1)\\
+    &\cdots\\
+    \frac{\partial \log(L)}{\partial \lambda_r}=&\frac{n_{D_r}}{\lambda_r}-\sum_{j\in D_r, C_r}(t_j-d_{r-1})- n_{{r+1}^+}(d_r-d_{r-1})\\
+    \frac{\partial \log(L)}{\partial \lambda_{r+1}}=&\frac{n_{D_{r+1}}}{\lambda_{r+1}}-\sum_{j\in D_{r+1}, C_{r+1}}(t_j-d_{r})
+\end{align}
+where $n_{D_r}$ is the number of events that fall into the $r$th interval; $n_{r^+}$ is the number of events and censoring that fall into the $r$th to the end intervals. 
+
+Let all derivatives equal to $0$, we obtain the MLE estimator of hazard rates:
+\begin{align}
+    \hat\lambda_1=&\frac{n_{D_1}}{\sum_{j\in C_1}t_j+ n_{2^+}d_1}\\
+    \hat\lambda_2=&\frac{n_{D_2}}{\sum_{j\in D_2, C_2}(t_j-d_1)+ n_{3^+}(d_2-d_1)}\\
+    &\cdots\\
+    \hat\lambda_r=&\frac{n_{D_r}}{\sum_{j\in D_r, C_r}(t_j-d_{r-1})+ n_{r+1^+}(d_r-d_{r-1})}\\
+    \hat\lambda_{r+1}=&\frac{n_{D_{r+1}}}{\sum_{j\in D_{r+1}, C_{r+1}}(t_j-d_r)}
+\end{align}
+
+### B.2 Estimation of Breakpoints
+#### B.2.1 MLE by Brute-force Search {#mle}
+The log likelihood function is differentiable wrt $d_r$ as long as $d_r$ is not equal to any event time or censoring time. We take the derivative of $\log(L)$ wrt $d_r$:
+\begin{align}
+    \frac{\partial \log(L)}{\partial d_r}=&\sum_{j\in D_{r+1}}\left[\lambda_{r+1}-\lambda_r\right]+\sum_{j\in C_{r+1}}\left[\lambda_{r+1}-\lambda_r\right]\\
+    =&n_{{r+1}^+}(\lambda_{r+1}-\lambda_r)
+\end{align}
+Since $\lambda_{r+1}\ne \lambda_r$, then the derivative cannot be zero when $d_r$ is between two consecutive sample time points. This fact implies that only when $d_r$ is equal to any of the sample values, the log likelihood function achieves the maximum value. 
+
+Therefore, we can use a brute-force search to calculate the log likelihood function values for all potential breakpoint combinations. For each candidate, hazard rates can be estimated by the formula in [Section B.1.1](#hazard) and thus the log likelihood can be obtained. The breakpoints and hazard rates with the largest log likelihood value are the MLE estimator. 
+
+When the number of samples or the number of breakpoints are relatively large, the combination of breakpoints will be very large and the brute-force search may not be feasible. We will draw a random sub-sample first and then do exhaustive search based on the sub-sample. The argument \verb!max_set! in \verb!pwexp.fit()! function controls the maximum combination candidates to try. 
+
+#### B.2.2 OLS on Survival Function {#ols}
+The second method to estimate breakpoints is based on the survival curve. 
+Once we take a log transformation of the piecewise survival function, we will obtain a piecewise linear function:
+\begin{align}
+    \log(S(t))=&\begin{cases}
+        {-\lambda_1 t}, & t<d_1\\
+        {(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
+        \vdots\\
+        {\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
+    \end{cases}\\
+    =&-\lambda_1 t +(\lambda_1-\lambda_2) (t-d_1)_+\cdots +(\lambda_r-\lambda_{r+1})(t-d_r)_+
+\end{align}
+
+Let $Y_i$ be the log value of KM estimate at $t_i$. Following [Muggeo (2003)](#ref), we use $(t_i, Y_i)$ to fit the piecewise log survival function $\log(S(t))$ and obtain the OLS breakpoints $\hat d_r$. Once breakpoints are determined, hazard rates can be estimated by the formula in [Section B.1.1](#hazard). 
+
+#### B.2.3 Hybrid Method
+The breakpoints estimated in [Section B.2.2](#ols) are not exactly but very close to the MLE estimator. In order to obtain the MLE estimator, we combine brute-force search with OLS method. 
+
+Specifically, instead of drawing a random sub-sample in [Section B.2.1](#mle), we draw a sub-sample from the values within 95% percent confidence intervals of the estimated breakpoints from [Section B.2.2](#ols). Then we do exhaustive search based on the sub-sample. The argument \verb!max_set! in \verb!pwexp.fit()! function controls the maximum combination candidates to try. The hybrid method improves the efficiency and accuracy of the estimation procedure.  
+
+### B.3 Summary
+The procedure of parameter estimation is summarized in the diagram below:
+
+![](./images/estimation.png){width=650px}
+
+
+<br> 
+
+# Reference {#ref} 
+[1] Muggeo, V. M. (2003). Estimating regression models with unknown break-points. Statistics in medicine, 22(19), 3055-3071.
