@@ -493,7 +493,7 @@ When breakpoints $d_1$ to $d_r$ are known, we can take a derivative of $\log(L)$
     +\sum_{j\in D_{r+1}}\left[-d_2+d_1\right]+\sum_{j\in C_{r+1}}\left[-d_2+d_1\right]\\
     =&\frac{n_{D_2}}{\lambda_2}-\sum_{j\in D_2, C_2}(t_j-d_1)- n_{3^+}(d_2-d_1)\\
     &\cdots\\
-    \frac{\partial \log(L)}{\partial \lambda_r}=&\frac{n_{D_r}}{\lambda_r}-\sum_{j\in D_r, C_r}(t_j-d_{r-1})- n_{{r+1}^+}(d_r-d_{r-1})\\
+    \frac{\partial \log(L)}{\partial \lambda_r}=&\frac{n_{D_r}}{\lambda_r}-\sum_{j\in D_r, C_r}(t_j-d_{r-1})- n_{r+1^+}(d_r-d_{r-1})\\
     \frac{\partial \log(L)}{\partial \lambda_{r+1}}=&\frac{n_{D_{r+1}}}{\lambda_{r+1}}-\sum_{j\in D_{r+1}, C_{r+1}}(t_j-d_{r})
 \end{align}
 where $n_{D_r}$ is the number of events that fall into the $r$th interval; $n_{r^+}$ is the number of events and censoring that fall into the $r$th to the end intervals. 
@@ -503,7 +503,7 @@ Let all derivatives equal to 0, we obtain the MLE estimator of hazard rates:
     \hat\lambda_1=&\frac{n_{D_1}}{\sum_{j\in C_1}t_j+ n_{2^+}d_1}\\
     \hat\lambda_2=&\frac{n_{D_2}}{\sum_{j\in D_2, C_2}(t_j-d_1)+ n_{3^+}(d_2-d_1)}\\
     &\cdots\\
-    \hat\lambda_r=&\frac{n_{D_r}}{\sum_{j\in D_r, C_r}(t_j-d_{r-1})+ n_{{r+1}^+}(d_r-d_{r-1})}\\
+    \hat\lambda_r=&\frac{n_{D_r}}{\sum_{j\in D_r, C_r}(t_j-d_{r-1})+ n_{r+1^+}(d_r-d_{r-1})}\\
     \hat\lambda_{r+1}=&\frac{n_{D_{r+1}}}{\sum_{j\in D_{r+1}, C_{r+1}}(t_j-d_r)}
 \end{align}
 
@@ -512,7 +512,7 @@ Let all derivatives equal to 0, we obtain the MLE estimator of hazard rates:
 The log likelihood function is differentiable wrt $d_r$ as long as $d_r$ is not equal to any event time or censoring time. We take the derivative of $\log(L)$ wrt $d_r$:
 \begin{align}
     \frac{\partial \log(L)}{\partial d_r}=&\sum_{j\in D_{r+1}}\left[\lambda_{r+1}-\lambda_r\right]+\sum_{j\in C_{r+1}}\left[\lambda_{r+1}-\lambda_r\right]\\
-    =&n_{{r+1}^+}(\lambda_{r+1}-\lambda_r)
+    =&n_{r+1^+}(\lambda_{r+1}-\lambda_r)
 \end{align}
 Since $\lambda_{r+1}\ne \lambda_r$, then the derivative cannot be zero when $d_r$ is between two consecutive sample time points. This fact implies that only when $d_r$ is equal to any of the sample values, the log likelihood function achieves the maximum value. 
 
