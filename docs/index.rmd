@@ -4,7 +4,8 @@ output:
   html_document:
     toc: true
     # code_folding: show
-    toc_float: true
+    toc_float: 
+      collapsed: false
     theme: lumen
 editor_options: 
   markdown: 
@@ -351,25 +352,25 @@ distribution r.v. $t$ with breakpoints $d_i$ are: \begin{align*}
     h(t)&=\begin{cases}
         \lambda_1, & t<d_1\\
         \lambda_2, & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         \lambda_{r+1}, & t\ge d_r
     \end{cases}\\
     H(t)&=\begin{cases}
         \lambda_1 t, & t<d_1\\
         (\lambda_1-\lambda_2)d_1+\lambda_2t , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         \left[\sum_{i=1}^r(\lambda_i-\lambda_{i+1})d_i\right]+\lambda_{r+1}t, & t\ge d_r
     \end{cases}\\
     f(t)=h(t)e^{-H(t)}&=\begin{cases}
         \lambda_1 e^{-\lambda_1 t}, & t<d_1\\
         \lambda_2 e^{(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         \lambda_{r+1}e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
     \end{cases}\\
     S(t)=e^{-H(t)}&=\begin{cases}
         e^{-\lambda_1 t}, & t<d_1\\
         e^{(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
     \end{cases}\\\\
     Q(p)&=\begin{cases}
@@ -527,7 +528,7 @@ Once we take a log transformation of the piecewise survival function, we will ob
     \log(S(t))=&\begin{cases}
         {-\lambda_1 t}, & t<d_1\\
         {(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         {\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
     \end{cases}\\
     =&-\lambda_1 t +(\lambda_1-\lambda_2) (t-d_1)_+\cdots +(\lambda_r-\lambda_{r+1})(t-d_r)_+
@@ -545,6 +546,45 @@ The procedure of parameter estimation is summarized in the diagram below:
 
 ![](./images/estimation.png){width=650px}
 
+<br>
+
+## C. Simulate Event Curve or Timeline
+We can use the `sim_followup()` function to estimate the event curve or timeline at the trial design stage. The piecewise hazard rate comes from clinical suggestions or data curve fit from previous literature. 
+
+For example, here we assume we have two groups:
+
+-   two groups with sample size ratio 1:2 (treatment vs. control);
+-   randomization rate is 20 pt/month and the total sample size is 1000;
+-   the primary endpoint (event) follows an piecewise distribution with hazard rate 0.1, 0.01, 0.02 at breakpoints 5, 14 for the control group; the hazard ratio (treatment vs. control) is 0.7.
+
+We want to estimate the number of events every 10 months from month 20. We can also estimate the time needed given the number of events.
+
+```{r fig.show="hold", out.width="50%", out.height="100%", fig.width=6, fig.height=5.5}
+# define the piecewiese exponential event generation function
+myevent_dist_trt <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2)*0.7, breakpoint=c(5,14))
+myevent_dist_con <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
+
+# user defined summary function: the proportion of subjects that are followed more than 12 month
+prop_12 <- function(x)mean(x >= 12)
+
+# estimate the event curve or timeline:
+event_curve <- sim_followup(at=seq(20,90,10), type = 'calendar', group = c('trt','con'),
+             rand_rate = 20, total_sample = 1000, drop_rate = 0.03, allocation = 1:2,
+             advanced_dist = list(event_dist=c(myevent_dist_trt, myevent_dist_con)),
+             by_group = T, stat = c(median, prop_12), start_date = "2020-01-01", rep=50)
+time_curve <- sim_followup(at=seq(200,600,50), type = 'event', group = c('trt','con'),
+                    rand_rate = 20, total_sample = 1000, drop_rate = 0.03, allocation = 1:2,
+                    advanced_dist = list(event_dist=c(myevent_dist_trt, myevent_dist_con)),
+                    stat = c(median, prop_12), start_date = "2020-01-01", rep=50)
+# plot event curve or timeline
+plot(event_curve$T_all$analysis_time_c, event_curve$T_all$event, xlab='Time', ylab='Number of events', type='b', main='Event curve', lwd=2)
+plot(time_curve$T_all$event, time_curve$T_all$analysis_time_c, xlab='Number of events', ylab='Time', type='b', main='Timeline given number of events', lwd=2)
+```
+
+```{r}
+event_curve
+time_curve
+```
 
 <br> 
 

@@ -12,6 +12,7 @@ import(survival)
 import(fastmatch)
 
 export(simdata)
+export(sim_followup)
 export(rpwexp)
 export(rpwexp_conditional)
 export(ppwexp)

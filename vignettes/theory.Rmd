@@ -31,25 +31,25 @@ distribution r.v. $t$ with breakpoints $d_i$ are: \begin{align*}
     h(t)&=\begin{cases}
         \lambda_1, & t<d_1\\
         \lambda_2, & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         \lambda_{r+1}, & t\ge d_r
     \end{cases}\\
     H(t)&=\begin{cases}
         \lambda_1 t, & t<d_1\\
         (\lambda_1-\lambda_2)d_1+\lambda_2t , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         \left[\sum_{i=1}^r(\lambda_i-\lambda_{i+1})d_i\right]+\lambda_{r+1}t, & t\ge d_r
     \end{cases}\\
     f(t)=h(t)e^{-H(t)}&=\begin{cases}
         \lambda_1 e^{-\lambda_1 t}, & t<d_1\\
         \lambda_2 e^{(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         \lambda_{r+1}e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
     \end{cases}\\
     S(t)=e^{-H(t)}&=\begin{cases}
         e^{-\lambda_1 t}, & t<d_1\\
         e^{(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         e^{\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
     \end{cases}\\\\
     Q(p)&=\begin{cases}
@@ -205,7 +205,7 @@ Once we take a log transformation of the piecewise survival function, we will ob
     \log(S(t))=&\begin{cases}
         {-\lambda_1 t}, & t<d_1\\
         {(\lambda_2-\lambda_1)d_1-\lambda_2t} , & d_1\le t<d_2\\
-        \vdots\\
+        \cdots\\
         {\left[\sum_{i=1}^r(\lambda_{i+1}-\lambda_{i})d_i\right]-\lambda_{r+1}t}, & t\ge d_r
     \end{cases}\\
     =&-\lambda_1 t +(\lambda_1-\lambda_2) (t-d_1)_+\cdots +(\lambda_r-\lambda_{r+1})(t-d_r)_+

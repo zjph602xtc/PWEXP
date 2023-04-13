@@ -11,8 +11,8 @@ simdata(group="Group 1", strata="Strata 1", allocation=1,
     simplify=TRUE, advanced_dist=NULL)
 }
 \arguments{
-  \item{group}{a character vector of the names of each group (e.g., \code{c('treatment','control').})}
-  \item{strata}{a character vector of the names of strata in groups (e.g., \code{c('young','old').})}
+  \item{group}{a character vector of the names of each group (e.g., \code{c('treatment','control')}).}
+  \item{strata}{a character vector of the names of strata in groups (e.g., \code{c('young','old')}).}
   \item{allocation}{the relative ratio of sample size in each subgroup (\code{group*strata}). See details. The value will be recycled if the length is less than needed.}
   \item{event_lambda}{the hazard rate of the primary endpoint (event). See details. The value will be recycled if the length is less than needed.}
   \item{drop_rate}{(optional) the drop-out rate (patients/month). Not hazard rate. See details. The value will be recycled if the length is less than needed.}
