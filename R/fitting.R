@@ -1,3 +1,19 @@
+combine_time <- function(time, tol){
+  f_tmp <- time[1]
+  f_N <- length(time)
+  tol <- (time[f_N] - f_tmp)*tol
+  for (i in 2:f_N){
+    val <- time[i]
+    if ((val - f_tmp)<tol){
+      time[i] <- f_tmp
+    }else{
+      f_tmp <- val
+    }
+  }
+  return(time)
+}
+
+
 get_grid <- function(time, breakpoint, nbreak, max_set=5000, remove_first=TRUE){
   time <- unique(time)
   if (remove_first){
@@ -32,7 +48,12 @@ get_grid <- function(time, breakpoint, nbreak, max_set=5000, remove_first=TRUE){
     }
   }
   time <- sort(sample(time,nr,replace = F))
-  setting <- t(combn(time, nbreak))
+  if (length(time) < nbreak){
+    setting <- matrix(-Inf, ncol=nbreak, nrow=1)
+  }else{
+    setting <- t(combn(time, nbreak))
+  }
+
 
   if (NROW(setting) > max_set){
     setting <- setting[sort(sample.int(NROW(setting), max_set, replace = F)),,drop=F]
@@ -46,7 +67,7 @@ get_grid <- function(time, breakpoint, nbreak, max_set=5000, remove_first=TRUE){
 
 
 
-pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=10000, seed=1818, trace=FALSE, optimizer='mle'){
+pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=10000, seed=1818, trace=FALSE, optimizer='mle', tol=1e-4){
   # n_{fj}/lam_j - sum_{set fj sj}(t_i-d_{j-1}) = n_{set f_j+1 to f_end, s_j+1 to s_end}*(d_j-d_{j-1})
   # f is event data, s is censored data
 
@@ -65,11 +86,32 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
   ind <- order(time)
   event <- event[ind]
   time <- time[ind]
+  if (tol!=0){
+    time <- combine_time(time, tol)
+  }
   time_event <- time[event==1]
   time_noevent <- time[event==0]
   N <- length(time)
   set.seed(seed)
   n_fix_brk <- length(breakpoint)
+
+  if (n_fix_brk==0  && nbreak==0){
+    lam <- sum(event)/sum(time)
+    loglikelihood <- sum(dpwexp(time_event, rate=lam, breakpoint = NULL, log = T, one_piece = T, safety_check = F))+
+      sum(ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = NULL, log.p = T, one_piece = T, safety_check = F))
+    aic <- 2-2*loglikelihood
+    bic <- log(length(time))-2*loglikelihood
+    if (lam==0){
+      lam <- loglikelihood <- -Inf
+      aic <- bic <- Inf
+      warning('Incorrect result returned. Please check the total number of events is not 0')
+    }
+    res <- data.frame(lam1=lam, likelihood=loglikelihood, AIC=aic, BIC=bic)
+    attr(res,'lam') <- lam
+    attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int)
+    class(res) <- c('pwexp.fit', 'data.frame')
+    return(res)
+  }
 
   while (n_fix_brk > 0){
     tmpi <- findInterval(time, vec=c(0, breakpoint, Inf))
@@ -97,18 +139,6 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
     }
   }
 
-  if (n_fix_brk==0  && nbreak==0){
-    lam <- sum(event)/sum(time)
-    loglikelihood <- sum(dpwexp(time_event, rate=lam, breakpoint = NULL, log = T, one_piece = T, safety_check = F))+
-      sum(ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = NULL, log.p = T, one_piece = T, safety_check = F))
-    aic <- 2-2*loglikelihood
-    bic <- log(length(time))-2*loglikelihood
-    res <- data.frame(lam1=lam, likelihood=loglikelihood, AIC=aic, BIC=bic)
-    attr(res,'lam') <- lam
-    attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int)
-    class(res) <- c('pwexp.fit', 'data.frame')
-    return(res)
-  }
 
   if (!is.null(breakpoint)){
     if (nbreak==0 | nbreak == length(breakpoint)){
@@ -187,25 +217,30 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
   }
 
 
-  res <- matrix(-Inf, ncol=2*NCOL(breakpoint)+2, nrow = NROW(breakpoint))
-  for (i in 1:NROW(breakpoint)){
-    brk0 <- breakpoint[i,]
-    brk <- c(0, brk0, Inf)
-    tmpi <- findInterval(time, vec=brk)
-    numerator <- ctapply(event, tmpi, sum)
-    if (any(numerator==0)){
-      next
+  if (is.infinite(breakpoint[1,1])){
+    res <- matrix(-Inf, ncol = 2*NCOL(breakpoint)+2, nrow=1)
+  }else{
+    res <- matrix(-Inf, ncol=2*NCOL(breakpoint)+2, nrow = NROW(breakpoint))
+    for (i in 1:NROW(breakpoint)){
+      brk0 <- breakpoint[i,]
+      brk <- c(0, brk0, Inf)
+      tmpi <- findInterval(time, vec=brk)
+      numerator <- ctapply(event, tmpi, sum)
+      if (any(numerator==0)){
+        next
+      }
+      # rhs <- c(diff(c(0, brk0)) * sapply(brk0, function(x)sum(time >= x)),0)
+      rhs <- c(diff(c(0, brk0)),0) * (N-cumsum(ctapply(time, tmpi, length)))
+      # lhs_term2 <- sapply(1:(length(brk)-1), function(x)sum(time[time < brk[x+1] & time >= brk[x]] - brk[x]))
+      lhs_term2 <- ctapply(time - brk[tmpi], tmpi, sum)
+      # lam <- sapply(1:(length(brk)-1), function(x)sum(time < brk[x+1] & time >= brk[x] & event))/(rhs+lhs_term2)
+      lam <- numerator/(rhs+lhs_term2)
+      loglikelihood <- sum(dpwexp(time_event, rate=lam, breakpoint = brk0, log = T, one_piece = F, safety_check = F))+
+        sum(ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = brk0, log.p = T, one_piece = F, safety_check = F))
+      res[i,] <- c(brk0, lam, loglikelihood)
     }
-    # rhs <- c(diff(c(0, brk0)) * sapply(brk0, function(x)sum(time >= x)),0)
-    rhs <- c(diff(c(0, brk0)),0) * (N-cumsum(ctapply(time, tmpi, length)))
-    # lhs_term2 <- sapply(1:(length(brk)-1), function(x)sum(time[time < brk[x+1] & time >= brk[x]] - brk[x]))
-    lhs_term2 <- ctapply(time - brk[tmpi], tmpi, sum)
-    # lam <- sapply(1:(length(brk)-1), function(x)sum(time < brk[x+1] & time >= brk[x] & event))/(rhs+lhs_term2)
-    lam <- numerator/(rhs+lhs_term2)
-    loglikelihood <- sum(dpwexp(time_event, rate=lam, breakpoint = brk0, log = T, one_piece = F, safety_check = F))+
-      sum(ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = brk0, log.p = T, one_piece = F, safety_check = F))
-    res[i,] <- c(brk0, lam, loglikelihood)
   }
+
   res <- data.frame(res)
   if (!trace){
     res <- res[which.max(res[,NCOL(res)])[1],,drop=F]
@@ -221,8 +256,10 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
   colnames(res) <- c(paste0('brk', 1:NCOL(breakpoint)), paste0('lam', 1:(NCOL(breakpoint)+1)), 'likelihood','AIC','BIC')
   attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int)
   class(res) <- c('pwexp.fit', 'data.frame')
+  if (any(is.infinite(as.numeric(res)))){
+    warning('Incorrect result returned. Please check the number of events is at least 2 more than the number of breakpoints. ')
+  }
   return(res)
-
 }
 
 boot.pwexp.fit <- function(x, ...){
@@ -231,10 +268,16 @@ boot.pwexp.fit <- function(x, ...){
 
 
 
-boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle'){
+boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
-  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer)
+  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
+
+  ind <- order(dat$time)
+  dat <- dat[ind,,drop=F]
+  if (tol!=0){
+    dat$time <- combine_time(dat$time, tol)
+  }
 
   if (nbreak==0){
     nbreak <- length(attr(res_all, 'lam'))-1
@@ -243,7 +286,7 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
   for (i in 1:(nsim-1)){
     setTxtProgressBar(pb, i/(nsim))
     dat_b <- dat[sample.int(n, n, replace = T),]
-    res <- pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer)
+    res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
     res_all <- rbind(res_all, res)
   }
   setTxtProgressBar(pb, 1)
@@ -260,12 +303,12 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
   return(res_all)
 }
 
-boot.pwexp.fit.pwexp.fit <- function(object, nsim=100, max_set=1000, seed=1818, optimizer='mle'){
+boot.pwexp.fit.pwexp.fit <- function(object, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
   para <- attr(object, 'para')
   res <- boot.pwexp.fit.default(time=para$time, event=para$event,
                                 nsim=max(1,nsim-1), breakpoint=para$breakpoint, nbreak=para$nbreak,
                                 exclude_int=para$exclude_int,
-                                max_set=max_set, seed=seed, optimizer=optimizer)
+                                max_set=max_set, seed=seed, optimizer=optimizer, tol=tol)
   res_combined <- rbind(object, res)
   attr(res_combined, 'brk') <- rbind(attr(object, 'brk'), attr(res, 'brk'))
   attr(res_combined, 'lam') <- rbind(attr(object, 'lam'), attr(res, 'lam'))
@@ -279,14 +322,20 @@ cv.pwexp.fit <- function(x, ...){
   UseMethod("cv.pwexp.fit")
 }
 
-cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle'){
+cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
-
-  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer)
+  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
   if (nbreak==0){
     nbreak <- length(attr(res_all, 'lam'))-1
   }
+
+  ind <- order(dat$time)
+  dat <- dat[ind,,drop=F]
+  if (tol!=0){
+    dat$time <- combine_time(dat$time, tol)
+  }
+
   cv_like <- NULL
   pb <- txtProgressBar(style = 3)
   for (j in 1:nsim){
@@ -296,7 +345,7 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
     for (i in 1:nfold){
       dat_train <- dat[ind!=i,]
       dat_test <- dat[ind==i,]
-      md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer)
+      md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
       if (is.infinite(md[1,1])){
         break
       }
@@ -311,10 +360,10 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
   return(cv_like)
 }
 
-cv.pwexp.fit.pwexp.fit <- function(object, nfold=5, nsim=100, max_set=1000, seed=1818, optimizer='mle'){
+cv.pwexp.fit.pwexp.fit <- function(object, nfold=5, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
   para <- attr(object, 'para')
   res <- cv.pwexp.fit.default(time=para$time, event=para$event, nfold=nfold,
                               nsim=nsim, breakpoint=para$breakpoint, nbreak=para$nbreak, exclude_int=para$exclude_int,
-                              max_set=max_set, seed=seed, optimizer=optimizer)
+                              max_set=max_set, seed=seed, optimizer=optimizer, tol=tol)
   return(res)
 }

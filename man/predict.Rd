@@ -21,7 +21,7 @@
   \item{censor_model_boot}{an object of class \code{boot.pwexp.fit} returned by the \code{\link{boot.pwexp.fit}} function. It is the censoring model with bootstrapping for drop-out and death. }
   \item{type}{the type of prediction required. The default \code{predictive} returns the predictive interval; the alternative \code{confidence} returns the confidence interval without random error.}
   \item{n_each}{the number of iterations for each bootstrapping sample to obtain predicitive CI. Typically, a value of 10 to 100 should be enough. }
-  \item{future_rand}{the randomization curve in the following times. Can be \code{NULL} if all subjects have been randomized. You can specify rand rate and total sample size by \code{list(rand_rate= ,total_sample= )} or specify the number of randomization each month by \code{list(rand_n= )}. See details.}
+  \item{future_rand}{the randomization curve in the following times. Can be \code{NULL} if all subjects have been randomized. You can specify \bold{future} rand rate and \bold{future} total number of samples to be randomized by \code{list(rand_rate= ,total_sample= )} or specify the \bold{future} number of randomization each month by \code{list(rand_n= )}. See details.}
   \item{seed}{a random seed.}
 }
 \value{

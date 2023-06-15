@@ -39,7 +39,10 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
     total_sample <- max(at)
   }
   if (!(type %in% c('sample','event','calendar'))){
-    stop('wrong \'type\'.')
+    stop('Wrong \'type\'. Must be one of sample, event or calendar. ')
+  }
+  if (is.null(n_rand) & any(is.null(rand_rate), is.null(total_sample))){
+    stop('Please specify \'n_rand\' or \'rand_rate\' with \'total_sample\'.')
   }
   stat_name <- as.character(substitute(stat))
   stat_name <- setdiff(stat_name,'c')
@@ -87,21 +90,34 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
         tmp <- dat[dat$randT <= (Cut_T1 - min_follow), ]
       }
       # calculate follow-up time
-      tmp$followT <- mapply(min, Cut_T1-tmp$randT, tmp$dropT, tmp$deathT, na.rm=T)
+      flag <- tryCatch({
+        tmp$followT <- mapply(min, Cut_T1-tmp$randT, tmp$dropT, tmp$deathT, na.rm=T)
+      }, error = function(e){
+        e
+      })
+      if (inherits(flag, "error")) next
 
       # for the whole dataset without stratification
       tp_all <- aggregate(followT~1, data=tmp, FUN=function(x)sapply(c(length,stat), function(f)f(x)[1]),drop=F)
       tp_all <- cbind(at=at[i], analysis_time=Cut_T1, tp_all)
       if (has_event){
         tmpevent <- tmp[tmp$eventT_abs<=Cut_T1,]
-        tp_all <- cbind(tp_all, aggregate(event~1, data=tmpevent, FUN = sum, drop=F))
+        if (NROW(tmpevent)==0){
+          tp_all <- cbind(tp_all, event=0)
+        }else{
+          tp_all <- cbind(tp_all, aggregate(event~1, data=tmpevent, FUN = sum, drop=F))
+        }
       }
       T_all <- rbind(T_all, tp_all)
       if (by_group){
         tp_by_group <- aggregate(followT~group, data=tmp, FUN=function(x)sapply(c(length,stat), function(f)f(x)[1]),drop=F)
         tp_by_group <- cbind(at=at[i], analysis_time=Cut_T1, tp_by_group)
         if (has_event){
-          tp_by_group <- cbind(tp_by_group, aggregate(event~group, data=tmpevent, FUN = sum, drop=F))
+          if (NROW(tmpevent)==0){
+            tp_by_group <- cbind(tp_by_group, group=tp_by_group$group, event=0)
+          }else{
+            tp_by_group <- cbind(tp_by_group, aggregate(event~group, data=tmpevent, FUN = sum, drop=F))
+          }
         }
         T_by_group <- rbind(T_by_group, tp_by_group)
       }
@@ -109,7 +125,11 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
         tp_by_strata <- aggregate(followT~strata, data=tmp, FUN=function(x)sapply(c(length,stat), function(f)f(x)[1]),drop=F)
         tp_by_strata <- cbind(at=at[i], analysis_time=Cut_T1, tp_by_strata)
         if (has_event){
-          tp_by_strata <- cbind(tp_by_strata, aggregate(event~strata, data=tmpevent, FUN = sum, drop=F))
+          if (NROW(tmpevent)==0){
+            tp_by_strata <- cbind(tp_by_strata, strata=tp_by_strata$strata, event=0)
+          }else{
+            tp_by_strata <- cbind(tp_by_strata, aggregate(event~strata, data=tmpevent, FUN = sum, drop=F))
+          }
         }
         T_by_strata <- rbind(T_by_strata, tp_by_strata)
       }
@@ -117,10 +137,27 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
         tp_by_group_strata <- aggregate(followT~group+strata, data=tmp, FUN=function(x)sapply(c(length,stat), function(f)f(x)[1]),drop=F)
         tp_by_group_strata <- cbind(at=at[i], analysis_time=Cut_T1, tp_by_group_strata)
         if (has_event){
-          tp_by_group_strata <- cbind(tp_by_group_strata, aggregate(event~group+strata, data=tmpevent, FUN = sum, drop=F))
+          if (NROW(tmpevent)==0){
+            tp_by_group_strata <- cbind(tp_by_group_strata, group=tp_by_group$group, strata=tp_by_strata$strata, event=0)
+          }else{
+            tp_by_group_strata <- cbind(tp_by_group_strata, aggregate(event~group+strata, data=tmpevent, FUN = sum, drop=F))
+          }
         }
         T_by_group_strata <- rbind(T_by_group_strata, tp_by_group_strata)
       }
+    }
+  }
+
+  if (has_event){
+    T_all$event[is.na(T_all$event)] <- 0
+    if (by_group){
+      T_by_group$event[is.na(T_by_group$event)] <- 0
+    }
+    if (by_strata){
+      T_by_strata$event[is.na(T_by_strata$event)] <- 0
+    }
+    if (all(by_group, by_strata)){
+      T_by_group_strata$event[is.na(T_by_group_strata$event)] <- 0
     }
   }
 
@@ -133,7 +170,7 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
     tmp <- cbind(tmp[,all_res_var[all_res_var %in% colnames(tmp)]], tmp$followT)
     colnames(tmp) <-  c(all_res_var[all_res_var %in% colnames(tmp)],'subjects',stat_name)
     if (!is.null(start_date)) tmp$analysis_time_c <- as.Date(start_date)+tmp$analysis_time*30.4375
-    tmp <- suppressWarnings(aggregate(tmp, as.list(tmp[,c('at',cluster[cluster %in% colnames(tmp)]),drop=F]), mean))
+    tmp <- suppressWarnings(aggregate(tmp, as.list(tmp[,c('at',cluster[cluster %in% colnames(tmp)]),drop=F]), function(x)mean(x, na.rm=TRUE)))
     tmp <- tmp[order(tmp$at),]
     all_res[[i]] <- tmp[,c(all_res_var[all_res_var %in% colnames(tmp)],'subjects',stat_name)]
   }

@@ -8,8 +8,9 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
 }
 \usage{
 \method{boot.pwexp.fit}{default}(time, event, nsim=100, breakpoint=NULL, nbreak=0,
-               exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle')
-\method{boot.pwexp.fit}{pwexp.fit}(object, nsim=100, max_set=1000, seed=1818, optimizer='mle')
+               exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4)
+\method{boot.pwexp.fit}{pwexp.fit}(object, nsim=100, max_set=1000, seed=1818,
+               optimizer='mle', tol=1e-4)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -23,6 +24,7 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
   \item{max_set}{maximum estimated combination of breakpoints.  See \code{\link{pwexp.fit}}.}
   \item{seed}{a random seed.}
   \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. See \code{\link{pwexp.fit}}.}
+  \item{tol}{the minimum allowed gap between two breakpoints. The gap is calculated as \code{(max(time)-min(time))*tol}. Keep it as default in most cases. }
 }
 \details{
 Use bootstrap to repeatdly call \code{\link{pwexp.fit}} to estimate the uncertainty of parameters.

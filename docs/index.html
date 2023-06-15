@@ -13,7 +13,7 @@
 
 <title>Piecewise Exponential Prediction Model</title>
 
-<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.22/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -29,14 +29,14 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -355,10 +355,10 @@ div.tocify {
 <p><br><br></p>
 <div id="structure-of-package-pwexp" class="section level1">
 <h1>Structure of Package ‘PWEXP’</h1>
-<p><img src="images/structure2.png" /></p>
+<p><img src="images/structure_new.png" /></p>
 <p>The `PWEXP’package provides a complete set of tools to work with
 survival data with piecewise exponential distribution. It also makes
-event prediction based on the fitted model. Specifically, it has five
+event prediction based on the fitted model. Specifically, it has several
 components for different tasks:</p>
 <ul>
 <li><strong>Simulate Data:</strong> (you can skip this part if you work
@@ -381,18 +381,13 @@ group</li>
 right censored data</li>
 <li>the <code>plot_event()</code> function plots the number of
 cumulative events</li>
-<li>auxiliary functions <code>dpwexp</code>, <code>ppwexp</code>,
-<code>qpwexp</code>, <code>rpwexp</code> are the PDF, CDF, quantile
-function, generator function for piecewise exponential distribution (See
-<a href="#dist">‘Piecewise Exponential Distribution’ Section</a> for
-more details)</li>
 </ul></li>
 <li><strong>Split Data:</strong>
 <ul>
-<li>the <code>cut_dat()</code> function cuts the data by a specified
-time point. Only subjects who are randomized before the specified time
-will be kept. It also recensors the data at the specified time. It is
-useful to create a training set.</li>
+<li>the <code>cut_dat()</code> function cuts the data by a clinical
+cut-off date (DCOD). Only subjects who are randomized before the
+specified time will be kept. It also recensors the data at the specified
+time. It is useful to create a training set.</li>
 </ul></li>
 <li><strong>Fit a Piecewise Exponential Model:</strong>
 <ul>
@@ -426,7 +421,19 @@ number of events or timeline (for bootstrapping model)</li>
 <li>the <code>plot_event()</code> plots predicted number of events (for
 object <code>predict.pwexp.fit</code>) and its CI (if applicable, for
 object <code>predict.boot.pwexp.fit()</code>)</li>
-<li>auxiliary functions <code>ppwexp_conditional()</code>,
+</ul></li>
+<li><strong>Auxiliary Functions</strong>
+<ul>
+<li>the auxiliary function <code>sim_followup</code> is used to estimate
+follow-up time and number of events at design stage (See <a
+href="#simfollow">‘Simulate Event Curve or Timeline’ Section</a> for
+more details).</li>
+<li>the auxiliary functions <code>dpwexp</code>, <code>ppwexp</code>,
+<code>qpwexp</code>, <code>rpwexp</code> are the PDF, CDF, quantile
+function, generator function for piecewise exponential distribution (See
+<a href="#dist">‘Piecewise Exponential Distribution’ Section</a> for
+more details)</li>
+<li>the auxiliary functions <code>ppwexp_conditional()</code>,
 <code>qpwexp_conditional()</code>, <code>rpwexp_conditional()</code> are
 the CDF, quantile function, generator function for conditional piecewise
 exponential distribution (See <a href="#con_dist">‘Conditional Piecewise
@@ -455,8 +462,9 @@ install_github(&quot;zjph602xtc/PWEXP&quot;)</code></pre>
 <div id="basic-usage-of-simdata" class="section level2">
 <h2>1.1 Basic Usage of <code>simdata()</code></h2>
 <p>You can skip this part if you work with an existing dataset. Here we
-use <code>simdata()</code> function to generate a simple example
-dataset:</p>
+use <code>simdata()</code> function to generate a simple example dataset
+(<strong>this subsection is irrelevant to all following sections. It
+just shows how to use <code>simdata()</code> function</strong>):</p>
 <ul>
 <li>two groups with sample size ratio 1:2 (treatment vs. control);</li>
 <li>randomization curve is defined as 10 pt/month in the first 2 months
@@ -534,11 +542,12 @@ plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0, 25), main=&#39;Numbe
 <div id="split-data-to-obtain-traininginterim-data"
 class="section level1">
 <h1>2. Split Data to Obtain Training/Interim Data</h1>
-<p>We cut the dataset by the time when 80% percent subject are
-randomized. Only subjects who are randomized before the specified time
-will be kept in the returned data. The returned data will be recensored
-at the specified time. This step is to create a training set. In real
-data analysis, this step may not be needed.</p>
+<p>Here for example, we cut the dataset by the time (DCOD, clinical
+cut-off date) when 80% percent subject are randomized. Only subjects who
+are randomized before the specified time will be kept in the returned
+data. The returned data will be recensored at the specified time. This
+step is to create a training set. In real data analysis, this step may
+not be needed.</p>
 <pre class="r"><code>cut &lt;- quantile(dat$randT, 0.8)
 train &lt;- cut_dat(cut = cut, data = dat, var_randT = &#39;randT&#39;, 
                  var_followT = &#39;followT&#39;, var_followT_abs = &#39;followT_abs&#39;,
@@ -628,9 +637,10 @@ abline(v=brk_ci, col=&#39;grey&#39;, lwd=2, lty=3)</code></pre>
 <p>In order to do prediction, we also need to build a model for drop-out
 and death (the censoring model) in addition to the event model. The
 censoring model is very similar to the event model in <a
-href="#model">Section 3</a>, but the response of the model is drop-out
-and death instead of the primary events. The model is optional when the
-drop-out (and death) rate is very low.</p>
+href="#model">Section 3</a>, but the response of the model is
+<strong>drop-out and death</strong> instead of the primary events (not
+including censoring by clinical cut-off date). The model is optional
+when the drop-out (and death) rate is very low.</p>
 <p>Here, <code>drop_indicator</code> is a time-to-event endpoint that
 represents the time of drop-out (and we do not have death in the
 simulated data), and it will be used as the response variable in the
@@ -658,12 +668,12 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ev
 <code>eval_at</code>:</p>
 <pre class="r"><code>head(pred_event)</code></pre>
 <pre><code>##      time  n_event 5% n_event 95% n_event
-## [1,]   40       NA         NA          NA
-## [2,]   45 521.3411   508.5447    533.5793
-## [3,]   50 598.3542   580.9918    615.0000
-## [4,]   55 649.0046   632.1919    667.0013
-## [5,]   60 681.0858   665.0000    700.6344
-## [6,]   65 709.7883   695.0560    729.3508</code></pre>
+## [1,]   40 442.3285   442.0000    443.5275
+## [2,]   45 521.9969   508.7425    533.1784
+## [3,]   50 598.0215   581.9973    616.0000
+## [4,]   55 648.5121   631.8236    666.5648
+## [5,]   60 680.7660   662.9877    698.3782
+## [6,]   65 710.1639   691.7333    728.0000</code></pre>
 <p><br></p>
 <p>By adding argument <code>xyswitch=TRUE</code>, we can use
 <code>predict()</code> function to obtain the timeline given the number
@@ -675,11 +685,11 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ti
 <p><img src="index_files/figure-html/unnamed-chunk-14-1.png" width="480" /></p>
 <pre class="r"><code>head(pred_time)</code></pre>
 <pre><code>##      n_event     time  5% time 95% time
-## [1,]     500 43.61689 42.98982 44.39533
-## [2,]     550 46.87314 45.95741 47.84667
-## [3,]     600 50.11711 49.08859 51.37802
-## [4,]     650 55.15592 52.80026 57.56297
-## [5,]     700 63.22742 59.89260 66.36540</code></pre>
+## [1,]     500 43.59612 43.04706 44.43448
+## [2,]     550 46.86220 46.00462 47.90825
+## [3,]     600 50.14008 49.06291 51.36271
+## [4,]     650 55.16124 52.81970 57.92868
+## [5,]     700 63.14514 60.26202 67.53546</code></pre>
 <p><br></p>
 </div>
 <div id="appendix" class="section level1">
@@ -999,7 +1009,7 @@ below:</p>
 <p><br></p>
 </div>
 </div>
-<div id="c.-simulate-event-curve-or-timeline" class="section level2">
+<div id="simfollow" class="section level2">
 <h2>C. Simulate Event Curve or Timeline</h2>
 <p>We can use the <code>sim_followup()</code> function to estimate the
 event curve or timeline at the trial design stage. The piecewise hazard

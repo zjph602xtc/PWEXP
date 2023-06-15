@@ -6,7 +6,7 @@ Fit the piecewise exponential distribution with right censoring data. User can s
 }
 \usage{
 pwexp.fit(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=10000,
-        seed=1818, trace=FALSE, optimizer='mle')
+        seed=1818, trace=FALSE, optimizer='mle', tol=1e-4)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -19,6 +19,7 @@ pwexp.fit(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000
   \item{seed}{a random seed.}
   \item{trace}{(internal use) logical; if TRUE, the returned data frame contains the log-likelihood of all possible breakpoints instead of the one with maximum likelihood. }
    \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. }
+   \item{tol}{the minimum allowed gap between two breakpoints. The gap is calculated as \code{(max(time)-min(time))*tol}. Keep it as default in most cases. }
 }
 \details{
 See webpage \url{https://zjph602xtc.github.io/PWEXP/} for a detailed description of the model and optimizers.

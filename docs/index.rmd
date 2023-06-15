@@ -26,11 +26,11 @@ library(knitr)
 
 # Structure of Package 'PWEXP'
 
-![](./images/structure2.png)
+![](./images/structure_new.png)
 
 The `PWEXP'package provides a complete set of tools to work with
 survival data with piecewise exponential distribution. It also makes
-event prediction based on the fitted model. Specifically, it has five
+event prediction based on the fitted model. Specifically, it has several
 components for different tasks:
 
 -   **Simulate Data:** (you can skip this part if you work with an
@@ -48,14 +48,8 @@ components for different tasks:
         censored data
     -   the `plot_event()` function plots the number of cumulative
         events
-    -   auxiliary functions `dpwexp`, `ppwexp`, `qpwexp`, `rpwexp` are
-        the PDF, CDF, quantile function, generator function for
-        piecewise exponential distribution (See ['Piecewise Exponential
-        Distribution' Section](#dist) for more details)
 -   **Split Data:**
-    -   the `cut_dat()` function cuts the data by a specified time
-        point. Only subjects who are randomized before the specified time
-        will be kept. It also recensors the data at the specified time.
+    -   the `cut_dat()` function cuts the data by a clinical cut-off date (DCOD). Only subjects who are randomized before the specified time will be kept. It also recensors the data at the specified time.
         It is useful to create a training set.
 -   **Fit a Piecewise Exponential Model:**
     -   the `pwexp.fit()` function fits the piecewise exponential model
@@ -79,7 +73,13 @@ components for different tasks:
     -   the `plot_event()` plots predicted number of events (for object
         `predict.pwexp.fit`) and its CI (if applicable, for object
         `predict.boot.pwexp.fit()`)
-    -   auxiliary functions `ppwexp_conditional()`, `qpwexp_conditional()`, `rpwexp_conditional()` are the CDF,
+-   **Auxiliary Functions**
+    -   the auxiliary function `sim_followup` is used to estimate follow-up time and number of events at design stage (See ['Simulate Event Curve or Timeline' Section](#simfollow) for more details).
+    -   the auxiliary functions `dpwexp`, `ppwexp`, `qpwexp`, `rpwexp` are
+        the PDF, CDF, quantile function, generator function for
+        piecewise exponential distribution (See ['Piecewise Exponential
+        Distribution' Section](#dist) for more details)
+    -   the auxiliary functions `ppwexp_conditional()`, `qpwexp_conditional()`, `rpwexp_conditional()` are the CDF,
         quantile function, generator function for conditional piecewise
         exponential distribution (See ['Conditional Piecewise Exponential
         Distribution' Section](#con_dist) for more details)
@@ -116,7 +116,7 @@ set.seed(1818)
 ## 1.1 Basic Usage of `simdata()`
 
 You can skip this part if you work with an existing dataset. Here we use
-`simdata()` function to generate a simple example dataset:
+`simdata()` function to generate a simple example dataset (**this subsection is irrelevant to all following sections. It just shows how to use `simdata()` function**):
 
 -   two groups with sample size ratio 1:2 (treatment vs. control);
 -   randomization curve is defined as 10 pt/month in the first 2 months and
@@ -185,7 +185,7 @@ plot_event(dat$eventT, abs_time = F, dat$event, xlim = c(0, 25), main='Number of
 
 # 2. Split Data to Obtain Training/Interim Data
 
-We cut the dataset by the time when 80% percent subject are randomized.
+Here for example, we cut the dataset by the time (DCOD, clinical cut-off date) when 80% percent subject are randomized.
 Only subjects who are randomized before the specified time will be kept in
 the returned data. The returned data will be recensored at the specified
 time. This step is to create a training set. In real data analysis, this
@@ -290,8 +290,8 @@ abline(v=brk_ci, col='grey', lwd=2, lty=3)
 In order to do prediction, we also need to build a model for drop-out
 and death (the censoring model) in addition to the event model. The
 censoring model is very similar to the event model in [Section 3](#model), but the
-response of the model is drop-out and death instead of the primary
-events. The model is optional when the drop-out (and death) rate is very
+response of the model is **drop-out and death** instead of the primary
+events (not including censoring by clinical cut-off date). The model is optional when the drop-out (and death) rate is very
 low.
 
 Here, `drop_indicator` is a time-to-event endpoint that represents the
@@ -548,7 +548,7 @@ The procedure of parameter estimation is summarized in the diagram below:
 
 <br>
 
-## C. Simulate Event Curve or Timeline
+## C. Simulate Event Curve or Timeline {#simfollow}
 We can use the `sim_followup()` function to estimate the event curve or timeline at the trial design stage. The piecewise hazard rate comes from clinical suggestions or data curve fit from previous literature. 
 
 For example, here we assume we have two groups:

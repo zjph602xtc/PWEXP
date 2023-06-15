@@ -45,6 +45,18 @@ predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysi
     cut_indicator[is.na(cut_indicator)] <- 0
   }
   future <- ifelse(is.null(future_rand), FALSE, TRUE)
+  if (future){
+    if (!is.null(future_rand$total_sample)){
+      if (future_rand$total_sample <=0){
+        future <- FALSE
+      }
+    }
+    if (!is.null(future_rand$n_rand)){
+      if (sum(future_rand$n_rand) <= 0){
+        future <- FALSE
+      }
+    }
+  }
 
   censor_l <- 0
   censor_b <- NULL
@@ -89,8 +101,19 @@ predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysi
       dat_pre <- rbind(dat_t, dat_t_cut)
 
       line_data <- plot_event(time=dat_pre$followT_abs, abs_time = T, add=T, event=dat_pre$event, additional_event=sum(para$event), plot=FALSE, col='grey')
-      line_data_fun <- c(line_data_fun, suppressWarnings(approxfun(line_data$time, line_data$n_event, rule=1:2)))
-      line_data_fun_time <- c(line_data_fun_time, suppressWarnings(approxfun(line_data$n_event, line_data$time, rule=1)))
+      line_data <- rbind(c(analysis_time, sum(para$event)), line_data)
+      flag <- tryCatch({
+        tmp_line_dat_fun <- suppressWarnings(approxfun(line_data$time, line_data$n_event, rule=1:2))
+        tmp_line_data_fun_time <- suppressWarnings(approxfun(line_data$n_event, line_data$time, rule=1))
+      }, error = function(e){
+        e
+      })
+      if (inherits(flag, "error")){
+        next
+      }else{
+        line_data_fun <- c(line_data_fun,tmp_line_dat_fun)
+        line_data_fun_time <- c(line_data_fun_time, tmp_line_data_fun_time)
+      }
     }
   }
   setTxtProgressBar(pb, 1)
