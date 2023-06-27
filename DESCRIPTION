@@ -3,7 +3,7 @@ Type: Package
 Title: Piecewise exponential distribution prediction model
 Imports: graphics, grDevices, stats, methods, utils, survival, fastmatch, segmented
 Suggests: knitr
-Version: 0.2.0
+Version: 0.3.0
 Author: Tianchen Xu [aut, cre] (<https://orcid.org/0000-0002-0102-7630>)
 Maintainer: Tianchen Xu <zjph602xutianchen@gmail.com>
 Description: Build piecewise exponential survival model for study design and event/timeline prediction

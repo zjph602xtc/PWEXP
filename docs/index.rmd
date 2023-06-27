@@ -95,12 +95,12 @@ installing [PWEXP](https://github.com/zjph602xtc/PWEXP).
 ```{r eval=FALSE}
 install.packages('fastmatch')
 library('fastmatch')
-library('PWEXP')
 
-# or install package from Github
+# install package from Github
 install.packages("devtools")
 library(devtools)
 install_github("zjph602xtc/PWEXP")
+library('PWEXP')
 ```
 
 ```{r echo=FALSE, message=FALSE}

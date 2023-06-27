@@ -44,6 +44,9 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
   if (is.null(n_rand) & any(is.null(rand_rate), is.null(total_sample))){
     stop('Please specify \'n_rand\' or \'rand_rate\' with \'total_sample\'.')
   }
+  if (type %in% c('sample','event')){
+    at <- round(at)
+  }
   stat_name <- as.character(substitute(stat))
   stat_name <- setdiff(stat_name,'c')
   has_event <- all(!is.na(event_lambda)) | !is.null(advanced_dist$event_dist)

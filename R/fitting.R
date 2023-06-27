@@ -347,7 +347,7 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
       dat_test <- dat[ind==i,]
       md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
       if (is.infinite(md[1,1])){
-        break
+        next
       }
       loglikelihood <- sum(dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
         sum(ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
@@ -357,6 +357,7 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
     cv_like <- c(cv_like, mean(like_inside))
   }
   close(pb)
+  cv_like <- cv_like[!is.na(cv_like)]
   return(cv_like)
 }
 

@@ -19,3 +19,9 @@
     \item (sim_followup) fix number of enrolled=0 error
   }
 }
+
+\section{Changes in version 0.3.0}{
+  \itemize{
+    \item (sim_followup) fix an error when type='sample' or 'event', but 'at' is not an integer
+  }
+}
