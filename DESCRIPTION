@@ -1,6 +1,6 @@
 Package: PWEXP
 Type: Package
-Title: Piecewise exponential distribution prediction model
+Title: Piecewise Exponential Distribution Prediction Model
 Imports: graphics, grDevices, stats, methods, utils, survival, fastmatch, segmented
 Suggests: 
     knitr,
@@ -14,7 +14,6 @@ URL: https://github.com/zjph602xtc/PWEXP
 BugReports: https://github.com/zjph602xtc/PWEXP/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 VignetteBuilder: knitr
 Repository: CRAN
 Packaged: 2023-06-28 03:00:00 UTC; Peter Xu
