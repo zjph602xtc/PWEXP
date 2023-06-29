@@ -10,15 +10,14 @@
 \usage{
 \method{plot_survival}{default}(time, event, add=FALSE, conf.int=FALSE, mark.time=TRUE,
        lwd=2, xlab='Follow-up time', ylab='Survival function', ...)
-\method{plot_survival}{pwexp.fit}(object, add=TRUE, show_breakpoint=TRUE,
+\method{plot_survival}{pwexp.fit}(time, add=TRUE, show_breakpoint=TRUE,
        breakpoint_par=NULL, ...)
-\method{plot_survival}{boot.pwexp.fit}(object, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
+\method{plot_survival}{boot.pwexp.fit}(time, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
        breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...)
 }
 \arguments{
- \item{time}{observed time from randomization. For right censored data, this is the follow-up time. }
+ \item{time}{observed time from randomization or a \code{\link{pwexp.fit}}/ \code{\link{boot.pwexp.fit}} object.}
  \item{event}{the status indicator, normally 0=censor, 1=event. Other choices are TRUE/FALSE (TRUE = event). }
- \item{object}{an object of class \code{pwexp.fit} or \code{boot.pwexp.fit} returned by the \code{\link{pwexp.fit}} or \code{\link{boot.pwexp.fit}} function.}
  \item{add}{logical; if TRUE add lines to current plot.}
  \item{show_breakpoint}{logical; if TRUE add vertial dashed lines to indicate breakpoints.}
  \item{breakpoint_par}{a list of parameters to control the apperance of vertical lines of breakpoionts. The values pass to \code{\link[graphics]{abline}}.}

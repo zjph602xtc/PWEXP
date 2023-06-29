@@ -262,13 +262,13 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
   return(res)
 }
 
-boot.pwexp.fit <- function(x, ...){
+boot.pwexp.fit <- function(time, ...){
   UseMethod("boot.pwexp.fit")
 }
 
 
 
-boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
+boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
   res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
@@ -303,7 +303,8 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
   return(res_all)
 }
 
-boot.pwexp.fit.pwexp.fit <- function(object, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
+boot.pwexp.fit.pwexp.fit <- function(time, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
+  object <- time
   para <- attr(object, 'para')
   res <- boot.pwexp.fit.default(time=para$time, event=para$event,
                                 nsim=max(1,nsim-1), breakpoint=para$breakpoint, nbreak=para$nbreak,
@@ -318,11 +319,11 @@ boot.pwexp.fit.pwexp.fit <- function(object, nsim=100, max_set=1000, seed=1818, 
 
 
 
-cv.pwexp.fit <- function(x, ...){
+cv.pwexp.fit <- function(time, ...){
   UseMethod("cv.pwexp.fit")
 }
 
-cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
+cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
   res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
@@ -361,7 +362,8 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
   return(cv_like)
 }
 
-cv.pwexp.fit.pwexp.fit <- function(object, nfold=5, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4){
+cv.pwexp.fit.pwexp.fit <- function(time, nfold=5, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
+  object <- time
   para <- attr(object, 'para')
   res <- cv.pwexp.fit.default(time=para$time, event=para$event, nfold=nfold,
                               nsim=nsim, breakpoint=para$breakpoint, nbreak=para$nbreak, exclude_int=para$exclude_int,

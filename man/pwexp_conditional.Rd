@@ -55,8 +55,10 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 # CDF and qunatile function of conditional piecewise exp with rate 2, 1, 3 given t > 0.1
 t <- seq(0.1, 1.2, 0.01)
 F2_con <- ppwexp_conditional(t, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
-plot(t, F2_con, type='l', col='red', lwd=2, main="CDF and Quantile Function of Conditional \nPiecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1.2))
-lines(F2_con, qpwexp_conditional(F2_con, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2, col='red')
+plot(t, F2_con, type='l', col='red', lwd=2, main="CDF and Quantile Function of
+    Conditional \nPiecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1.2))
+lines(F2_con, qpwexp_conditional(F2_con, qT=0.1, rate=c(2, 1, 3),
+    breakpoint=c(0.3,0.8)), lty=2, lwd=2, col='red')
 
 # compare with CDF and quantile function of unconditional piecewise exp with rate 2, 1, 3
 t <- seq(0, 1.2, 0.01)
@@ -65,15 +67,20 @@ lines(t, F2, lwd=2)
 lines(F2, qpwexp(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2)
 abline(v=0.1, col='grey')
 abline(h=0.1, col='grey')
-legend('topleft', c('CDF of piecewise exp dist given t > 0.1', 'quantile function of piecewise exp dist given t > 0.1', 'CDF of piecewise exp dist', 'quantile function of piecewise exp dist'), col=c('red', 'red', 'black', 'black'), lty=c(1, 2, 1, 2), lwd=2)
+legend('topleft', c('CDF of piecewise exp dist given t > 0.1', 'quantile
+    function of piecewise exp dist given t > 0.1', 'CDF of piecewise exp dist',
+  'quantile function of piecewise exp dist'), col=c('red', 'red', 'black', 'black'),
+  lty=c(1, 2, 1, 2), lwd=2)
 
 # use rpwexp_conditional function to generate piecewise exp samples with rate 2, 1, 3 given t > 0.1
 r_sample_con <- rpwexp_conditional(3000, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
-plot(ecdf(r_sample_con), col='red', lwd=2,  main="Empirical CDF of Conditional Piecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1))
+plot(ecdf(r_sample_con), col='red', lwd=2,  main="Empirical CDF of Conditional
+    Piecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1))
 
 # compare with its CDF
 lines(seq(0.1, 1.2, 0.01), F2_con, lwd=2)
-legend('topleft', c('empirial CDF of piecewise exp dist given t > 0.1', 'true CDF of piecewise exp dist given t > 0.1'), col=c('red', 'black'), lty=c(1,2), lwd=2)
+legend('topleft', c('empirial CDF of piecewise exp dist given t > 0.1',
+    'true CDF of piecewise exp dist given t > 0.1'), col=c('red', 'black'), lty=c(1,2), lwd=2)
 }
 
 

@@ -1,16 +1,16 @@
-plot.pwexp.fit <- function(x){
+plot.pwexp.fit <- function(x, ...){
   stop('Please use \'plot_survival\' function to visualize the model.')
 }
 
-plot.cv.pwexp.fit <- function(x){
+plot.cv.pwexp.fit <- function(x, ...){
   stop('Please use \'plot_survival\' or \'plot_event\' function to visualize the model.')
 }
 
-plot.boot.pwexp.fit <- function(x){
+plot.boot.pwexp.fit <- function(x, ...){
   stop('Please use \'plot_survival\' or \'plot_event\' function to visualize the model.')
 }
 
-plot_survival <- function (x, ...){
+plot_survival <- function (time, ...){
   UseMethod ("plot_survival")
 }
 
@@ -27,8 +27,9 @@ plot_survival.default <- function(time, event, add=FALSE, conf.int=FALSE, mark.t
 }
 
 
-plot_survival.pwexp.fit <- function(object, add=TRUE, show_breakpoint=TRUE,
+plot_survival.pwexp.fit <- function(time, add=TRUE, show_breakpoint=TRUE,
                                     breakpoint_par=NULL, ...){
+  object <- time
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab','type')
   default <- list(2, 'red', 'Follow-up time', 'Survival function','l')
@@ -62,7 +63,7 @@ plot_survival.pwexp.fit <- function(object, add=TRUE, show_breakpoint=TRUE,
   }
 }
 
-plot_survival.boot.pwexp.fit <- function(object, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
+plot_survival.boot.pwexp.fit <- function(time, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
                                          breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...){
   # arg <- list(...)
   # option <- c('lwd', 'xlab', 'ylab')
@@ -75,7 +76,7 @@ plot_survival.boot.pwexp.fit <- function(object, add=TRUE, alpha=0.1, show_break
   # ind_brk <- option_brk %in% names(breakpoint_par)
   # breakpoint_par[option_brk[!ind_brk]] <- default_brk[!ind_brk]
 
-  obj <- object
+  obj <- object <- time
   obj <- obj[1,,drop=F]
   attr(obj, 'lam') <- as.numeric(attr(obj, 'lam')[1,])
   if (!is.null(attr(obj, 'brk'))){
@@ -105,7 +106,7 @@ plot_survival.boot.pwexp.fit <- function(object, add=TRUE, alpha=0.1, show_break
   }
 }
 
-plot_event <- function (x, ...){
+plot_event <- function (time, ...){
   UseMethod ("plot_event")
 }
 
@@ -143,8 +144,9 @@ plot_event.default <- function(time, event, abs_time=TRUE, additional_event=0, a
 
 
 
-plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, add=TRUE, plot=TRUE, xyswitch=FALSE,
+plot_event.predict.pwexp.fit <- function(time, abs_time=TRUE, add=TRUE, plot=TRUE, xyswitch=FALSE,
                                          eval_at=NULL, ...){
+  predict_model <- time
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
   default <- list(2, 'red', 'Time from first randomization',  'Cumulative events', 'l')
@@ -206,8 +208,9 @@ plot_event.predict.pwexp.fit <- function(predict_model, abs_time=TRUE, add=TRUE,
   }
 }
 
-plot_event.predict.boot.pwexp.fit <- function(predict_model, abs_time=TRUE,  alpha=0.1, add=TRUE,
+plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, add=TRUE,
                                               plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
+  predict_model <- time
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
   default <- list(2, 'red', 'Time from first randomization', 'Cumulative events', 'l')

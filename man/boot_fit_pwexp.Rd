@@ -8,23 +8,23 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
 }
 \usage{
 \method{boot.pwexp.fit}{default}(time, event, nsim=100, breakpoint=NULL, nbreak=0,
-               exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4)
-\method{boot.pwexp.fit}{pwexp.fit}(object, nsim=100, max_set=1000, seed=1818,
-               optimizer='mle', tol=1e-4)
+               exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...)
+\method{boot.pwexp.fit}{pwexp.fit}(time, nsim=100, max_set=1000, seed=1818,
+               optimizer='mle', tol=1e-4, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{object}{an object of class \code{pwexp.fit} returned by the \code{\link{pwexp.fit}} function.}
-  \item{time}{observed time from randomization. See \code{\link{pwexp.fit}}.}
-  \item{event}{the status indicator.  See \code{\link{pwexp.fit}}.}
+  \item{time}{observed time from randomization or a \code{\link{pwexp.fit}} object.}
+  \item{event}{the status indicator. See \code{\link{pwexp.fit}}.}
   \item{nsim}{the number of repeated bootstraping.}
-  \item{breakpoint}{pre-specified breakpoints.   See \code{\link{pwexp.fit}}.}
-  \item{nbreak}{total number of breakpoints.  See \code{\link{pwexp.fit}}.}
+  \item{breakpoint}{pre-specified breakpoints. See \code{\link{pwexp.fit}}.}
+  \item{nbreak}{total number of breakpoints. See \code{\link{pwexp.fit}}.}
   \item{exclude_int}{an interval that excludes any estimated breakpoints.  See \code{\link{pwexp.fit}}.}
-  \item{max_set}{maximum estimated combination of breakpoints.  See \code{\link{pwexp.fit}}.}
+  \item{max_set}{maximum estimated combination of breakpoints. See \code{\link{pwexp.fit}}.}
   \item{seed}{a random seed.}
   \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. See \code{\link{pwexp.fit}}.}
   \item{tol}{the minimum allowed gap between two breakpoints. The gap is calculated as \code{(max(time)-min(time))*tol}. Keep it as default in most cases. }
+  \item{...}{internal function reserved. }
 }
 \details{
 Use bootstrap to repeatdly call \code{\link{pwexp.fit}} to estimate the uncertainty of parameters.

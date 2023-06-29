@@ -9,14 +9,13 @@ Cross Validate a existing piecewise exponential model.
 \usage{
 \method{cv.pwexp.fit}{default}(time, event, nfold=5, nsim=100, breakpoint=NULL,
              nbreak=0, exclude_int=NULL, max_set=1000, seed=1818,
-             optimizer='mle', tol=1e-4)
-\method{cv.pwexp.fit}{pwexp.fit}(object, nfold=5, nsim=100, max_set=1000, seed=1818,
-             optimizer='mle', tol=1e-4)
+             optimizer='mle', tol=1e-4, ...)
+\method{cv.pwexp.fit}{pwexp.fit}(time, nfold=5, nsim=100, max_set=1000, seed=1818,
+             optimizer='mle', tol=1e-4, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{object}{an object of class \code{pwexp.fit} returned by the \code{\link{pwexp.fit}} function.}
-  \item{time}{observed time from randomization. See \code{\link{pwexp.fit}}.}
+  \item{time}{observed time from randomization or a \code{\link{pwexp.fit}} object.}
   \item{event}{the status indicator.  See \code{\link{pwexp.fit}}.}
   \item{nfold}{the number of folds used in CV.}
   \item{nsim}{the number of simulations.}
@@ -27,6 +26,7 @@ Cross Validate a existing piecewise exponential model.
   \item{seed}{a random seed.}
   \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. See \code{\link{pwexp.fit}}.}
   \item{tol}{the minimum allowed gap between two breakpoints. The gap is calculated as \code{(max(time)-min(time))*tol}. Keep it as default in most cases. }
+    \item{...}{internal function reserved. }
 }
 \details{
 Use cross validation obtain the prediction log likelihood.

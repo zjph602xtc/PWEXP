@@ -1,6 +1,7 @@
-predict.pwexp.fit <- function(event_model, cut_indicator=NULL, analysis_time, censor_model=NULL, type='predictive', n_each=100, future_rand=NULL, seed=1818){
+predict.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, censor_model=NULL, type='predictive', n_each=100, future_rand=NULL, seed=1818, ...){
   # future_rand is a list containing parameters in simdata
   # model is a fitted model
+  event_model <- object
   attr(event_model,'lam') <- matrix(attr(event_model,'lam'),nrow=1)
   if (!is.null(attr(event_model,'brk'))){
     attr(event_model,'brk') <- matrix(attr(event_model,'brk'),nrow=1)
@@ -11,15 +12,15 @@ predict.pwexp.fit <- function(event_model, cut_indicator=NULL, analysis_time, ce
       attr(censor_model,'brk') <- matrix(attr(censor_model,'brk'),nrow=1)
     }
   }
-  res <- predict.boot.pwexp.fit(event_model_boot = event_model, cut_indicator = cut_indicator, analysis_time = analysis_time, censor_model_boot = censor_model, type = type, n_each = n_each, future_rand = future_rand, seed = seed)
+  res <- predict.boot.pwexp.fit(object = event_model, cut_indicator = cut_indicator, analysis_time = analysis_time, censor_model_boot = censor_model, type = type, n_each = n_each, future_rand = future_rand, seed = seed)
   class(res) <- c('predict.pwexp.fit','list')
   return(res)
 }
 
-predict.boot.pwexp.fit <- function(event_model_boot, cut_indicator=NULL, analysis_time, censor_model_boot=NULL, type='predictive', n_each=10, future_rand=NULL, seed=1818){
+predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, censor_model_boot=NULL, type='predictive', n_each=10, future_rand=NULL, seed=1818, ...){
   # future_rand is a list containing parameters in simdata
   # model is a fitted model
-
+  event_model_boot <- object
   if (!(type %in% c('predictive','confidence'))){
     stop('wrong type argument.')
   }

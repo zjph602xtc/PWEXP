@@ -93,8 +93,10 @@ time_curve <- sim_followup(at=seq(200,600,100), type = 'event', group = c('trt',
                     advanced_dist = list(event_dist=c(myevent_dist_trt, myevent_dist_con)),
                     stat = c(median, mean, prop_12), start_date = "2020-01-01")
 # plot event curve or timeline
-plot(event_curve$T_all$analysis_time_c, event_curve$T_all$event, xlab='Time', ylab='Number of events', type='b')
-plot(time_curve$T_all$event, time_curve$T_all$analysis_time_c, xlab='Number of events', ylab='Time', type='b')
+plot(event_curve$T_all$analysis_time_c, event_curve$T_all$event, xlab='Time',
+    ylab='Number of events', type='b')
+plot(time_curve$T_all$event, time_curve$T_all$analysis_time_c, xlab='Number of
+    events', ylab='Time', type='b')
 }
 }
 

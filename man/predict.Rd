@@ -6,15 +6,14 @@
  Obtians event prediction and (optionally) confidence interval from a piecewise exponential model.
 }
 \usage{
-\method{predict}{pwexp.fit}(event_model, cut_indicator=NULL, analysis_time, censor_model=NULL,
-      type='predictive', n_each=100, future_rand=NULL, seed=1818)
-\method{predict}{boot.pwexp.fit}(event_model_boot, cut_indicator=NULL, analysis_time,
+\method{predict}{pwexp.fit}(object, cut_indicator=NULL, analysis_time, censor_model=NULL,
+      type='predictive', n_each=100, future_rand=NULL, seed=1818, ...)
+\method{predict}{boot.pwexp.fit}(object, cut_indicator=NULL, analysis_time,
       censor_model_boot=NULL, type='predictive', n_each=10, future_rand=NULL,
-      seed=1818)
+      seed=1818, ...)
 }
 \arguments{
-  \item{event_model}{an object of class \code{pwexp.fit} returned by the \code{\link{pwexp.fit}} function. It is the event model for the primary endpoint. }
-    \item{event_model_boot}{an object of class \code{boot.pwexp.fit} returned by the \code{\link{boot.pwexp.fit}} function. It is the event model with bootstrapping for the primary endpoint. }
+  \item{object}{a \code{\link{pwexp.fit}} or \code{\link{boot.pwexp.fit}} object. It is the event model for the primary endpoint. }
   \item{cut_indicator}{(optional) A vector indicates which subject is censored due to the end of the trial. The length of the vector is the number of rows of the data used in \code{event_model}/\code{event_model_boot}. Value 0 means the subject had event or drop-out or death before the end of the trial; 1 means the subject didn't have any of these. See details. }
   \item{analysis_time}{the analysis time. This is the time length from the start of the trial to the time collecting data for the model. }
   \item{censor_model}{an object of class \code{pwexp.fit} returned by the \code{\link{pwexp.fit}} function. It is the censoring model for drop-out and death. }
@@ -23,6 +22,7 @@
   \item{n_each}{the number of iterations for each bootstrapping sample to obtain predicitive CI. Typically, a value of 10 to 100 should be enough. }
   \item{future_rand}{the randomization curve in the following times. Can be \code{NULL} if all subjects have been randomized. You can specify \bold{future} rand rate and \bold{future} total number of samples to be randomized by \code{list(rand_rate= ,total_sample= )} or specify the \bold{future} number of randomization each month by \code{list(rand_n= )}. See details.}
   \item{seed}{a random seed.}
+  \item{...}{internal function reserved. }
 }
 \value{
   A list containing:

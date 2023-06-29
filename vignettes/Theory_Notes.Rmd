@@ -3,16 +3,21 @@ title: "Theory Notes"
 output: 
   html_document:
     number_sections: true
-date: "2023-03-29"
+date: "2023-06-29"
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Theory Notes}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r echo=FALSE, message=FALSE, results='hide', warning=FALSE}
 library('PWEXP')
 library('RColorBrewer')
+library('markdown')
 set.seed(1818)
 ```
 # Distribution
@@ -221,10 +226,11 @@ Specifically, instead of drawing a random sub-sample in [Section 2.2.1](#mle), w
 ## Summary
 The procedure of parameter estimation is summarized in the diagram below:
 
-![](./estimation.png){width=650px}
+![](estimation.png){width=650px}
 
 
 <br> 
 
 # Reference {-#ref} 
 [1] Muggeo, V. M. (2003). Estimating regression models with unknown break-points. Statistics in medicine, 22(19), 3055-3071.
+
