@@ -308,7 +308,7 @@ plot_survival(fit_censor_boot, col='red', alpha=0.01, CI_par = list(col='#ff9896
 
 Finally, we use `predict()` function to predict the number of events in the future. Note the returned object from  `predict()` contains event curve functions and it should be used in `plot_event()` function to obtain the estimated events and to plot the curve. 
 ```{r, message=FALSE, results='hide'}
-predicted_boot <- predict(event_model_boot=fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_rand=list(rand_rate=20, total_sample=NROW(dat)-NROW(train)))
+predicted_boot <- predict(fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_rand=list(rand_rate=20, total_sample=NROW(dat)-NROW(train)))
 ```
 
 We use `plot_event()` function to plot the event curve:
