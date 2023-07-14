@@ -449,8 +449,12 @@ href="https://CRAN.R-project.org/package=fastmatch">fastmatch</a> before
 installing <a href="https://github.com/zjph602xtc/PWEXP">PWEXP</a>.</p>
 <pre class="r"><code>install.packages(&#39;fastmatch&#39;)
 library(&#39;fastmatch&#39;)
+install.packages(&#39;segmented&#39;)
+library(&#39;segmented&#39;)
+install.packages(&quot;PWEXP&quot;)
+library(&#39;PWEXP&#39;)
 
-# install package from Github
+# (optionally) you can install package from Github
 install.packages(&quot;devtools&quot;)
 library(devtools)
 install_github(&quot;zjph602xtc/PWEXP&quot;)
@@ -659,7 +663,11 @@ events and to plot the curve.</p>
 <pre class="r"><code>predicted_boot &lt;- predict(fit_b2_boot, analysis_time=cut, censor_model_boot=fit_censor_boot, future_rand=list(rand_rate=20, total_sample=NROW(dat)-NROW(train)))</code></pre>
 <p>We use <code>plot_event()</code> function to plot the event
 curve:</p>
-<pre class="r"><code>plot_event(dat$followT_abs, abs_time=T, event=dat$event, ylim=c(0, 800), main=&#39;Predicted Number of Events&#39;)
+<pre class="r"><code># you can view the number of events without plotting anything by setting plot=F
+# plot_event(predicted_boot, eval_at = seq(40, 90, 5), plot = FALSE)
+
+# or you can plot the event curve
+plot_event(dat$followT_abs, abs_time=T, event=dat$event, ylim=c(0, 800), main=&#39;Predicted Number of Events&#39;)
 plot_event(train$followT_abs, abs_time=T, event=train$event, add=T, col=&#39;blue&#39;)
 pred_event &lt;- plot_event(predicted_boot, eval_at = seq(40, 90, 5))
 legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true event curve&#39;, &#39;predicted event curve&#39;), lwd=2, col=c(&#39;blue&#39;, &#39;black&#39;, &#39;red&#39;))</code></pre>

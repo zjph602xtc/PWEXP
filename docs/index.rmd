@@ -95,8 +95,12 @@ installing [PWEXP](https://github.com/zjph602xtc/PWEXP).
 ```{r eval=FALSE}
 install.packages('fastmatch')
 library('fastmatch')
+install.packages('segmented')
+library('segmented')
+install.packages("PWEXP")
+library('PWEXP')
 
-# install package from Github
+# (optionally) you can install package from Github
 install.packages("devtools")
 library(devtools)
 install_github("zjph602xtc/PWEXP")
@@ -313,6 +317,10 @@ predicted_boot <- predict(fit_b2_boot, analysis_time=cut, censor_model_boot=fit_
 
 We use `plot_event()` function to plot the event curve:
 ```{r fig.width=5,fig.height=4.5}
+# you can view the number of events without plotting anything by setting plot=F
+# plot_event(predicted_boot, eval_at = seq(40, 90, 5), plot = FALSE)
+
+# or you can plot the event curve
 plot_event(dat$followT_abs, abs_time=T, event=dat$event, ylim=c(0, 800), main='Predicted Number of Events')
 plot_event(train$followT_abs, abs_time=T, event=train$event, add=T, col='blue')
 pred_event <- plot_event(predicted_boot, eval_at = seq(40, 90, 5))
