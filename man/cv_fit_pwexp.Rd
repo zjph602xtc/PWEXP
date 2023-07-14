@@ -37,15 +37,16 @@ A vector of length \code{nsim} containing the CV log likelihood in each round of
 
 
 \examples{
-\dontrun{
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
 dat <- simdata(rand_rate = 20, drop_rate = 0.03,  total_sample = 1000,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
 
-cv0 <- cv.pwexp.fit(dat$followT, dat$event, nsim = 100, nbreak = 0)
-cv1 <- cv.pwexp.fit(dat$followT, dat$event, nsim = 100, nbreak = 1)
-cv2 <- cv.pwexp.fit(dat$followT, dat$event, nsim = 100, nbreak = 2)
+# here nsim=10 is for demo purpose, pls increase it in practice!!
+\donttest{
+cv0 <- cv.pwexp.fit(dat$followT, dat$event, nsim = 10, nbreak = 0)
+cv1 <- cv.pwexp.fit(dat$followT, dat$event, nsim = 10, nbreak = 1)
+cv2 <- cv.pwexp.fit(dat$followT, dat$event, nsim = 10, nbreak = 2)
 sapply(list(cv0,cv1,cv2), median)
 }
 }

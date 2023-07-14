@@ -43,21 +43,16 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 \seealso{\code{\link{pwexp.fit}}}
 
 \examples{
-\dontrun{
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
 dat <- simdata(rand_rate = 20, drop_rate = 0.03,  total_sample = 1000,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
-cut <- quantile(dat$randT, 0.8)
-train <- cut_dat(var_randT = 'randT', cut = cut, data = dat,
-                 var_followT = 'followT', var_followT_abs = 'followT_abs',
-                 var_event = 'event', var_censor_reason = 'censor_reason')
 
-fit_res3 <- pwexp.fit(train$followT, train$event, nbreak = 2)
-fit_res_boot <- boot.pwexp.fit(fit_res3, nsim = 100)
-plot_survival(train$followT, train$event, xlim=c(0,40))
+fit_res3 <- pwexp.fit(dat$followT, dat$event, nbreak = 2)
+fit_res_boot <- boot.pwexp.fit(fit_res3, nsim = 10) # here nsim=10 is for demo purpose,
+                                                    # pls increase it in practice
+plot_survival(dat$followT, dat$event, xlim=c(0,40))
 plot_survival(fit_res_boot, col='red', CI_par = list(col='red'))
 brk_ci <- apply(attr(fit_res_boot, 'brk'), 2, function(x)quantile(x,c(0.025,0.975)))
 abline(v=brk_ci, col='grey', lwd=2)
-}
 }

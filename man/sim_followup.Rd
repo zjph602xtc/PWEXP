@@ -73,7 +73,6 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 \code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have an Inf value for each variable.
 }
 \examples{
-\dontrun{
 # Two groups. Treatment:place=1:2. Drop rate=3\%/month. Hazard ratio=0.7.
 
 # define the piecewiese exponential event generation function
@@ -84,20 +83,21 @@ myevent_dist_con <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,
 prop_12 <- function(x)mean(x >= 12)
 
 # estimate the event curve or timeline:
+# (here rep=60 is for demo purpose only, please increase this value in practice!)
 event_curve <- sim_followup(at=seq(20,90,10), type = 'calendar', group = c('trt','con'),
              rand_rate = 20, total_sample = 1000, drop_rate = 0.03, allocation = 1:2,
              advanced_dist = list(event_dist=c(myevent_dist_trt, myevent_dist_con)),
-             by_group = T, stat = c(median, mean, prop_12), start_date = "2020-01-01")
+             by_group = TRUE, stat = c(median, mean, prop_12), start_date = "2020-01-01",
+             rep=60)
 time_curve <- sim_followup(at=seq(200,600,100), type = 'event', group = c('trt','con'),
-                    rand_rate = 20, total_sample = 1000, drop_rate = 0.03, allocation = 1:2,
-                    advanced_dist = list(event_dist=c(myevent_dist_trt, myevent_dist_con)),
-                    stat = c(median, mean, prop_12), start_date = "2020-01-01")
+             rand_rate = 20, total_sample = 1000, drop_rate = 0.03, allocation = 1:2,
+             advanced_dist = list(event_dist=c(myevent_dist_trt, myevent_dist_con)),
+             stat = c(median, mean, prop_12), start_date = "2020-01-01", rep=60)
 # plot event curve or timeline
 plot(event_curve$T_all$analysis_time_c, event_curve$T_all$event, xlab='Time',
     ylab='Number of events', type='b')
 plot(time_curve$T_all$event, time_curve$T_all$analysis_time_c, xlab='Number of
     events', ylab='Time', type='b')
-}
 }
 
 

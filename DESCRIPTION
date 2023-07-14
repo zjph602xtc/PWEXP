@@ -9,7 +9,7 @@ Suggests:
 Version: 0.3.0
 Author: Tianchen Xu [aut, cre] (<https://orcid.org/0000-0002-0102-7630>)
 Maintainer: Tianchen Xu <zjph602xutianchen@gmail.com>
-Description: Build piecewise exponential survival model for study design and event/timeline prediction.
+Description: Build piecewise exponential survival model for study design (planning) and event/timeline prediction. 
 URL: https://github.com/zjph602xtc/PWEXP
 BugReports: https://github.com/zjph602xtc/PWEXP/issues
 License: MIT + file LICENSE
@@ -17,4 +17,4 @@ Encoding: UTF-8
 VignetteBuilder: knitr
 Repository: CRAN
 Packaged: 2023-06-28 03:00:00 UTC; Peter Xu
-Date/Publication: 2023-01-17 03:00:00 UTC
+Date/Publication: 2023-06-28 03:00:00 UTC

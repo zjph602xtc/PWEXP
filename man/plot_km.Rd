@@ -42,6 +42,10 @@ For class \code{boot.pwexp.fit}, parameters in \code{...} are passed to \code{\l
 Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
 
+\value{
+No return value.
+}
+
 \examples{
 event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
 dat <- simdata(rand_rate = 20, drop_rate = 0.03,  total_sample = 1000,
