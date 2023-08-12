@@ -97,6 +97,9 @@ install.packages('fastmatch')
 library('fastmatch')
 install.packages('segmented')
 library('segmented')
+# load doSNOW package if you want parallel computing
+install.packages('doSNOW')
+library('doSNOW')
 install.packages("PWEXP")
 library('PWEXP')
 
@@ -110,6 +113,7 @@ library('PWEXP')
 ```{r echo=FALSE, message=FALSE}
 library('PWEXP')
 library('RColorBrewer')
+library('doSNOW')
 set.seed(1818)
 ```
 
@@ -250,8 +254,8 @@ fit_a0_cv <- cv.pwexp.fit(fit_a0, nsim = nsim)
 fit_a1_cv <- cv.pwexp.fit(fit_a1, nsim = nsim)
 fit_b0_cv <- cv.pwexp.fit(fit_b0, nsim = nsim)
 fit_b1_cv <- cv.pwexp.fit(fit_b1, nsim = nsim)
-fit_b2_cv <- cv.pwexp.fit(fit_b2, nsim = nsim)
-fit_b3_cv <- cv.pwexp.fit(fit_b3, nsim = nsim)
+fit_b2_cv <- cv.pwexp.fit(fit_b2, nsim = nsim, parallel= TRUE, mc.core = 10)
+fit_b3_cv <- cv.pwexp.fit(fit_b3, nsim = nsim, parallel= TRUE, mc.core = 10) # optionally set parallel=TRUE to use parallel computing
 # alternatively, we can specify a new model in the cv.pwexp.fit function instead of CV a fitted model, for example:
 fit_b4_cv <- cv.pwexp.fit(train$followT, train$event, nbreak=4, nsim=nsim)
 boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=nsim)), ylab='CV log likelihood', xlab='Model', ylim=c(-320,-250), col=col, main='CV log likelihood of Fitted Models')
@@ -279,6 +283,8 @@ take model `fit_b2` as an example.
 ```{r fig.width=5,fig.height=4.5, message=FALSE, results='hide'}
 # bootstrap the model
 fit_b2_boot <- boot.pwexp.fit(fit_b2, nsim = 50)
+# set parallel=TRUE to use parallel computing
+# fit_b2_boot <- boot.pwexp.fit(fit_b2, nsim = 50, parallel = TRUE, mc.core = 10)
 
 # plot data and the fitted model with 95% CI
 plot_survival(train$followT, train$event, xlim=c(0,40), main='Fitted Model for Primary Events with 95% CI')

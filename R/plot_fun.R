@@ -22,6 +22,13 @@ plot_survival.default <- function(time, event, add=FALSE, conf.int=FALSE, mark.t
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
+  if (is.data.frame(time)){
+    time <- time[[1]]
+  }
+  if (is.data.frame(event)){
+    event <- event[[1]]
+  }
+
   s <- survfit(Surv(time, event)~1)
   do.call(ifelse(add, 'lines', 'plot'), c(list(x=s), arg))
 }
@@ -114,18 +121,22 @@ plot_event.default <- function(time, event, abs_time=TRUE, additional_event=0, a
                                plot=TRUE, xyswitch=FALSE, ...){
   # here dat$followT_abs may be followT or followT_abs, depending on the user input
   arg <- list(...)
-  option <- c('lwd', 'xlab', 'ylab', 'type')
-  default <- list(2, ifelse(abs_time, 'Time from first randomization', 'Time
-                            from randomization of each subject'), 'Cumulative events', 'l')
-  ind <- option %in% names(arg)
-  arg[option[!ind]] <- default[!ind]
-
   if (xyswitch){
-    arg$ylab <- arg$xlab
-    arg$xlab <- 'Cumulative events'
+    option <- c('lwd', 'xlab', 'ylab', 'type')
+    default <- list(2,'Cumulative events', ifelse(abs_time, 'Time from first randomization', 'Time from randomization of each subject'), 'l')
+  }else{
+    option <- c('lwd', 'xlab', 'ylab', 'type')
+    default <- list(2, ifelse(abs_time, 'Time from first randomization', 'Time from randomization of each subject'), 'Cumulative events', 'l')
   }
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
+
+  if (is.data.frame(time)){
+    time <- time[[1]]
+  }
+  if (is.data.frame(event)){
+    event <- event[[1]]
+  }
 
   dat <- data.frame(followT_abs = time, event = event)
   dat <- dat[order(dat$followT_abs),]
@@ -148,17 +159,18 @@ plot_event.predict.pwexp.fit <- function(time, abs_time=TRUE, add=TRUE, plot=TRU
                                          eval_at=NULL, ...){
   predict_model <- time
   arg <- list(...)
-  option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
-  default <- list(2, 'red', 'Time from first randomization',  'Cumulative events', 'l')
+  if (xyswitch){
+    option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
+    default <- list(2, 'red', 'Cumulative events', 'Time from first randomization', 'l')
+  }else{
+    option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
+    default <- list(2, 'red', 'Time from first randomization', 'Cumulative events', 'l')
+  }
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 
   if (!abs_time){
     stop('abs_time must be TRUE when plotting the prediction curve. ')
-  }
-  if (xyswitch){
-    arg$ylab <- arg$xlab
-    arg$xlab <- 'Cumulative events'
   }
 
   #  to predict type='event' or 'time'
@@ -212,8 +224,13 @@ plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, a
                                               plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
   predict_model <- time
   arg <- list(...)
-  option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
-  default <- list(2, 'red', 'Time from first randomization', 'Cumulative events', 'l')
+  if (xyswitch){
+    option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
+    default <- list(2, 'red', 'Cumulative events', 'Time from first randomization', 'l')
+  }else{
+    option <- c('lwd', 'col', 'xlab', 'ylab', 'type')
+    default <- list(2, 'red', 'Time from first randomization', 'Cumulative events', 'l')
+  }
   ind <- option %in% names(arg)
   arg[option[!ind]] <- default[!ind]
 

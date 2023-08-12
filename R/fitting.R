@@ -268,7 +268,7 @@ boot.pwexp.fit <- function(time, ...){
 
 
 
-boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
+boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
   res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
@@ -282,14 +282,26 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
   if (nbreak==0){
     nbreak <- length(attr(res_all, 'lam'))-1
   }
-  pb <- txtProgressBar(style = 3)
-  for (i in 1:(nsim-1)){
-    setTxtProgressBar(pb, i/(nsim))
-    dat_b <- dat[sample.int(n, n, replace = T),]
-    res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
-    res_all <- rbind(res_all, res)
+  pb <- txtProgressBar(max = nsim, style = 3)
+
+  if (parallel){
+    registerDoSNOW(cl <- makeCluster(mc.core))
+    res_all_tp <- foreach(i=1:(nsim-1), .combine = 'rbind', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PWEXP', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
+      dat_b <- dat[sample.int(n, n, replace = T),]
+      res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
+    }
+    res_all <- rbind(res_all, res_all_tp)
+    stopCluster(cl)
+  }else{
+    for (i in 1:(nsim-1)){
+      setTxtProgressBar(pb, i)
+      dat_b <- dat[sample.int(n, n, replace = T),]
+      res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
+      res_all <- rbind(res_all, res)
+    }
   }
-  setTxtProgressBar(pb, 1)
+
+  setTxtProgressBar(pb, nsim)
   close(pb)
   res_all[is.infinite(res_all[,1]),] <- NA
   res_all[is.na(res_all[,1]),] <- suppressWarnings(matrix(colMeans(res_all, na.rm=T), ncol=NCOL(res_all), nrow=sum(is.na(res_all[,1])), byrow = T))
@@ -303,13 +315,15 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
   return(res_all)
 }
 
-boot.pwexp.fit.pwexp.fit <- function(time, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
+boot.pwexp.fit.pwexp.fit <- function(time, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4,
+                                     parallel=FALSE, mc.core=4, ...){
   object <- time
   para <- attr(object, 'para')
   res <- boot.pwexp.fit.default(time=para$time, event=para$event,
                                 nsim=max(1,nsim-1), breakpoint=para$breakpoint, nbreak=para$nbreak,
                                 exclude_int=para$exclude_int,
-                                max_set=max_set, seed=seed, optimizer=optimizer, tol=tol)
+                                max_set=max_set, seed=seed, optimizer=optimizer, tol=tol,
+                                parallel=parallel, mc.core=mc.core)
   res_combined <- rbind(object, res)
   attr(res_combined, 'brk') <- rbind(attr(object, 'brk'), attr(res, 'brk'))
   attr(res_combined, 'lam') <- rbind(attr(object, 'lam'), attr(res, 'lam'))
@@ -323,7 +337,7 @@ cv.pwexp.fit <- function(time, ...){
   UseMethod("cv.pwexp.fit")
 }
 
-cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
+cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
   res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
@@ -338,35 +352,60 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
   }
 
   cv_like <- NULL
-  pb <- txtProgressBar(style = 3)
-  for (j in 1:nsim){
-    setTxtProgressBar(pb, j/nsim)
-    ind <- sample(cut(1:n, breaks=nfold, label=FALSE))
-    like_inside <- NULL
-    for (i in 1:nfold){
-      dat_train <- dat[ind!=i,]
-      dat_test <- dat[ind==i,]
-      md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
-      if (is.infinite(md[1,1])){
-        next
+  pb <- txtProgressBar(max=nsim, style = 3)
+
+  if (parallel){
+    registerDoSNOW(cl <- makeCluster(mc.core))
+    cv_like <- foreach(j=1:nsim, .combine = 'c', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PWEXP', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
+      ind <- sample(cut(1:n, breaks=nfold, label=FALSE))
+      like_inside <- NULL
+      for (i in 1:nfold){
+        dat_train <- dat[ind!=i,]
+        dat_test <- dat[ind==i,]
+        md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
+        if (is.infinite(md[1,1])){
+          next
+        }
+        loglikelihood <- sum(dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
+          sum(ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
+        like_inside <- c(like_inside, loglikelihood)
       }
-      loglikelihood <- sum(dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
-        sum(ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
-      like_inside <- c(like_inside, loglikelihood)
+      # like_inside[is.infinite(like_inside)] <- min(like_inside[is.finite(like_inside)])
+      mean(like_inside)
     }
-    # like_inside[is.infinite(like_inside)] <- min(like_inside[is.finite(like_inside)])
-    cv_like <- c(cv_like, mean(like_inside))
+    stopCluster(cl)
+  }else{
+    for (j in 1:nsim){
+      setTxtProgressBar(pb, j)
+      ind <- sample(cut(1:n, breaks=nfold, label=FALSE))
+      like_inside <- NULL
+      for (i in 1:nfold){
+        dat_train <- dat[ind!=i,]
+        dat_test <- dat[ind==i,]
+        md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
+        if (is.infinite(md[1,1])){
+          next
+        }
+        loglikelihood <- sum(dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
+          sum(ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
+        like_inside <- c(like_inside, loglikelihood)
+      }
+      # like_inside[is.infinite(like_inside)] <- min(like_inside[is.finite(like_inside)])
+      cv_like <- c(cv_like, mean(like_inside))
+    }
   }
+
   close(pb)
   cv_like <- cv_like[!is.na(cv_like)]
   return(cv_like)
 }
 
-cv.pwexp.fit.pwexp.fit <- function(time, nfold=5, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...){
+cv.pwexp.fit.pwexp.fit <- function(time, nfold=5, nsim=100, max_set=1000, seed=1818, optimizer='mle', tol=1e-4,
+                                   parallel=FALSE, mc.core=4, ...){
   object <- time
   para <- attr(object, 'para')
   res <- cv.pwexp.fit.default(time=para$time, event=para$event, nfold=nfold,
                               nsim=nsim, breakpoint=para$breakpoint, nbreak=para$nbreak, exclude_int=para$exclude_int,
-                              max_set=max_set, seed=seed, optimizer=optimizer, tol=tol)
+                              max_set=max_set, seed=seed, optimizer=optimizer, tol=tol, parallel=parallel, mc.core=mc.core)
   return(res)
 }

@@ -451,6 +451,9 @@ installing <a href="https://github.com/zjph602xtc/PWEXP">PWEXP</a>.</p>
 library(&#39;fastmatch&#39;)
 install.packages(&#39;segmented&#39;)
 library(&#39;segmented&#39;)
+# load doSNOW package if you want parallel computing
+install.packages(&#39;doSNOW&#39;)
+library(&#39;doSNOW&#39;)
 install.packages(&quot;PWEXP&quot;)
 library(&#39;PWEXP&#39;)
 
@@ -602,8 +605,8 @@ fit_a0_cv &lt;- cv.pwexp.fit(fit_a0, nsim = nsim)
 fit_a1_cv &lt;- cv.pwexp.fit(fit_a1, nsim = nsim)
 fit_b0_cv &lt;- cv.pwexp.fit(fit_b0, nsim = nsim)
 fit_b1_cv &lt;- cv.pwexp.fit(fit_b1, nsim = nsim)
-fit_b2_cv &lt;- cv.pwexp.fit(fit_b2, nsim = nsim)
-fit_b3_cv &lt;- cv.pwexp.fit(fit_b3, nsim = nsim)
+fit_b2_cv &lt;- cv.pwexp.fit(fit_b2, nsim = nsim, parallel= TRUE, mc.core = 10)
+fit_b3_cv &lt;- cv.pwexp.fit(fit_b3, nsim = nsim, parallel= TRUE, mc.core = 10) # optionally set parallel=TRUE to use parallel computing
 # alternatively, we can specify a new model in the cv.pwexp.fit function instead of CV a fitted model, for example:
 fit_b4_cv &lt;- cv.pwexp.fit(train$followT, train$event, nbreak=4, nsim=nsim)
 boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv, fit_b2_cv, fit_b3_cv, fit_b4_cv), model_ind=rep(model_ind, each=nsim)), ylab=&#39;CV log likelihood&#39;, xlab=&#39;Model&#39;, ylim=c(-320,-250), col=col, main=&#39;CV log likelihood of Fitted Models&#39;)
@@ -626,6 +629,8 @@ legend(&#39;topright&#39;,c(&#39;training data&#39;, &#39;0 breakpoints&#39;,&#3
 parameters. We take model <code>fit_b2</code> as an example.</p>
 <pre class="r"><code># bootstrap the model
 fit_b2_boot &lt;- boot.pwexp.fit(fit_b2, nsim = 50)
+# set parallel=TRUE to use parallel computing
+# fit_b2_boot &lt;- boot.pwexp.fit(fit_b2, nsim = 50, parallel = TRUE, mc.core = 10)
 
 # plot data and the fitted model with 95% CI
 plot_survival(train$followT, train$event, xlim=c(0,40), main=&#39;Fitted Model for Primary Events with 95% CI&#39;)

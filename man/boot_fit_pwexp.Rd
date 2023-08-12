@@ -8,9 +8,10 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
 }
 \usage{
 \method{boot.pwexp.fit}{default}(time, event, nsim=100, breakpoint=NULL, nbreak=0,
-               exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, ...)
+               exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4,
+               parallel=FALSE, mc.core=4, ...)
 \method{boot.pwexp.fit}{pwexp.fit}(time, nsim=100, max_set=1000, seed=1818,
-               optimizer='mle', tol=1e-4, ...)
+               optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -24,6 +25,8 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
   \item{seed}{a random seed.}
   \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. See \code{\link{pwexp.fit}}.}
   \item{tol}{the minimum allowed gap between two breakpoints. The gap is calculated as \code{(max(time)-min(time))*tol}. Keep it as default in most cases. }
+  \item{parallel}{logical. If \code{TRUE}, use \pkg{doSNOW} package to run in parallel.}
+  \item{mc.core}{number of processes allowed to be run in parallel.}
   \item{...}{internal function reserved. }
 }
 \details{
