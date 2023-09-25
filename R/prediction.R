@@ -68,6 +68,7 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
     n_each <- 1
   }
   pb <- txtProgressBar(style = 3)
+  max_time <- 0
   for (j in 1:n_each){
     if (n_each!=1){
       setTxtProgressBar(pb, j/n_each)
@@ -105,7 +106,7 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
       line_data <- rbind(c(analysis_time, sum(para$event)), line_data)
       flag <- tryCatch({
         tmp_line_dat_fun <- suppressWarnings(approxfun(line_data$time, line_data$n_event, rule=1:2))
-        tmp_line_data_fun_time <- suppressWarnings(approxfun(line_data$n_event, line_data$time, rule=1))
+        # tmp_line_data_fun_time <- suppressWarnings(approxfun(line_data$n_event, line_data$time, rule=1))
       }, error = function(e){
         e
       })
@@ -113,13 +114,14 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
         next
       }else{
         line_data_fun <- c(line_data_fun,tmp_line_dat_fun)
-        line_data_fun_time <- c(line_data_fun_time, tmp_line_data_fun_time)
+        # line_data_fun_time <- c(line_data_fun_time, tmp_line_data_fun_time)
       }
     }
   }
   setTxtProgressBar(pb, 1)
   close(pb)
-  res <- list(event_fun=line_data_fun,time_fun=line_data_fun_time)
+  res <- list(event_fun=line_data_fun)
+  # res <- list(event_fun=line_data_fun,time_fun=line_data_fun_time)
   class(res) <- c('predict.boot.pwexp.fit','list')
   return(res)
 }

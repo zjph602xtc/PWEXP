@@ -155,7 +155,7 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
     Sfun <- data.frame(x=Sfun$time, y=log(Sfun$surv))
     Sfun <- na.omit(Sfun)
     Sfun <- Sfun[!is.infinite(Sfun$y),]
-    invisible(capture.output(seg_brk <- try(segmented(lm(y~x, data=Sfun), npsi = nbreak-n_fix_brk, fixed.psi = breakpoint)$psi, silent=TRUE)))
+    invisible(capture.output(seg_brk <- try(segmented::segmented(lm(y~x, data=Sfun), npsi = nbreak-n_fix_brk, fixed.psi = breakpoint)$psi, silent=TRUE)))
     if (is.null(seg_brk) | any(class(seg_brk)=='try-error')){
       optimizer <- 'mle'
     }
@@ -285,13 +285,14 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
   pb <- txtProgressBar(max = nsim, style = 3)
 
   if (parallel){
-    registerDoSNOW(cl <- makeCluster(mc.core))
-    res_all_tp <- foreach(i=1:(nsim-1), .combine = 'rbind', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PWEXP', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
+    doSNOW::registerDoSNOW(cl <- parallel::makeCluster(mc.core))
+    `%dopar%` <- foreach::`%dopar%`
+    res_all_tp <- foreach::foreach(i=1:(nsim-1), .combine = 'rbind', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PWEXP', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
       dat_b <- dat[sample.int(n, n, replace = T),]
       res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
     }
     res_all <- rbind(res_all, res_all_tp)
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }else{
     for (i in 1:(nsim-1)){
       setTxtProgressBar(pb, i)
@@ -355,8 +356,9 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
   pb <- txtProgressBar(max=nsim, style = 3)
 
   if (parallel){
-    registerDoSNOW(cl <- makeCluster(mc.core))
-    cv_like <- foreach(j=1:nsim, .combine = 'c', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PWEXP', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
+    doSNOW::registerDoSNOW(cl <- parallel::makeCluster(mc.core))
+    `%dopar%` <- foreach::`%dopar%`
+    cv_like <- foreach::foreach(j=1:nsim, .combine = 'c', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PWEXP', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
       ind <- sample(cut(1:n, breaks=nfold, label=FALSE))
       like_inside <- NULL
       for (i in 1:nfold){
@@ -373,7 +375,7 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
       # like_inside[is.infinite(like_inside)] <- min(like_inside[is.finite(like_inside)])
       mean(like_inside)
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }else{
     for (j in 1:nsim){
       setTxtProgressBar(pb, j)

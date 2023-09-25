@@ -38,3 +38,11 @@
     \item (cv.pwexp.fit) add 'parallel' option
   }
 }
+
+\section{Changes in version 0.4.1}{
+  \itemize{
+    \item (plot_event) rewrite 'xyswitch=TRUE' to have the same result as 'xyswitch=FALSE'
+    \item add 'Depends: survival, fastmatch' to DESCRIPTION
+    \item (boot.pwexp.fit, cv.pwexp.fit) correctly attach functions in 'doSNOW', 'foreach' packages
+  }
+}

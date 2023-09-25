@@ -184,33 +184,35 @@ plot_event.predict.pwexp.fit <- function(time, abs_time=TRUE, add=TRUE, plot=TRU
         stop('Must provide xlim when NOT adding the prediction curve to an existing figure. ')
       }
     }
-    if (!xyswitch){
-      pre <- sapply(predict_model$event_fun, function(f)f(xrange))
-    }else {
-      pre <- sapply(predict_model$time_fun, function(f)f(xrange))
+    x_pre_range <- seq(0, max(xrange[200], 240), length=5000)
+  }else{
+    x_pre_range <- seq(0, 240, length=10000)
+  }
+  pre <- sapply(predict_model$event_fun, function(f)f(x_pre_range))
+  if (!is.matrix(pre) | is.data.frame(pre)){
+    pre <- matrix(pre, nrow=1)
+  }
+  # na_include <- rowMeans(is.na(pre)) < 0.05
+  pre <- apply(pre, 1, function(x)quantile(x, 0.5,na.rm=T))
+  # pre[,!na_include] <- NA
+
+  if (!xyswitch){
+    median_line <- suppressWarnings(approxfun(x_pre_range, pre, rule=1:2, ties='min'))
+  }else{
+    median_line <- function(x){
+      res <- rep(NA, length=length(x))
+      tmp_ind <- x < max(pre, na.rm = T)
+      res[tmp_ind] <- suppressWarnings(approxfun(pre, x_pre_range, rule=1, ties='min')(x[tmp_ind]))
+      return(res)
     }
-    if (!is.matrix(pre) | is.data.frame(pre)){
-      pre <- matrix(pre, nrow=1)
-    }
-    na_include <- rowMeans(is.na(pre)) < 0.05
-    pre <- apply(pre, 1, function(x)median(x,na.rm=T))
-    pre[!na_include] <- NA
-    do.call(ifelse(add, 'lines', 'plot'), c(list(x=xrange, y=pre), arg))
+  }
+
+  if (plot){
+    do.call(ifelse(add, 'lines', 'plot'), c(list(x=xrange, y=median_line(xrange)), arg))
   }
 
   if (!is.null(eval_at)){
-    if (!xyswitch){
-      pre <- sapply(predict_model$event_fun, function(f)f(eval_at))
-    }else {
-      pre <- sapply(predict_model$time_fun, function(f)f(eval_at))
-    }
-    if (!is.matrix(pre) | is.data.frame(pre)){
-      pre <- matrix(pre, nrow=1)
-    }
-    na_include <- rowMeans(is.na(pre)) < 0.05
-    pre <- apply(pre, 1,  function(x)median(x,na.rm=T))
-    pre[!na_include] <- NA
-    pre <- t(rbind(eval_at, pre))
+    pre <- cbind(eval_at, median_line(eval_at))
     if (xyswitch){
       colnames(pre) <- c('n_event', 'time')
     }else{
@@ -242,10 +244,6 @@ plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, a
   if (!abs_time){
     stop('abs_time must be TRUE when plotting the prediction curve. ')
   }
-  if (xyswitch){
-    arg$ylab <- arg$xlab
-    arg$xlab <- 'Cumulative events'
-  }
 
   #  to predict type='event' or 'time'
   if (plot){
@@ -258,45 +256,58 @@ plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, a
         stop('Must provide xlim when NOT adding the prediction curve to an existing figure. ')
       }
     }
-    if (!xyswitch){
-      pre <- sapply(predict_model$event_fun, function(f)f(xrange))
-    }else {
-      pre <- sapply(predict_model$time_fun, function(f)f(xrange))
+    x_pre_range <- seq(0, max(xrange[200], 240), length=5000)
+  }else{
+    x_pre_range <- seq(0, 240, length=10000)
+  }
+  pre <- sapply(predict_model$event_fun, function(f)f(x_pre_range))
+  if (!is.matrix(pre) | is.data.frame(pre)){
+    pre <- matrix(pre, nrow=1)
+  }
+  # na_include <- rowMeans(is.na(pre)) < 0.05
+  pre <- apply(pre, 1, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
+  # pre[,!na_include] <- NA
+
+  if (!xyswitch){
+    median_line <- suppressWarnings(approxfun(x_pre_range, pre[2,], rule=1:2, ties='min'))
+    low_line <- suppressWarnings(approxfun(x_pre_range, pre[1,], rule=1:2, ties='min'))
+    up_line <- suppressWarnings(approxfun(x_pre_range, pre[3,], rule=1:2, ties='min'))
+  }else{
+    median_line <- function(x){
+      res <- rep(NA, length=length(x))
+      tmp_ind <- x < max(pre[2,], na.rm = T)
+      res[tmp_ind] <- suppressWarnings(approxfun(pre[2,], x_pre_range, rule=1, ties='min')(x[tmp_ind]))
+      return(res)
     }
-    if (!is.matrix(pre) | is.data.frame(pre)){
-      pre <- matrix(pre, nrow=1)
+    low_line <- function(x){
+      res <- rep(NA, length=length(x))
+      tmp_ind <- x < max(pre[3,], na.rm = T)
+      res[tmp_ind] <- suppressWarnings(approxfun(pre[3,], x_pre_range, rule=1, ties='min')(x[tmp_ind]))
+      return(res)
     }
-    na_include <- rowMeans(is.na(pre)) < 0.05
-    pre <- apply(pre, 1, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
-    pre[,!na_include] <- NA
-    do.call(ifelse(add, 'lines', 'plot'), c(list(x=xrange, y=pre[2,]), arg))
+    up_line <- function(x){
+      res <- rep(NA, length=length(x))
+      tmp_ind <- x < max(pre[1,], na.rm = T)
+      res[tmp_ind] <- suppressWarnings(approxfun(pre[1,], x_pre_range, rule=1, ties='min')(x[tmp_ind]))
+      return(res)
+    }
+  }
+
+  if (plot){
+    do.call(ifelse(add, 'lines', 'plot'), c(list(x=xrange, y=median_line(xrange)), arg))
     if (show_CI){
-      do.call(lines, c(list(x=xrange, y=pre[1,]), CI_par))
-      do.call(lines, c(list(x=xrange, y=pre[3,]), CI_par))
+      do.call(lines, c(list(x=xrange, y=low_line(xrange)), CI_par))
+      do.call(lines, c(list(x=xrange, y=up_line(xrange)), CI_par))
     }
   }
 
   if (!is.null(eval_at)){
-    if (!xyswitch){
-      pre <- sapply(predict_model$event_fun, function(f)f(eval_at))
-    }else {
-      pre <- sapply(predict_model$time_fun, function(f)f(eval_at))
-    }
-    if (!is.matrix(pre) | is.data.frame(pre)){
-      pre <- matrix(pre, nrow=1)
-    }
-    na_include <- rowMeans(is.na(pre)) < 0.05
-    pre <- apply(pre, 1, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
-    pre[,!na_include] <- NA
-    pre <- t(rbind(eval_at, pre))
+    pre <- cbind(eval_at, median_line(eval_at), low_line(eval_at), up_line(eval_at))
     if (xyswitch){
-      pre <- pre[,c(1,3,2,4),drop=F]
       colnames(pre) <- c('n_event', 'time', paste0(alpha/2*100, '% time'), paste0((1-alpha/2)*100, '% time'))
     }else{
-      pre <- pre[,c(1,3,2,4),drop=F]
       colnames(pre) <- c('time','n_event', paste0(alpha/2*100, '% n_event'), paste0((1-alpha/2)*100, '% n_event'))
     }
-
     return(pre)
   }
 
