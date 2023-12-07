@@ -262,7 +262,9 @@ boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv
 legend('topleft', model_name, fill=col, ncol=2, text.width=3)
 ```
 
-We then plot the fitted curves of some of these models.
+We then plot the fitted curves of some of these models. 
+
+[(Sometimes we will see an ‘abnormal’ tail (e.g., sudden drop near tail), see ['Deal with Tail Problem' Section](#tailproblem) for more details.) ]{style="color: #EB6864;font-weight:bold"}
 
 ```{r fig.width=5,fig.height=4.5}
 # Plot fitted survival curves
@@ -559,10 +561,47 @@ Specifically, instead of drawing a random sub-sample in [Section B.2.1](#mle), w
 The procedure of parameter estimation is summarized in the diagram below:
 
 ![](./images/estimation.png){width=650px}
-
+<br>
 <br>
 
-## C. Simulate Event Curve or Timeline {#simfollow}
+## C. Deal with Tail Problem {#tailproblem}
+In the real data cases, sometimes there may be an 'abnormal' tail as shown in Figure below. The KM curve has a sudden drop at 32M. If we do not deal with the sudden drop, and fit a piecewise exponential model directly to the data, then we will obtain model `m1` (the red curve). [This will over-estimate the hazard rate in tail.]{style="color: #EB6864;font-weight:bold"}
+
+There are several ways to alleviate this problem:
+
+-   Use `exclude_int` parameter to exclude any breakpoints near the tail (`m2` in purple)
+-   Use `min_pt_tail` parameter (default: `min_pt_tail=5`) to include more events in the hazard rate estimation of the last piece (`m3` in orange)
+-   Cut the data before the sudden drop, and then fit a model to the cut data  (`m4` in green).
+
+```{r echo=FALSE, message=FALSE}
+dat <- read.csv('example data.csv')
+
+```
+```{r fig.width=5.5,fig.height=5}
+plot_survival(dat$Survival.time, dat$Status, main='Survival Function of an Example Dataset', lwd=2)
+# fit a model without robust tail control
+m1 <- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4)
+plot_survival(m1, col='red', show_breakpoint = F, lwd=3)
+# use `exclude_int` parameter to exclude any breakpoints after 23M
+m2 <- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4, exclude_int = c(23,Inf))
+plot_survival(m2, col='purple', show_breakpoint = F, lwd=3)
+# use `min_pt_tail` parameter to include at least 10 events in the hazard rate estimation of the last piece
+m3 <- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4, min_pt_tail = 10)
+plot_survival(m3, col='orange', show_breakpoint = F, lwd=3)
+# cut the data at 32M, and then fit a model to the cut data
+dat <- cut_dat(cut = 32, dat, var_followT = 'Survival.time', var_event = 'Status')
+m4 <- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4)
+plot_survival(m4, col='green', show_breakpoint = F, lwd=3)
+
+legend('bottomleft', legend=c('with no tail control', 'no breakpoints after 23M', 
+                              'use at least 10 events to estimate the tail', 
+                              'cut data at 32M'),
+       col=c('red','purple','orange','green'), lwd=3)
+```
+<br>
+
+
+## D. Simulate Event Curve or Timeline {#simfollow}
 We can use the `sim_followup()` function to estimate the event curve or timeline at the trial design stage. The piecewise hazard rate comes from clinical suggestions or data curve fit from previous literature. 
 
 For example, here we assume we have two groups:

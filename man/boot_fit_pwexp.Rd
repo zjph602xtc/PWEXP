@@ -8,8 +8,8 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
 }
 \usage{
 \method{boot.pwexp.fit}{default}(time, event, nsim=100, breakpoint=NULL, nbreak=0,
-               exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4,
-               parallel=FALSE, mc.core=4, ...)
+               exclude_int=NULL, min_pt_tail=5, max_set=1000, seed=1818,
+               optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...)
 \method{boot.pwexp.fit}{pwexp.fit}(time, nsim=100, max_set=1000, seed=1818,
                optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...)
 }
@@ -21,6 +21,7 @@ Bootstrap a existing piecewise exponential model or build a piecewise exponentia
   \item{breakpoint}{pre-specified breakpoints. See \code{\link{pwexp.fit}}.}
   \item{nbreak}{total number of breakpoints. See \code{\link{pwexp.fit}}.}
   \item{exclude_int}{an interval that excludes any estimated breakpoints.  See \code{\link{pwexp.fit}}.}
+  \item{min_pt_tail}{the minimum number of events used for estimating the tail (the hazard rate of the last piece). See \code{\link{pwexp.fit}}.}
   \item{max_set}{maximum estimated combination of breakpoints. See \code{\link{pwexp.fit}}.}
   \item{seed}{a random seed.}
   \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. See \code{\link{pwexp.fit}}.}

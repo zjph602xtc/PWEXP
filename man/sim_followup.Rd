@@ -7,9 +7,9 @@
 \usage{
 sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
             allocation=1, event_lambda=NA, drop_rate=NA, death_lambda=NA,
-            n_rand=NULL, rand_rate=NULL, total_sample=NULL, min_follow=0,
+            n_rand=NULL, rand_rate=NULL, total_sample=NULL, extra_follow=0,
             by_group=FALSE, by_strata=FALSE, advanced_dist=NULL,
-            stat=c(mean, median, sum), count_in_min_follow=FALSE,
+            stat=c(mean, median, sum), count_in_extra_follow=FALSE,
             count_insufficient_event=FALSE,
             start_date=NULL, rep=300, seed=1818)
 }
@@ -25,12 +25,12 @@ sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
   \item{n_rand}{(required when \code{rand_rate=NULL}) a vector of the number of randomization each month. See \code{\link{simdata}}.}
   \item{rand_rate}{(required when \code{n_rand=NULL}) the randomization rate (patients/month). See \code{\link{simdata}}.}
   \item{total_sample}{(required when \code{n_rand=NULL}) total scheduled sample size. See \code{\link{simdata}}.}
-  \item{min_follow}{delay the analysis time by extra time (\code{min_follow}) after the time specified by \code{at}. See details. }
+  \item{extra_follow}{delay the analysis time by extra time (\code{extra_follow}) after the time specified by \code{at}. See details. }
   \item{by_group}{logical; if TRUE, also return results by each group. }
   \item{by_strata}{logical; if TRUE, also return results by each stratum. }
   \item{advanced_dist}{use user-specified distributions for event, drop-out and death. A list containing random generation functions. See details and examples in \code{\link{simdata}}.}
   \item{stat}{a vector of functions to summarize the follow-up time. See example. }
-  \item{count_in_min_follow}{logical; whether count subjects who are randomized after the time spcified by \code{at} but before the time specified by \code{at} + \code{min_follow}.}
+  \item{count_in_extra_follow}{logical; whether to count subjects who are randomized after the time spcified by \code{at} but before the time specified by \code{at} + \code{extra_follow}.}
   \item{count_insufficient_event}{logical; only affects the result when \code{type='event'}. If TRUE, for samples that cannot achieve required number of events, the last follow-up time is the analysis time. If FALSE, these samples will be dropped. }
   \item{start_date}{the start date of the first randomization; in the format: "2000-01-30"}
   \item{rep}{number simulated iterations. }
@@ -58,7 +58,7 @@ sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
 \details{
 See the help document of \code{\link{simdata}} for most arguments details.
 
-When \code{type='calander'}, the function estimates the follow-up time and number of events at time \code{at} plus \code{min_follow}; when \code{type='event'},  the function estimates these at the time when total number of events is \code{at} plus time \code{min_follow}; when \code{type='sample'}, the function estimates these at the time when total number of randomized subjects is \code{at} plus time \code{min_follow}.
+When \code{type='calander'}, the function estimates the follow-up time and number of events at time \code{at} plus \code{extra_follow}; when \code{type='event'},  the function estimates these at the time when total number of events is \code{at} plus time \code{extra_follow}; when \code{type='sample'}, the function estimates these at the time when total number of randomized subjects is \code{at} plus time \code{extra_follow}.
 
 The \code{stat} specifies a vector of user defined functions. Each of them must take a vector of individual follow-up time as input and return a single summary value. See example.
 }

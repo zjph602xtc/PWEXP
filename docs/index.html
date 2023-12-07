@@ -613,6 +613,10 @@ boxplot(cv~model_ind, data.frame(cv=c(fit_a0_cv, fit_a1_cv, fit_b0_cv, fit_b1_cv
 legend(&#39;topleft&#39;, model_name, fill=col, ncol=2, text.width=3)</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="50%" height="100%" /></p>
 <p>We then plot the fitted curves of some of these models.</p>
+<p><span style="color: #EB6864;font-weight:bold">(Sometimes we will see
+an ‘abnormal’ tail (e.g., sudden drop near tail), see <a
+href="#tailproblem">‘Deal with Tail Problem’ Section</a> for more
+details.)</span></p>
 <pre class="r"><code># Plot fitted survival curves
 plot_survival(train$followT, train$event, xlim=c(0,40), main=&#39;Fitted Models with Different \nNumber of Breakpoints&#39;)
 plot_survival(fit_b0, col=&#39;green&#39;, lwd=2)
@@ -681,12 +685,12 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ev
 <code>eval_at</code>:</p>
 <pre class="r"><code>head(pred_event)</code></pre>
 <pre><code>##      time  n_event 5% n_event 95% n_event
-## [1,]   40 442.3285   442.0000    443.5275
-## [2,]   45 521.9969   508.7425    533.1784
-## [3,]   50 598.0215   581.9973    616.0000
-## [4,]   55 648.5121   631.8236    666.5648
-## [5,]   60 680.7660   662.9877    698.3782
-## [6,]   65 710.1639   691.7333    728.0000</code></pre>
+## [1,]   40 442.2981   442.0000    443.3977
+## [2,]   45 522.0239   508.7972    533.4494
+## [3,]   50 598.3102   581.7136    615.8071
+## [4,]   55 648.7116   631.5353    666.4399
+## [5,]   60 680.7656   662.9982    698.3782
+## [6,]   65 710.1584   692.0214    728.0905</code></pre>
 <p><br></p>
 <p>By adding argument <code>xyswitch=TRUE</code>, we can use
 <code>predict()</code> function to obtain the timeline given the number
@@ -698,11 +702,11 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ti
 <p><img src="index_files/figure-html/unnamed-chunk-14-1.png" width="480" /></p>
 <pre class="r"><code>head(pred_time)</code></pre>
 <pre><code>##      n_event     time  5% time 95% time
-## [1,]     500 43.59612 43.04706 44.43448
-## [2,]     550 46.86220 46.00462 47.90825
-## [3,]     600 50.14008 49.06291 51.36271
-## [4,]     650 55.16124 52.81970 57.92868
-## [5,]     700 63.14514 60.26202 67.53546</code></pre>
+## [1,]     500 43.60552 43.03980 44.40382
+## [2,]     550 46.85908 46.01132 47.91024
+## [3,]     600 50.12874 49.04125 51.37223
+## [4,]     650 55.15502 52.75895 57.92389
+## [5,]     700 63.17729 60.28632 67.46113</code></pre>
 <p><br></p>
 </div>
 <div id="appendix" class="section level1">
@@ -1018,12 +1022,51 @@ and accuracy of the estimation procedure.</p>
 <h3>B.3 Summary</h3>
 <p>The procedure of parameter estimation is summarized in the diagram
 below:</p>
-<p><img src="images/estimation.png" width="650" /></p>
-<p><br></p>
+<p><img src="images/estimation.png" width="650" /> <br> <br></p>
 </div>
+</div>
+<div id="tailproblem" class="section level2">
+<h2>C. Deal with Tail Problem</h2>
+<p>In the real data cases, sometimes there may be an ‘abnormal’ tail as
+shown in Figure below. The KM curve has a sudden drop at 32M. If we do
+not deal with the sudden drop, and fit a piecewise exponential model
+directly to the data, then we will obtain model <code>m1</code> (the red
+curve). <span style="color: #EB6864;font-weight:bold">This will
+over-estimate the hazard rate in tail.</span></p>
+<p>There are several ways to alleviate this problem:</p>
+<ul>
+<li>Use <code>exclude_int</code> parameter to exclude any breakpoints
+near the tail (<code>m2</code> in purple)</li>
+<li>Use <code>min_pt_tail</code> parameter (default:
+<code>min_pt_tail=5</code>) to include more events in the hazard rate
+estimation of the last piece (<code>m3</code> in orange)</li>
+<li>Cut the data before the sudden drop, and then fit a model to the cut
+data (<code>m4</code> in green).</li>
+</ul>
+<pre class="r"><code>plot_survival(dat$Survival.time, dat$Status, main=&#39;Survival Function of an Example Dataset&#39;, lwd=2)
+# fit a model without robust tail control
+m1 &lt;- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4)
+plot_survival(m1, col=&#39;red&#39;, show_breakpoint = F, lwd=3)
+# use `exclude_int` parameter to exclude any breakpoints after 23M
+m2 &lt;- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4, exclude_int = c(23,Inf))
+plot_survival(m2, col=&#39;purple&#39;, show_breakpoint = F, lwd=3)
+# use `min_pt_tail` parameter to include at least 10 events in the hazard rate estimation of the last piece
+m3 &lt;- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4, min_pt_tail = 10)
+plot_survival(m3, col=&#39;orange&#39;, show_breakpoint = F, lwd=3)
+# cut the data at 32M, and then fit a model to the cut data
+dat &lt;- cut_dat(cut = 32, dat, var_followT = &#39;Survival.time&#39;, var_event = &#39;Status&#39;)
+m4 &lt;- pwexp.fit(dat$Survival.time, dat$Status, nbreak = 4)
+plot_survival(m4, col=&#39;green&#39;, show_breakpoint = F, lwd=3)
+
+legend(&#39;bottomleft&#39;, legend=c(&#39;with no tail control&#39;, &#39;no breakpoints after 23M&#39;, 
+                              &#39;use at least 10 events to estimate the tail&#39;, 
+                              &#39;cut data at 32M&#39;),
+       col=c(&#39;red&#39;,&#39;purple&#39;,&#39;orange&#39;,&#39;green&#39;), lwd=3)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" width="528" />
+<br></p>
 </div>
 <div id="simfollow" class="section level2">
-<h2>C. Simulate Event Curve or Timeline</h2>
+<h2>D. Simulate Event Curve or Timeline</h2>
 <p>We can use the <code>sim_followup()</code> function to estimate the
 event curve or timeline at the trial design stage. The piecewise hazard
 rate comes from clinical suggestions or data curve fit from previous
@@ -1058,7 +1101,7 @@ time_curve &lt;- sim_followup(at=seq(200,600,50), type = &#39;event&#39;, group 
 # plot event curve or timeline
 plot(event_curve$T_all$analysis_time_c, event_curve$T_all$event, xlab=&#39;Time&#39;, ylab=&#39;Number of events&#39;, type=&#39;b&#39;, main=&#39;Event curve&#39;, lwd=2)
 plot(time_curve$T_all$event, time_curve$T_all$analysis_time_c, xlab=&#39;Number of events&#39;, ylab=&#39;Time&#39;, type=&#39;b&#39;, main=&#39;Timeline given number of events&#39;, lwd=2)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-17-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-17-2.png" width="50%" height="100%" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" width="50%" height="100%" /><img src="index_files/figure-html/unnamed-chunk-19-2.png" width="50%" height="100%" /></p>
 <pre class="r"><code>event_curve</code></pre>
 <pre><code>## $T_all
 ##   at analysis_time analysis_time_c  event subjects    median   prop_12

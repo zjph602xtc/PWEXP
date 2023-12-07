@@ -22,6 +22,11 @@ library(PWEXP)
 library(RColorBrewer)
 set.seed(1818)
 ```
+# Usage of Package
+See [https://zjph602xtc.github.io/PWEXP/](https://zjph602xtc.github.io/PWEXP/). 
+<br>
+<br>
+<br>
 
 # Distribution
 ## Piecewise Exponential Distribution
@@ -170,6 +175,9 @@ lines(seq(0.1, 1.2, 0.01), F2_con, lwd=2)
 legend('topleft', c('empirial CDF of piecewise exp dist given t > 0.1', 'true CDF of 
                     piecewise exp dist given t > 0.1'), col=c('red', 'black'), lty=c(1,2), lwd=2)
 ```
+<br>
+<br>
+<br>
 
 # Parameter Estimation
 ## Hazard Rate Estimation with Known Breakpoints {#hazard}

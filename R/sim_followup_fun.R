@@ -1,8 +1,8 @@
 sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 1', allocation=1,
                          event_lambda=NA, drop_rate=NA, death_lambda=NA, n_rand=NULL, rand_rate=NULL,
-                         total_sample=NULL, min_follow=0, by_group=FALSE, by_strata=FALSE,
+                         total_sample=NULL, extra_follow=0, by_group=FALSE, by_strata=FALSE,
                          advanced_dist=NULL, stat=c(mean, median, sum),
-                         count_in_min_follow=FALSE, count_insufficient_event=FALSE, start_date=NULL, rep=300, seed=1818){
+                         count_in_extra_follow=FALSE, count_insufficient_event=FALSE, start_date=NULL, rep=300, seed=1818){
   # this function simulates the average followup time at IAs
 
   # at: calculate the average follow-up time at 'at' randomized subjects (type='sample') or at 'at' events (type='event')
@@ -10,7 +10,7 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
   # type: 'sample'/'event'/'calendar'.  calculate at the number of randomized subjects or events, or at a fixed calendar time
   # rand_rate: (required when n_rand=NULL) the randomization rate (patient/month)
   # n_rand: (required when rand_rate=NULL) a vector contains the number of randomization each month
-  # min_follow: (optional) minimum follow up time for the last subject at time 'at'
+  # extra_follow: (optional) extra follow up time for the last subject at time 'at'
   # total_sample: (required when type='event' & n_rand=NULL) total scheduled sample size
 
   # group, strata, allocation: see help of simdata function
@@ -24,7 +24,7 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
   # stat: which stat is calculated for the follow up time. Can be a user defined function that takes a vector as input and
   #       returns a single value
 
-  # count_in_min_follow: whether count subjects who are randomized after (time of 'at') but before (time of 'at' + min_follow)
+  # count_in_extra_follow: whether count subjects who are randomized after (time of 'at') but before (time of 'at' + extra_follow)
   # count_insufficient_event: the method to deal with the case where total event number never reaches required number of events in 'at'.
   #                           If FALSE, then skip the case and show a warning; If TRUE, then use the time of end of the study (the time when
   #                           all subjects die or are censored or have events).
@@ -72,25 +72,25 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
       if (type=='sample'){
         # type: sample size
         dat <- dat[order(dat$randT),]
-        Cut_T1 <- dat$randT[at[i]] + min_follow
+        Cut_T1 <- dat$randT[at[i]] + extra_follow
       }else if (type=='calendar'){
         # type: calendar time
-        Cut_T1 <- at[i] + min_follow
+        Cut_T1 <- at[i] + extra_follow
       }else if (type=='event'){
         # type: event number
-        Cut_T1 <- dat$eventT_abs[dat$cumevent==at[i]][1] + min_follow
+        Cut_T1 <- dat$eventT_abs[dat$cumevent==at[i]][1] + extra_follow
         if (is.na(Cut_T1) & count_insufficient_event){
-          Cut_T1 <- max(dat$randT+ mapply(min, dat$eventT, dat$dropT, dat$deathT, na.rm=T), na.rm = T) + min_follow
+          Cut_T1 <- max(dat$randT+ mapply(min, dat$eventT, dat$dropT, dat$deathT, na.rm=T), na.rm = T) + extra_follow
         }else if (is.na(Cut_T1) & !count_insufficient_event){
           warning(paste0('In iteration ', iter, ', the total number of events does not reach ',at[i], ', so we skip this iteration.'))
           next
         }
       }
       # get subset of subjects used to calculate follow up time
-      if (count_in_min_follow){
+      if (count_in_extra_follow){
         tmp <- dat[dat$randT <= Cut_T1, ]
       }else{
-        tmp <- dat[dat$randT <= (Cut_T1 - min_follow), ]
+        tmp <- dat[dat$randT <= (Cut_T1 - extra_follow), ]
       }
       # calculate follow-up time
       flag <- tryCatch({

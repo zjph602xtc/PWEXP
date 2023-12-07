@@ -16,7 +16,7 @@ Suggests:
     knitr,
     RColorBrewer,
     rmarkdown
-Version: 0.4.1
+Version: 0.4.2
 Author: Tianchen Xu [aut, cre] (<https://orcid.org/0000-0002-0102-7630>)
 Maintainer: Tianchen Xu <zjph602xutianchen@gmail.com>
 Description: Build piecewise exponential survival model for study design (planning) and event/timeline prediction. 
@@ -26,5 +26,5 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 VignetteBuilder: knitr
 Repository: CRAN
-Packaged: 2023-09-13 03:00:00 UTC; Peter Xu
-Date/Publication: 2023-09-13 03:00:00 UTC
+Packaged: 2023-12-03 03:00:00 UTC; Peter Xu
+Date/Publication: 2023-12-03 03:00:00 UTC

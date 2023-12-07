@@ -67,7 +67,7 @@ get_grid <- function(time, breakpoint, nbreak, max_set=5000, remove_first=TRUE){
 
 
 
-pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=10000, seed=1818, trace=FALSE, optimizer='mle', tol=1e-4){
+pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, min_pt_tail=5, max_set=10000, seed=1818, trace=FALSE, optimizer='mle', tol=1e-4){
   # n_{fj}/lam_j - sum_{set fj sj}(t_i-d_{j-1}) = n_{set f_j+1 to f_end, s_j+1 to s_end}*(d_j-d_{j-1})
   # f is event data, s is censored data
 
@@ -78,6 +78,10 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
   if (optimizer != 'mle' & !is.null(exclude_int)){
     warning('\'exclude_int\' only works for optimizer=\'mle\'.')
   }
+  if (optimizer != 'mle' & min_pt_tail!=5){
+    warning('\'min_pt_tail\' only works for optimizer=\'mle\'.')
+  }
+
   event <- as.numeric(event)
   breakpoint <- sort(breakpoint)
   brk_backup <- breakpoint
@@ -95,6 +99,11 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
   set.seed(seed)
   n_fix_brk <- length(breakpoint)
 
+  if (n_fix_brk==0  && is.null(nbreak)){
+    nbreak <- ceiling(8*length(time_event)^0.2)
+    message(paste0('Number of breakpoints = ', nbreak))
+  }
+
   if (n_fix_brk==0  && nbreak==0){
     lam <- sum(event)/sum(time)
     loglikelihood <- sum(dpwexp(time_event, rate=lam, breakpoint = NULL, log = T, one_piece = T, safety_check = F))+
@@ -108,7 +117,7 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
     }
     res <- data.frame(lam1=lam, likelihood=loglikelihood, AIC=aic, BIC=bic)
     attr(res,'lam') <- lam
-    attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int)
+    attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail)
     class(res) <- c('pwexp.fit', 'data.frame')
     return(res)
   }
@@ -204,13 +213,29 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
   }
 
   if (optimizer=='mle'){
+    change_cand <- FALSE
+    if(min_pt_tail!=0 | min_pt_tail!=1){
+      change_cand <- TRUE
+      if ((length(time_event)-min_pt_tail) < 2){
+        warning('Insufficient data due to too many points reserved for tail. Ignore \'min_pt_tail\'.')
+        candidate_time <- time
+      }else{
+        candidate_time <- time[time <= time_event[length(time_event)-min_pt_tail]]
+        if (length(candidate_time) <= 2*(nbreak-length(breakpoint))){
+          warning('Insufficient data due to too many points reserved for tail. Ignore \'min_pt_tail\'.')
+          candidate_time <- time
+        }
+      }
+    }
     if(!is.null(exclude_int)){
-      candidate_time <- time[time<= exclude_int[1] | time>=exclude_int[2]]
+      change_cand <- TRUE
+      candidate_time <- time[time < exclude_int[1] | time > exclude_int[2]]
       if (length(candidate_time) <= 2*(nbreak-length(breakpoint))){
         warning('Insufficient data due to wide coverage of \'exclude_int\'. Ignore \'exclude_int\'.')
         candidate_time <- time
       }
-    }else{
+    }
+    if (!change_cand){
       candidate_time <- time
     }
     breakpoint <- get_grid(candidate_time, breakpoint, nbreak, max_set)
@@ -254,7 +279,7 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
     attr(res,'brk') <- as.numeric(res[,1:NCOL(breakpoint)])
   }
   colnames(res) <- c(paste0('brk', 1:NCOL(breakpoint)), paste0('lam', 1:(NCOL(breakpoint)+1)), 'likelihood','AIC','BIC')
-  attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int)
+  attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail)
   class(res) <- c('pwexp.fit', 'data.frame')
   if (any(is.infinite(as.numeric(res)))){
     warning('Incorrect result returned. Please check the number of events is at least 2 more than the number of breakpoints. ')
@@ -268,10 +293,10 @@ boot.pwexp.fit <- function(time, ...){
 
 
 
-boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...){
+boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, min_pt_tail=5, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
-  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
+  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
 
   ind <- order(dat$time)
   dat <- dat[ind,,drop=F]
@@ -289,7 +314,7 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
     `%dopar%` <- foreach::`%dopar%`
     res_all_tp <- foreach::foreach(i=1:(nsim-1), .combine = 'rbind', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PWEXP', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
       dat_b <- dat[sample.int(n, n, replace = T),]
-      res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
+      res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
     }
     res_all <- rbind(res_all, res_all_tp)
     parallel::stopCluster(cl)
@@ -297,7 +322,7 @@ boot.pwexp.fit.default <- function(time, event, nsim=100, breakpoint=NULL, nbrea
     for (i in 1:(nsim-1)){
       setTxtProgressBar(pb, i)
       dat_b <- dat[sample.int(n, n, replace = T),]
-      res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
+      res <- suppressWarnings(pwexp.fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
       res_all <- rbind(res_all, res)
     }
   }
@@ -322,7 +347,7 @@ boot.pwexp.fit.pwexp.fit <- function(time, nsim=100, max_set=1000, seed=1818, op
   para <- attr(object, 'para')
   res <- boot.pwexp.fit.default(time=para$time, event=para$event,
                                 nsim=max(1,nsim-1), breakpoint=para$breakpoint, nbreak=para$nbreak,
-                                exclude_int=para$exclude_int,
+                                exclude_int=para$exclude_int, min_pt_tail=para$min_pt_tail,
                                 max_set=max_set, seed=seed, optimizer=optimizer, tol=tol,
                                 parallel=parallel, mc.core=mc.core)
   res_combined <- rbind(object, res)
@@ -338,10 +363,10 @@ cv.pwexp.fit <- function(time, ...){
   UseMethod("cv.pwexp.fit")
 }
 
-cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...){
+cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbreak=0, exclude_int=NULL, min_pt_tail=5, max_set=1000, seed=1818, optimizer='mle', tol=1e-4, parallel=FALSE, mc.core=4, ...){
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
-  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
+  res_all <- pwexp.fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
   if (nbreak==0){
     nbreak <- length(attr(res_all, 'lam'))-1
   }
@@ -364,7 +389,7 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
       for (i in 1:nfold){
         dat_train <- dat[ind!=i,]
         dat_test <- dat[ind==i,]
-        md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
+        md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
         if (is.infinite(md[1,1])){
           next
         }
@@ -384,7 +409,7 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
       for (i in 1:nfold){
         dat_train <- dat[ind!=i,]
         dat_test <- dat[ind==i,]
-        md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
+        md <- pwexp.fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
         if (is.infinite(md[1,1])){
           next
         }
@@ -407,7 +432,7 @@ cv.pwexp.fit.pwexp.fit <- function(time, nfold=5, nsim=100, max_set=1000, seed=1
   object <- time
   para <- attr(object, 'para')
   res <- cv.pwexp.fit.default(time=para$time, event=para$event, nfold=nfold,
-                              nsim=nsim, breakpoint=para$breakpoint, nbreak=para$nbreak, exclude_int=para$exclude_int,
+                              nsim=nsim, breakpoint=para$breakpoint, nbreak=para$nbreak, exclude_int=para$exclude_int, min_pt_tail=para$min_pt_tail,
                               max_set=max_set, seed=seed, optimizer=optimizer, tol=tol, parallel=parallel, mc.core=mc.core)
   return(res)
 }
