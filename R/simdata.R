@@ -1,7 +1,6 @@
 # simudata function -------------------------------------------------------
 # this function generate a simulated clinical trial survival dataset
 
-
 simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lambda=NA, drop_rate=NA,
                     death_lambda=NA, n_rand=NULL, rand_rate=NULL, total_sample=NULL, add_column=c('followT'),
                     simplify=TRUE, advanced_dist=NULL) {
@@ -45,20 +44,32 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
   setting$drop_lambda <- -log(1-setting$drop_rate)   # drop out
 
   # obtain rand parameter and randT
-  if (!is.null(n_rand)){
-    Total_d <- sum(n_rand)
-    t_rand <- 1:length(n_rand)
-    popd <- mapply(runif, n=n_rand, min=c(0,t_rand[-length(t_rand)]), max=t_rand, SIMPLIFY = F)
-  }else if (round(rand_rate)==rand_rate){
+  if (is.null(n_rand)){
     n_rand <- rep(rand_rate, ceiling(total_sample/rand_rate))
     n_rand[length(n_rand)] <- total_sample - sum(n_rand[-length(n_rand)])
-    Total_d <- sum(n_rand)
     t_rand <- 1:length(n_rand)
-    popd <- mapply(runif, n=n_rand, min=c(0,t_rand[-length(t_rand)]), max=t_rand, SIMPLIFY = F)
-  }else{
-    Total_d <- total_sample
-    popd <- runif(total_sample, 0, total_sample/rand_rate)
+    if (all(round(n_rand) == n_rand)){
+      popd <- mapply(runif, n=n_rand, min=t_rand-1, max=(t_rand-1)+n_rand/rand_rate, SIMPLIFY = F)
+      Total_d <- sum(n_rand)
+    }else {
+      diff_n_rand <- n_rand - floor(n_rand)
+      Total_d <- floor(n_rand)+UPsystemtic(diff_n_rand)
+      popd <- mapply(runif, n=Total_d, min=t_rand-1, max=(t_rand-1)+n_rand/rand_rate, SIMPLIFY = F)
+      Total_d <- sum(Total_d)
+    }
+  }else {
+    t_rand <- 1:length(n_rand)
+    if (all(round(n_rand) == n_rand)){
+      popd <- mapply(runif, n=n_rand, min=t_rand-1, max=t_rand, SIMPLIFY = F)
+      Total_d <- sum(n_rand)
+    }else {
+      diff_n_rand <- n_rand - floor(n_rand)
+      Total_d <- floor(n_rand)+UPsystemtic(diff_n_rand)
+      popd <- mapply(runif, n=Total_d, min=t_rand-1, max=t_rand, SIMPLIFY = F)
+      Total_d <- sum(Total_d)
+    }
   }
+
 
   # obtain number of subject in each subgroup
   setting$N <- floor(Total_d*setting$allocation)
@@ -167,3 +178,16 @@ simdata <- function(group="Group 1", strata='Strata 1', allocation=1, event_lamb
   return(DTTE)
 }
 
+UPsystemtic <- function (pik, eps = 1e-08)
+{
+  if (any(is.na(pik)))
+    stop("there are missing values in the pik vector")
+  list = pik > eps & pik < 1 - eps
+  pik1 = pik[list]
+  N = length(pik1)
+  a = (c(0, cumsum(pik1)) - runif(1, 0, 1))%%1
+  s1 = as.integer(a[1:N] > a[2:(N + 1)])
+  s = pik
+  s[list] = s1
+  s
+}

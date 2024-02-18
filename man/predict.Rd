@@ -45,8 +45,8 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 \seealso{\code{\link{plot_event}}}
 \examples{
 set.seed(1818)
-event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
-dat <- simdata(rand_rate = 20, drop_rate = 0.03,  total_sample = 1000,
+event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.2), breakpoint = 14)
+dat <- simdata(rand_rate = 20, drop_rate = 0.03,  total_sample = 500,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
 cut <- quantile(dat$randT, 0.8)
@@ -54,13 +54,13 @@ train <- cut_dat(var_randT = 'randT', cut = cut, data = dat,
                  var_followT = 'followT', var_followT_abs = 'followT_abs',
                  var_event = 'event', var_censor_reason = 'censor_reason')
 
-fit_res3 <- pwexp.fit(train$followT, train$event, nbreak = 2)
-fit_res_boot <- boot.pwexp.fit(fit_res3, nsim = 10) # here nsim=10 is for demo purpose,
+fit_res3 <- pwexp.fit(train$followT, train$event, nbreak = 1)
+fit_res_boot <- boot.pwexp.fit(fit_res3, nsim = 8) # here nsim=8 is for demo purpose,
                                                     # pls increase it in practice
 
 drop_indicator <-  ifelse(train$censor_reason=='drop_out' & !is.na(train$censor_reason),1,0)
 fit_res_censor <- pwexp.fit(train$followT, drop_indicator, nbreak = 0)
-fit_res_censor_boot <- boot.pwexp.fit(fit_res_censor, nsim = 10)
+fit_res_censor_boot <- boot.pwexp.fit(fit_res_censor, nsim = 8)
 
 cut_indicator <- train$censor_reason=='cut'
 cut_indicator[is.na(cut_indicator)] <- 0

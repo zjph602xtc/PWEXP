@@ -22,8 +22,8 @@ sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
   \item{event_lambda}{the hazard rate of the primary endpoint (event). The value will be recycled if the length is less than needed. See \code{\link{simdata}}.}
   \item{drop_rate}{(optional) the drop-out rate (patients/month). Not hazard rate. The value will be recycled if the length is less than needed. See \code{\link{simdata}}.}
   \item{death_lambda}{(optional) the hazard rate of death. The value will be recycled if the length is less than needed. See \code{\link{simdata}}.}
-  \item{n_rand}{(required when \code{rand_rate=NULL}) a vector of the number of randomization each month. See \code{\link{simdata}}.}
-  \item{rand_rate}{(required when \code{n_rand=NULL}) the randomization rate (patients/month). See \code{\link{simdata}}.}
+  \item{n_rand}{(required when \code{rand_rate=NULL}) a vector of the number of randomization each month; can be non-integers. See \code{\link{simdata}}.}
+  \item{rand_rate}{(required when \code{n_rand=NULL}) the randomization rate (patients/month; can be non-integer). See \code{\link{simdata}}.}
   \item{total_sample}{(required when \code{n_rand=NULL}) total scheduled sample size. See \code{\link{simdata}}.}
   \item{extra_follow}{delay the analysis time by extra time (\code{extra_follow}) after the time specified by \code{at}. See details. }
   \item{by_group}{logical; if TRUE, also return results by each group. }

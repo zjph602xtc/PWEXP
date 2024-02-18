@@ -17,8 +17,8 @@ simdata(group="Group 1", strata="Strata 1", allocation=1,
   \item{event_lambda}{the hazard rate of the primary endpoint (event). See details. The value will be recycled if the length is less than needed.}
   \item{drop_rate}{(optional) the drop-out rate (patients/month). Not hazard rate. See details. The value will be recycled if the length is less than needed.}
   \item{death_lambda}{(optional) the hazard rate of death. The value will be recycled if the length is less than needed.}
-  \item{n_rand}{(required when \code{rand_rate=NULL}) a vector of the number of randomization each month.}
-  \item{rand_rate}{(required when \code{n_rand=NULL}) the randomization rate (patients/month).}
+  \item{n_rand}{(required when \code{rand_rate=NULL}) a vector of the number of randomization each month; can be non-integers.}
+  \item{rand_rate}{(required when \code{n_rand=NULL}) the randomization rate (patients/month; can be non-integer).}
   \item{total_sample}{(required when \code{n_rand=NULL}) total scheduled sample size.}
   \item{add_column}{request additional columns of the returned data frame. \cr
 Valid options are:
