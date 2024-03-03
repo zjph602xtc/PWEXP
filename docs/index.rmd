@@ -72,10 +72,10 @@ components for different tasks:
     -   the `predict()` function provides the CI of predicted number of events or timeline (for bootstrapping model)
     -   the `plot_event()` plots predicted number of events (for object
         `predict.pwexp.fit`) and its CI (if applicable, for object
-        `predict.boot.pwexp.fit()`)
+        `predict.boot.pwexp.fit`)
 -   **Auxiliary Functions**
-    -   the auxiliary function `sim_followup` is used to estimate follow-up time and number of events at design stage (See ['Simulate Event Curve or Timeline' Section](#simfollow) for more details).
-    -   the auxiliary functions `dpwexp`, `ppwexp`, `qpwexp`, `rpwexp` are
+    -   the auxiliary function `sim_followup()` is used to estimate follow-up time and number of events at design stage (See ['Simulate Event Curve or Timeline' Section](#simfollow) for more details).
+    -   the auxiliary functions `dpwexp()`, `ppwexp()`, `qpwexp()`, `rpwexp()` are
         the PDF, CDF, quantile function, generator function for
         piecewise exponential distribution (See ['Piecewise Exponential
         Distribution' Section](#dist) for more details)
@@ -268,7 +268,7 @@ We then plot the fitted curves of some of these models.
 
 ```{r fig.width=5,fig.height=4.5}
 # Plot fitted survival curves
-plot_survival(train$followT, train$event, xlim=c(0,40), main='Fitted Models with Different \nNumber of Breakpoints')
+plot_survival(train$followT, train$event, xlim=c(0,40), main='Fitted Models with Different Number of Breakpoints')
 plot_survival(fit_b0, col='green', lwd=2)
 plot_survival(fit_b1, col='blue', lwd=3, show_breakpoint = F)
 plot_survival(fit_b2,  col='red', lwd=3, breakpoint_par = list(col='grey50', lty=2))
@@ -574,7 +574,7 @@ There are several ways to alleviate this problem:
 -   Cut the data before the sudden drop, and then fit a model to the cut data  (`m4` in green).
 
 ```{r echo=FALSE, message=FALSE}
-dat <- read.csv('example data.csv')
+dat <- read.csv('example data (robust tail).csv')
 
 ```
 ```{r fig.width=5.5,fig.height=5}
