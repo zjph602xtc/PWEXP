@@ -9,8 +9,8 @@ sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
             allocation=1, event_lambda=NA, drop_rate=NA, death_lambda=NA,
             n_rand=NULL, rand_rate=NULL, total_sample=NULL, extra_follow=0,
             by_group=FALSE, by_strata=FALSE, advanced_dist=NULL,
-            stat=c(mean, median, sum), count_in_extra_follow=FALSE,
-            count_insufficient_event=FALSE,
+            stat=c(mean, median, sum), follow_up_endpoint=c('death', 'drop_out',
+            'cut'), count_in_extra_follow=FALSE, count_insufficient_event=FALSE,
             start_date=NULL, rep=300, seed=1818)
 }
 \arguments{
@@ -30,6 +30,7 @@ sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
   \item{by_strata}{logical; if TRUE, also return results by each stratum. }
   \item{advanced_dist}{use user-specified distributions for event, drop-out and death. A list containing random generation functions. See details and examples in \code{\link{simdata}}.}
   \item{stat}{a vector of functions to summarize the follow-up time. See example. }
+  \item{follow_up_endpoint}{Which endpoints can be regarded as the end of follow-up. Choose from 'death', 'drop_out', 'cut' (censored at the end of the trial) or 'event'.'}
   \item{count_in_extra_follow}{logical; whether to count subjects who are randomized after the time spcified by \code{at} but before the time specified by \code{at} + \code{extra_follow}.}
   \item{count_insufficient_event}{logical; only affects the result when \code{type='event'}. If TRUE, for samples that cannot achieve required number of events, the last follow-up time is the analysis time. If FALSE, these samples will be dropped. }
   \item{start_date}{the start date of the first randomization; in the format: "2000-01-30"}

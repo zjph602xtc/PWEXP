@@ -1,6 +1,6 @@
 rpwexp <- function(n, rate=1, breakpoint=NULL){
   x <- runif(n)
-  return(qpwexp(x, rate, breakpoint, lower.tail=TRUE, log.p=FALSE))
+  return(PWEXP::qpwexp(x, rate, breakpoint, lower.tail=TRUE, log.p=FALSE))
 }
 
 rpwexp_conditional <- function(n, qT, rate, breakpoint=NULL){
@@ -72,8 +72,8 @@ ppwexp_conditional <- function(q, qT, rate=1, breakpoint=NULL, lower.tail=TRUE, 
       stop('q must be equal or larger than qT')
     }
   }
-  logs <- ppwexp(q, rate, breakpoint, lower.tail = F, log.p = T, one_piece, safety_check = FALSE)-
-    ppwexp(qT, rate, breakpoint, lower.tail = F, log.p = T, one_piece, safety_check = FALSE)
+  logs <- PWEXP::ppwexp(q, rate, breakpoint, lower.tail = F, log.p = T, one_piece, safety_check = FALSE)-
+    PWEXP::ppwexp(qT, rate, breakpoint, lower.tail = F, log.p = T, one_piece, safety_check = FALSE)
   if (!lower.tail & log.p){
     return(logs)
   }else if (!lower.tail & !log.p){
@@ -144,7 +144,7 @@ qpwexp <- function(p, rate=1, breakpoint=NULL, lower.tail=TRUE, log.p=FALSE, one
       p <- exp(p)
     }
     shift_t <- c(0, cumsum(-diff(rate)*breakpoint))
-    Fcut <- ppwexp(breakpoint, rate, breakpoint, lower.tail, log.p=FALSE, one_piece, safety_check = FALSE)
+    Fcut <- PWEXP::ppwexp(breakpoint, rate, breakpoint, lower.tail, log.p=FALSE, one_piece, safety_check = FALSE)
     if (lower.tail){
       interval <- findInterval(p, vec=c(-Inf, Fcut, Inf), rightmost.closed = FALSE)
       t <- (-log(1-p)-shift_t[interval])/rate[interval]

@@ -106,8 +106,8 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
 
   if (n_fix_brk==0  && nbreak==0){
     lam <- sum(event)/sum(time)
-    loglikelihood <- sum(dpwexp(time_event, rate=lam, breakpoint = NULL, log = T, one_piece = T, safety_check = F))+
-      sum(ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = NULL, log.p = T, one_piece = T, safety_check = F))
+    loglikelihood <- sum(PWEXP::dpwexp(time_event, rate=lam, breakpoint = NULL, log = T, one_piece = T, safety_check = F))+
+      sum(PWEXP::ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = NULL, log.p = T, one_piece = T, safety_check = F))
     aic <- 2-2*loglikelihood
     bic <- log(length(time))-2*loglikelihood
     if (lam==0){
@@ -260,8 +260,8 @@ pwexp.fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, 
       lhs_term2 <- ctapply(time - brk[tmpi], tmpi, sum)
       # lam <- sapply(1:(length(brk)-1), function(x)sum(time < brk[x+1] & time >= brk[x] & event))/(rhs+lhs_term2)
       lam <- numerator/(rhs+lhs_term2)
-      loglikelihood <- sum(dpwexp(time_event, rate=lam, breakpoint = brk0, log = T, one_piece = F, safety_check = F))+
-        sum(ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = brk0, log.p = T, one_piece = F, safety_check = F))
+      loglikelihood <- sum(PWEXP::dpwexp(time_event, rate=lam, breakpoint = brk0, log = T, one_piece = F, safety_check = F))+
+        sum(PWEXP::ppwexp(time_noevent, rate=lam, lower.tail = F, breakpoint = brk0, log.p = T, one_piece = F, safety_check = F))
       res[i,] <- c(brk0, lam, loglikelihood)
     }
   }
@@ -393,8 +393,8 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
         if (is.infinite(md[1,1])){
           next
         }
-        loglikelihood <- sum(dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
-          sum(ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
+        loglikelihood <- sum(PWEXP::dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
+          sum(PWEXP::ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
         like_inside <- c(like_inside, loglikelihood)
       }
       # like_inside[is.infinite(like_inside)] <- min(like_inside[is.finite(like_inside)])
@@ -413,8 +413,8 @@ cv.pwexp.fit.default <- function(time, event, nfold=5, nsim=100, breakpoint=NULL
         if (is.infinite(md[1,1])){
           next
         }
-        loglikelihood <- sum(dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
-          sum(ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
+        loglikelihood <- sum(PWEXP::dpwexp(dat_test$time[dat_test$event==1], rate=attr(md,'lam'), breakpoint = attr(md,'brk'), log = T, one_piece = F, safety_check = F))+
+          sum(PWEXP::ppwexp(dat_test$time[dat_test$event==0], rate=attr(md,'lam'), lower.tail = F, breakpoint = attr(md,'brk'), log.p = T, one_piece = F, safety_check = F))
         like_inside <- c(like_inside, loglikelihood)
       }
       # like_inside[is.infinite(like_inside)] <- min(like_inside[is.finite(like_inside)])

@@ -2,6 +2,7 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
                          event_lambda=NA, drop_rate=NA, death_lambda=NA, n_rand=NULL, rand_rate=NULL,
                          total_sample=NULL, extra_follow=0, by_group=FALSE, by_strata=FALSE,
                          advanced_dist=NULL, stat=c(mean, median, sum),
+                         follow_up_endpoint=c('death', 'drop_out', 'cut'),
                          count_in_extra_follow=FALSE, count_insufficient_event=FALSE, start_date=NULL, rep=300, seed=1818){
   # this function simulates the average followup time at IAs
 
@@ -46,6 +47,9 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
   }
   if (type %in% c('sample','event')){
     at <- round(at)
+  }
+  if (!all(follow_up_endpoint %in% c('death', 'drop_out', 'cut', 'event'))){
+    stop('Wrong \'follow_up_endpoint\'. Must only contain death, drop_out, cut or event.')
   }
   stat_name <- as.character(substitute(stat))
   stat_name <- setdiff(stat_name,'c')
@@ -94,7 +98,10 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
       }
       # calculate follow-up time
       flag <- tryCatch({
-        tmp$followT <- mapply(min, Cut_T1-tmp$randT, tmp$dropT, tmp$deathT, na.rm=T)
+        tmp$followT <- pmin(if('cut' %in% follow_up_endpoint){Cut_T1-tmp$randT}else{NA},
+                            if('drop_out' %in% follow_up_endpoint){tmp$dropT}else{NA},
+                            if('death' %in% follow_up_endpoint){tmp$deathT}else{NA},
+                            if('event' %in% follow_up_endpoint){tmp$eventT}else{NA}, na.rm=T)
       }, error = function(e){
         e
       })

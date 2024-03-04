@@ -50,7 +50,7 @@ plot_survival.pwexp.fit <- function(time, add=TRUE, show_breakpoint=TRUE,
 
   if (add){
     xrange <- seq(0, par('usr')[2], length=200)
-    y <- ppwexp(xrange, rate=attr(object,'lam'),
+    y <- PWEXP::ppwexp(xrange, rate=attr(object,'lam'),
                 breakpoint=attr(object,'brk'), lower.tail = F)
     do.call(lines, c(list(x=xrange, y=y), arg))
   }else{
@@ -61,7 +61,7 @@ plot_survival.pwexp.fit <- function(time, add=TRUE, show_breakpoint=TRUE,
     }else {
       xrange <- seq(0, 2/min(attr(object,'lam')), length=200)
     }
-    y <- ppwexp(xrange, rate=attr(object,'lam'),
+    y <- PWEXP::ppwexp(xrange, rate=attr(object,'lam'),
                 breakpoint=attr(object,'brk'), lower.tail = F)
     do.call(plot, c(list(x=xrange, y=y), arg))
   }
@@ -100,11 +100,11 @@ plot_survival.boot.pwexp.fit <- function(time, add=TRUE, alpha=0.1, show_breakpo
   if (show_CI){
     xrange <- seq(0, par('usr')[2], length=200)
     if (!is.null(attr(object,'brk'))){
-      line_data <- mapply(function(rate, breakpoint)ppwexp(xrange, rate = rate, breakpoint = breakpoint, lower.tail = F),
+      line_data <- mapply(function(rate, breakpoint)PWEXP::ppwexp(xrange, rate = rate, breakpoint = breakpoint, lower.tail = F),
                           rate=as.list(as.data.frame(t(attr(object,'lam')))),
                           breakpoint=as.list(as.data.frame(t(attr(object,'brk')))))
     }else{
-      line_data <- mapply(function(rate)ppwexp(xrange, rate = rate, lower.tail = F),
+      line_data <- mapply(function(rate)PWEXP::ppwexp(xrange, rate = rate, lower.tail = F),
                           rate=as.list(as.data.frame(t(attr(object,'lam')))))
     }
     ci_data <- apply(line_data, 1, function(x)quantile(x, c(alpha/2, (1-alpha/2)), na.rm=T))

@@ -84,8 +84,8 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
       if (length(censor_b)==0) censor_b <- NULL
       if (future){
         dat_t <- simdata(advanced_dist = list(
-          event_dist=function(n)rpwexp(n,event_l,event_b),
-          drop_dist=function(n)rpwexp(n,censor_l,censor_b)),
+          event_dist=function(n)PWEXP::rpwexp(n,event_l,event_b),
+          drop_dist=function(n)PWEXP::rpwexp(n,censor_l,censor_b)),
           n_rand=future_rand$n_rand, rand_rate=future_rand$rand_rate, total_sample=future_rand$total_sample,
           add_column = c('event','censor_reason','followT_abs','followT'))
         dat_t$followT_abs <- dat_t$followT_abs+analysis_time
