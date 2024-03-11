@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{News for Package \pkg{PWEXP}}
 
+\section{Changes in version 0.5.0}{
+  \itemize{
+    \item(predict.boot.pwexp.fit) remove 'type' parameter
+    \item(plot_event.predict.boot.pwexp.fit) add 'type' parameter; change the dafault to 'confidence'
+  }
+}
+
 \section{Changes in version 0.4.5}{
   \itemize{
     \item(sim_followup) add 'follow_up_endpoint' parameter, which is used to define the end of follow-up

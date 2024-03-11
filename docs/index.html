@@ -420,19 +420,19 @@ prediction</li>
 number of events or timeline (for bootstrapping model)</li>
 <li>the <code>plot_event()</code> plots predicted number of events (for
 object <code>predict.pwexp.fit</code>) and its CI (if applicable, for
-object <code>predict.boot.pwexp.fit()</code>)</li>
+object <code>predict.boot.pwexp.fit</code>)</li>
 </ul></li>
 <li><strong>Auxiliary Functions</strong>
 <ul>
-<li>the auxiliary function <code>sim_followup</code> is used to estimate
-follow-up time and number of events at design stage (See <a
+<li>the auxiliary function <code>sim_followup()</code> is used to
+estimate follow-up time and number of events at design stage (See <a
 href="#simfollow">‘Simulate Event Curve or Timeline’ Section</a> for
 more details).</li>
-<li>the auxiliary functions <code>dpwexp</code>, <code>ppwexp</code>,
-<code>qpwexp</code>, <code>rpwexp</code> are the PDF, CDF, quantile
-function, generator function for piecewise exponential distribution (See
-<a href="#dist">‘Piecewise Exponential Distribution’ Section</a> for
-more details)</li>
+<li>the auxiliary functions <code>dpwexp()</code>,
+<code>ppwexp()</code>, <code>qpwexp()</code>, <code>rpwexp()</code> are
+the PDF, CDF, quantile function, generator function for piecewise
+exponential distribution (See <a href="#dist">‘Piecewise Exponential
+Distribution’ Section</a> for more details)</li>
 <li>the auxiliary functions <code>ppwexp_conditional()</code>,
 <code>qpwexp_conditional()</code>, <code>rpwexp_conditional()</code> are
 the CDF, quantile function, generator function for conditional piecewise
@@ -618,7 +618,7 @@ an ‘abnormal’ tail (e.g., sudden drop near tail), see <a
 href="#tailproblem">‘Deal with Tail Problem’ Section</a> for more
 details.)</span></p>
 <pre class="r"><code># Plot fitted survival curves
-plot_survival(train$followT, train$event, xlim=c(0,40), main=&#39;Fitted Models with Different \nNumber of Breakpoints&#39;)
+plot_survival(train$followT, train$event, xlim=c(0,40), main=&#39;Fitted Models with Different Number of Breakpoints&#39;)
 plot_survival(fit_b0, col=&#39;green&#39;, lwd=2)
 plot_survival(fit_b1, col=&#39;blue&#39;, lwd=3, show_breakpoint = F)
 plot_survival(fit_b2,  col=&#39;red&#39;, lwd=3, breakpoint_par = list(col=&#39;grey50&#39;, lty=2))
@@ -685,15 +685,15 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ev
 <code>eval_at</code>:</p>
 <pre class="r"><code>head(pred_event)</code></pre>
 <pre><code>##      time  n_event 5% n_event 95% n_event
-## [1,]   40 442.2981   442.0000    443.3977
-## [2,]   45 522.0239   508.7972    533.4494
-## [3,]   50 598.3102   581.7136    615.8071
-## [4,]   55 648.7116   631.5353    666.4399
-## [5,]   60 680.7656   662.9982    698.3782
-## [6,]   65 710.1584   692.0214    728.0905</code></pre>
+## [1,]   40       NA         NA          NA
+## [2,]   45 521.3936   515.2072    527.3660
+## [3,]   50 596.7533   588.6054    608.2372
+## [4,]   55 648.6572   639.3276    661.2978
+## [5,]   60 680.6617   670.0583    692.4307
+## [6,]   65 709.3788   697.9938    720.8868</code></pre>
 <p><br></p>
 <p>By adding argument <code>xyswitch=TRUE</code>, we can use
-<code>predict()</code> function to obtain the timeline given the number
+<code>plot_event</code> function to obtain the timeline given the number
 of events in the future.</p>
 <pre class="r"><code>plot_event(dat$followT_abs, xlim=c(0, 800), event=dat$event, xyswitch=T, main=&#39;Predicted Timeline&#39;)
 plot_event(train$followT_abs, abs_time=T, event=train$event, add=T, xyswitch=T, col=&#39;blue&#39;)
@@ -702,11 +702,11 @@ legend(&#39;bottomright&#39;, c(&#39;data used to train model&#39;, &#39;true ti
 <p><img src="index_files/figure-html/unnamed-chunk-14-1.png" width="480" /></p>
 <pre class="r"><code>head(pred_time)</code></pre>
 <pre><code>##      n_event     time  5% time 95% time
-## [1,]     500 43.60552 43.03980 44.40382
-## [2,]     550 46.85908 46.01132 47.91024
-## [3,]     600 50.12874 49.04125 51.37223
-## [4,]     650 55.15502 52.75895 57.92389
-## [5,]     700 63.17729 60.28632 67.46113</code></pre>
+## [1,]     500 43.60571 43.33773 43.99611
+## [2,]     550 46.90158 46.38358 47.39651
+## [3,]     600 50.23076 49.47902 50.79577
+## [4,]     650 55.20042 53.53378 56.64160
+## [5,]     700 63.38812 61.16910 65.48845</code></pre>
 <p><br></p>
 </div>
 <div id="appendix" class="section level1">

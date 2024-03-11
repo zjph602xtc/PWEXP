@@ -2,12 +2,8 @@ plot.pwexp.fit <- function(x, ...){
   stop('Please use \'plot_survival\' function to visualize the model.')
 }
 
-plot.cv.pwexp.fit <- function(x, ...){
-  stop('Please use \'plot_survival\' or \'plot_event\' function to visualize the model.')
-}
-
 plot.boot.pwexp.fit <- function(x, ...){
-  stop('Please use \'plot_survival\' or \'plot_event\' function to visualize the model.')
+  stop('Please use \'plot_survival\' function to visualize the model.')
 }
 
 plot_survival <- function (time, ...){
@@ -222,8 +218,7 @@ plot_event.predict.pwexp.fit <- function(time, abs_time=TRUE, add=TRUE, plot=TRU
   }
 }
 
-plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, add=TRUE,
-                                              plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
+plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, type='confidence', add=TRUE, plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
   predict_model <- time
   arg <- list(...)
   if (xyswitch){
@@ -244,6 +239,9 @@ plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, a
   if (!abs_time){
     stop('abs_time must be TRUE when plotting the prediction curve. ')
   }
+  if (!(type %in% c('predictive','confidence'))){
+    stop('wrong type argument.')
+  }
 
   #  to predict type='event' or 'time'
   if (plot){
@@ -256,16 +254,22 @@ plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, a
         stop('Must provide xlim when NOT adding the prediction curve to an existing figure. ')
       }
     }
-    x_pre_range <- seq(0, max(xrange[200], 240), length=5000)
+    x_pre_range <- seq(0, max(xrange[200], 240), length=1000)
   }else{
-    x_pre_range <- seq(0, 240, length=10000)
+    x_pre_range <- seq(0, 240, length=2000)
   }
   pre <- sapply(predict_model$event_fun, function(f)f(x_pre_range))
   if (!is.matrix(pre) | is.data.frame(pre)){
-    pre <- matrix(pre, nrow=1)
+    pre <- matrix(pre, ncol=1)
   }
   # na_include <- rowMeans(is.na(pre)) < 0.05
-  pre <- apply(pre, 1, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
+  if (type=='confidence'){
+    grp_con <- sapply(strsplit(colnames(pre), split = '_'), '[', 3)
+    pre <- aggregate(as.data.frame(t(pre)), by = list(grp_con), function(x)mean(x, na.rm = T), drop=F)[,-1,drop=F]
+  }else{
+    pre <- t(pre)
+  }
+  pre <- apply(pre, 2, function(x)quantile(x, c(alpha/2, 0.5, (1-alpha/2)),na.rm=T))
   # pre[,!na_include] <- NA
 
   if (!xyswitch){

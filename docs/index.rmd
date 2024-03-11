@@ -341,7 +341,7 @@ head(pred_event)
 ```
 <br>
 
-By adding argument `xyswitch=TRUE`, we can use `predict()` function to obtain the timeline given the number of events in the future.  
+By adding argument `xyswitch=TRUE`, we can use `plot_event` function to obtain the timeline given the number of events in the future.  
 ```{r fig.width=5,fig.height=4.5}
 plot_event(dat$followT_abs, xlim=c(0, 800), event=dat$event, xyswitch=T, main='Predicted Timeline')
 plot_event(train$followT_abs, abs_time=T, event=train$event, add=T, xyswitch=T, col='blue')

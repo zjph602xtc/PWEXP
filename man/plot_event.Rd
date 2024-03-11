@@ -12,8 +12,9 @@
          add=FALSE, plot=TRUE, xyswitch=FALSE, ...)
 \method{plot_event}{predict.pwexp.fit}(time, abs_time=TRUE, add=TRUE, plot=TRUE,
          xyswitch=FALSE, eval_at=NULL, ...)
-\method{plot_event}{predict.boot.pwexp.fit}(time, abs_time=TRUE, alpha=0.1, add=TRUE,
-         plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...)
+\method{plot_event}{predict.boot.pwexp.fit}(time, abs_time=TRUE, alpha=0.1, type='confidence',
+         add=TRUE, plot=TRUE, xyswitch=FALSE, eval_at=NULL,
+         show_CI=TRUE, CI_par=NULL, ...)
 }
 \arguments{
  \item{time}{observed/follow-up time from individual randomization time (\code{abs_time=FALSE}) or from the first subject randomization time (\code{abs_time=TRUE}); or a predicted object from \code{\link{predict.pwexp.fit}}, or a predicted object with bootstrapping  from \code{\link{predict.boot.pwexp.fit}}.}
@@ -25,6 +26,7 @@
  \item{xyswitch}{logical; if TRUE, x-axis will be cumulative number of events and y will be the time.}
  \item{eval_at}{a vector of the time (when \code{xyswitch=FALSE}) or the number of events (when \code{xyswitch=TRUE}) that you want to make prediction on. }
  \item{alpha}{the significance level of the confidence interval.}
+ \item{type}{the type of prediction required. The default \code{confidence} returns the confidence interval without random error; the alternative \code{predictive} returns the predictive interval.}
  \item{show_CI}{logical; if TRUE add confidence interval of the estimated event curve. }
  \item{CI_par}{a list of parameters to control the apperance of lines of confidence intervals. The values pass to \code{\link[graphics]{lines}}.}
  \item{...}{other arguments (e.g., \code{lwd}, etc.) are passed over to \code{\link[base]{plot}.}}
