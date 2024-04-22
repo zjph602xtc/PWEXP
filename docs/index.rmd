@@ -155,7 +155,7 @@ In the generated dataset:
     `eventT`, `dropT`, `deathT`
 -   `eventT_abs`, `dropT_abs`, `deathT_abs`, `followT_abs` are the corresponding time
     from the beginning of the trial
--   `cenosr`, `event` indicate whether the primary event happened at the
+-   `censor`, `event` indicate whether the primary event happened at the
     end of follow-up; if a subject is censored, `censor_reason` shows
     the type of censoring (i.e., 'drop_out','death' or 'never_event'(when
     followT=inf)))
