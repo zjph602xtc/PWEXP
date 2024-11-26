@@ -39,10 +39,10 @@ plot_survival.default <- function(time, event, add=FALSE, conf.int=FALSE, mark.t
   arg[option[!ind]] <- default[!ind]
 
   if (is.data.frame(time)){
-    time <- time[[1]]
+    time <- unlist(time)
   }
   if (is.data.frame(event)){
-    event <- event[[1]]
+    event <- unlist(event)
   }
 
   s <- survfit(Surv(time, event)~1)
