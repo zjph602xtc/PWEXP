@@ -7,7 +7,7 @@
 \usage{
 simdata(group="Group 1", strata="Strata 1", allocation=1,
     event_lambda=NA, drop_rate=NA, death_lambda=NA, n_rand=NULL,
-    rand_rate=NULL, total_sample=NULL, add_column=c('followT'),
+    rand_rate=NULL, total_sample=NULL, add_column=c('followT','event'),
     simplify=TRUE, advanced_dist=NULL)
 }
 \arguments{
@@ -73,7 +73,7 @@ When \code{simplify=TRUE}, these columns will NOT be included:
     }
 
 \code{advanced_dist} is used to define non-exponential distributions for event, drop-out or death. It is a list containing at least one of the elements: \code{event_dist}, \code{drop_dist}, \code{death_dist}. Each element has random generation functions for each subgroups. For example, \code{advanced_dist=list(event_dist=c(function1, function2), drop_dist=c(function3, function4))}. Here \code{function1}, \code{function3} are the event, drop-out generation function for the first subgroup; \code{function2}, \code{function4} for the second. If there is a third subgroup, \code{function1}, \code{function3} will be reused.
-Each data generation function (\code{functionX}) is a function with only one input argument \code{n} (sample size). If any of the \code{event_dist}, \code{drop_dist}, \code{death_dist} is missing, then we search for \code{event_lambda}, \code{drop_rate}, \code{death_lambda} to generate a exp distribution; if they are also missing, then corresponding variable will not be generated
+Each data generation function (\code{functionX}) is a function with only one input argument \code{n} (sample size). If any of the \code{event_dist}, \code{drop_dist}, \code{death_dist} is missing, then search for \code{event_lambda}, \code{drop_rate}, \code{death_lambda} to generate a exp distribution; if they are also missing, then the corresponding variable will not be generated
 .}
 
 
@@ -81,12 +81,12 @@ Each data generation function (\code{functionX}) is a function with only one inp
 Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
 \seealso{
-  \code{\link{rpwexp}},
-  \code{\link{rpwexp_conditional}}
+  \code{\link{rpwexpm}},
+  \code{\link{rpwexpm_conditional}}
 }
 
 \note{
-\code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have an Inf value for each variable.
+\code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have an \code{Inf} value for each variable.
 }
 \examples{
 # Two groups with two strata. In the treatment group, there is a treatment
@@ -107,8 +107,8 @@ lines(ecdf(dat$eventT[dat$group=='trt' & dat$strata=='non-sensitive']), col='red
 
 # One group. Event follows a piecewise exponential distribution; drop-out follows
 # a Weibull; death follows a exponential.
-dist_trt <- function(n)rpwexp(n, rate=c(0.01, 0.05, 0.01), breakpoint = c(30,60))
-dist_placebo <- function(n)rpwexp(n, rate=c(0.01, 0.005), breakpoint = c(50))
+dist_trt <- function(n)rpwexpm(n, rate=c(0.01, 0.05, 0.01), breakpoint = c(30,60))
+dist_placebo <- function(n)rpwexpm(n, rate=c(0.01, 0.005), breakpoint = c(50))
 dat <- simdata(group = c('trt','placebo'), n_rand = c(rep(10,50),rep(20,10)),
                death_lambda = 0.01,
                advanced_dist = list(event_dist=c(dist_trt, dist_placebo),

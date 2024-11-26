@@ -1,11 +1,11 @@
-\name{pwexp.fit}
-\alias{pwexp.fit}
+\name{pwexpm_fit}
+\alias{pwexpm_fit}
 \title{Fit the Piecewise Exponential Distribution}
 \description{
 Fit the piecewise exponential distribution with right censoring data. User can specifity all breakpoints, some of the breakpoints or let the function estimate the breakpoints.
 }
 \usage{
-pwexp.fit(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, min_pt_tail=5,
+pwexpm_fit(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, min_pt_tail=5,
         max_set=10000, seed=1818, trace=FALSE, optimizer='mle', tol=1e-4)
 }
 %- maybe also `usage' for other objects documented here.
@@ -34,23 +34,26 @@ Argument \code{exclude_int} is a vector of two values such as \code{exclude_int=
 In order to obtain a more robust hazard rate estimation of the tail, user can set \code{min_pt_tail} to the minimum number of events for estimating the tail (last piece of the piecewise exponential). It only works for \code{optimizer='mle'}.
 }
 \value{
-A data frame (\code{res}) containing these columns:
-  \item{brk1, ..., brkx}{estimated breakpoints. The \code{attr(res,'brk')} can extract the vector of breakpoint from the model (\code{res} is the returned model from \code{pwexp.fit}). }
-  \item{lam1, ..., lamx}{estimated piecewise hazard rates. The \code{attr(res,'lam')} can extract the vector of hazard rates from the model (\code{res} is the returned model from \code{pwexp.fit}). }
-  \item{likelihood}{the log-likelihood of the model.}
+A object of class "\code{pwexpm}" is a list containing the following components:
+  \item{brk}{estimated breakpoints.}
+  \item{lam}{estimated piecewise hazard rates.}
+  \item{logLik}{the log-likelihood of the model.}
   \item{AIC}{the Akaike information criterion of the model.}
   \item{BIC}{the Bayesian information criterion of the model.}
+  \item{para}{the parameters used to estimate the model.}
+The generic accessor functions \code{AIC}, \code{BIC}, \code{logLik} can be used to extract various useful statistics from \code{pwexpm}.
+The \code{plot} function can be used to make a simple plot for \code{pwexpm}.
 }
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}
 }
-\seealso{\code{\link{boot.pwexp.fit}}, \code{\link{cv.pwexp.fit}}}
+\seealso{\code{\link{pwexpm}}, \code{\link{boot.pwexpm}}, \code{\link{cv.pwexpm}}}
 
 \references{
 Muller, H. G., & Wang, J. L. (1994). Hazard rate estimation under random censoring with varying kernels and bandwidths. Biometrics, 61-76.
 }
 \examples{
-event_dist <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
+event_dist <- function(n)rpwexpm(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
 dat <- simdata(rand_rate = 20, total_sample = 1000, drop_rate = 0.03,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))
@@ -59,9 +62,9 @@ train <- cut_dat(var_randT = 'randT', cut = cut, data = dat,
                  var_followT = 'followT', var_followT_abs = 'followT_abs',
                  var_event = 'event', var_censor_reason = 'censor_reason')
 
-fit_a0 <- pwexp.fit(train$followT, train$event, breakpoint = c(5,14))
-fit_a1 <- pwexp.fit(train$followT, train$event, nbreak = 2, breakpoint = c(14))
-fit_b0 <- pwexp.fit(train$followT, train$event, nbreak = 0)
-fit_b1 <- pwexp.fit(train$followT, train$event, nbreak = 1)
-fit_b2 <- pwexp.fit(train$followT, train$event, nbreak = 2)
+fit_a0 <- pwexpm_fit(train$followT, train$event, breakpoint = c(5,14))
+fit_a1 <- pwexpm_fit(train$followT, train$event, nbreak = 2, breakpoint = c(14))
+fit_b0 <- pwexpm_fit(train$followT, train$event, nbreak = 0)
+fit_b1 <- pwexpm_fit(train$followT, train$event, nbreak = 1)
+fit_b2 <- pwexpm_fit(train$followT, train$event, nbreak = 2)
 }

@@ -1,5 +1,36 @@
 \name{NEWS}
-\title{News for Package \pkg{PWEXP}}
+\title{News for Package \pkg{PwePred}}
+
+\section{Changes in version 1.0.0}{
+  \itemize{
+    \item name the package as 'PwePred'
+    \item (pwexpm, boot.pwexpm, cv.pwexpm) add 'pwexpm','boot.pwexpm','cv.pwexpm' functions that use Surv/data as inputs
+    \item change the object name 'pwexpm.fit' to 'pwexpm', and removed all '.fit' part from all other objects.
+    \item (dpwexpm, ppwexpm, qpwexpm, rpwexpm) change the function names from 'pwexp', 'ppwexp', 'qpwexp', 'rpwexp' to avoid replicate with the 'rpact' package
+
+    \item (pwexpm_fit, pwexpm) return a list instead of a matrix
+    \item (print.pwexpm, AIC.pwexpm, BIC.pwexpm, logLiK.pwexpm) add S3 methods for 'pwexpm' object
+    \item (plot.pwexpm) add default plot for 'pwexpm' object
+    \item (plot_survival.pwexpm) return stop if no previous plot is called
+
+    \item (boot.pwexpm_fit, boot.pwexpm) return a list instead of a matrix
+    \item (print.boot.pwexpm) add S3 methods for 'boot.pwexpm' object
+    \item (plot.boot.pwexpm) add default plot for 'boot.pwexpm' object
+    \item (plot_survival.boot.pwexpm) return stop if no previous plot is called
+
+    \item (boot.pwexpm.pwexpm, cv.pwexpm.pwexpm) update to fit the new 'pwexpm' object
+
+    \item (plot.cv.pwexpm) add default plot for 'cv.pwexpm' object
+    \item (print.cv.pwexpm) add S3 methods for 'print.cv.pwexpm' object
+
+    \item (predict.pwexpm, predict.boot.pwexpm) update to fit the new 'pwexpm', 'boot.pwexpm' functions
+    \item (predict.pwexpm, predict.boot.pwexpm) return a list with more model details
+    \item (print.predict.pwexpm, print.predict.boot.pwexpm) add S3 methods for 'predict.pwexpm', 'predict.boot.pwexpm' object
+    \item (predict.boot.pwexpm) change parameter name 'censor_model_boot' to 'censor_model'
+    \item (plot.predict.boot.pwexpm, plot.predict.pwexpm) add default plot
+    \item (simdata) set add_column=c('followT','event') as the default value
+  }
+}
 
 \section{Changes in version 0.5.0}{
   \itemize{

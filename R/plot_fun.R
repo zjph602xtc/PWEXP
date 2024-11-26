@@ -1,9 +1,29 @@
-plot.pwexp.fit <- function(x, ...){
-  stop('Please use \'plot_survival\' function to visualize the model.')
+plot.pwexpm <- function(x, ...){
+  plot_survival(time=x$para$time, event=x$para$event)
+  plot_survival(x, add=TRUE)
+  message('Please use \'plot_survival\' function to visualize the model with more options.')
 }
 
-plot.boot.pwexp.fit <- function(x, ...){
-  stop('Please use \'plot_survival\' function to visualize the model.')
+
+plot.boot.pwexpm <- function(x, ...){
+  plot_survival(time=x$para$time, event=x$para$event)
+  plot_survival(x, add=TRUE)
+  message('Please use \'plot_survival\' function to visualize the model with more options.')
+}
+
+plot.cv.pwexpm <- function(x, ...){
+  boxplot(x, ylab = 'CV log likelihood', xlab = 'Current model', main = 'CV Log Likelihood of the Fitted Model')
+}
+
+
+plot.predict.pwexpm <- function(x, ...){
+  plot_event(x, xlim=c(0,x$para$analysis_time*2.5), add = F)
+  message('Please use \'plot_event\' function to plot the oberved event curve first, then use \'plot_survival\' again to visualize the predicted event curve (see help).')
+}
+
+plot.predict.boot.pwexpm <- function(x, ...){
+  plot_event(x, type = 'confidence', xlim=c(0,x$para$analysis_time*2.5), add=F)
+  message('Please use \'plot_event\' function to plot the oberved event curve first, then use \'plot_survival\' again to visualize the predicted event curve (see help).')
 }
 
 plot_survival <- function (time, ...){
@@ -30,8 +50,8 @@ plot_survival.default <- function(time, event, add=FALSE, conf.int=FALSE, mark.t
 }
 
 
-plot_survival.pwexp.fit <- function(time, add=TRUE, show_breakpoint=TRUE,
-                                    breakpoint_par=NULL, ...){
+plot_survival.pwexpm <- function(time, add=TRUE, show_breakpoint=TRUE,
+                                 breakpoint_par=NULL, ...){
   object <- time
   arg <- list(...)
   option <- c('lwd', 'col', 'xlab', 'ylab','type')
@@ -46,28 +66,32 @@ plot_survival.pwexp.fit <- function(time, add=TRUE, show_breakpoint=TRUE,
 
   if (add){
     xrange <- seq(0, par('usr')[2], length=200)
-    y <- PWEXP::ppwexp(xrange, rate=attr(object,'lam'),
-                breakpoint=attr(object,'brk'), lower.tail = F)
-    do.call(lines, c(list(x=xrange, y=y), arg))
-  }else{
+    y <- PwePred::ppwexpm(xrange, rate=unlist(object$lam),
+                          breakpoint=unlist(object$brk), lower.tail = FALSE)
+    plot_res <- try({do.call(lines, c(list(x=xrange, y=y), arg))}, silent = TRUE)
+  }
+  if ('plot.new has not been called yet' %in% attr(plot_res,'condition')$message){
+    stop('Please use \'plot_survival\' to plot the data first, then to plot fitted models (See help). Or use \'plot\' to make a simple plot of the model.')
+  }
+  if (!add){
     if (!is.null(arg$xlim)){
       xrange <- seq(0, arg$xlim[2], length=200)
-    }else if (!is.null(attr(object,'brk'))){
-      xrange <- seq(0, max(attr(object,'brk'))*1.4, length=200)
+    }else if (!is.null(object$brk)){
+      xrange <- seq(0, max(unlist(object$brk))*1.4, length=200)
     }else {
-      xrange <- seq(0, 2/min(attr(object,'lam')), length=200)
+      xrange <- seq(0, 2/min(unlist(object$lam)), length=200)
     }
-    y <- PWEXP::ppwexp(xrange, rate=attr(object,'lam'),
-                breakpoint=attr(object,'brk'), lower.tail = F)
+    y <- PwePred::ppwexpm(xrange, rate=unlist(object$lam),
+                          breakpoint=unlist(object$brk), lower.tail = F)
     do.call(plot, c(list(x=xrange, y=y), arg))
   }
-  if (show_breakpoint && !is.null(attr(object,'brk'))){
-    do.call(abline, c(list(v=attr(object,'brk')), breakpoint_par))
+  if (show_breakpoint && !is.null(object$brk)){
+    do.call(abline, c(list(v=unlist(object$brk)), breakpoint_par))
   }
 }
 
-plot_survival.boot.pwexp.fit <- function(time, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
-                                         breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...){
+plot_survival.boot.pwexpm <- function(time, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
+                                      breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...){
   # arg <- list(...)
   # option <- c('lwd', 'xlab', 'ylab')
   # default <- list(2, 'Follow-up time', 'Survival function')
@@ -80,13 +104,12 @@ plot_survival.boot.pwexp.fit <- function(time, add=TRUE, alpha=0.1, show_breakpo
   # breakpoint_par[option_brk[!ind_brk]] <- default_brk[!ind_brk]
 
   obj <- object <- time
-  obj <- obj[1,,drop=F]
-  attr(obj, 'lam') <- as.numeric(attr(obj, 'lam')[1,])
-  if (!is.null(attr(obj, 'brk'))){
-    attr(obj, 'brk') <- as.numeric(attr(obj, 'brk')[1,])
+  obj$lam <- unlist(obj$lam[1,])
+  if (!is.null(obj$brk)){
+    obj$brk <- unlist(obj$brk[1,])
   }
-  class(obj) <- c('pwexp.fit','data.frame')
-  plot_survival.pwexp.fit(obj, add=add, show_breakpoint = show_breakpoint, breakpoint_par = breakpoint_par, ...)
+  class(obj) <- c('pwexpm','list')
+  plot_survival.pwexpm(obj, add=add, show_breakpoint = show_breakpoint, breakpoint_par = breakpoint_par, ...)
 
   option_ci <- c('lwd', 'col', 'lty')
   default_ci <- list(2, '#ff9896', 2)
@@ -95,13 +118,13 @@ plot_survival.boot.pwexp.fit <- function(time, add=TRUE, alpha=0.1, show_breakpo
 
   if (show_CI){
     xrange <- seq(0, par('usr')[2], length=200)
-    if (!is.null(attr(object,'brk'))){
-      line_data <- mapply(function(rate, breakpoint)PWEXP::ppwexp(xrange, rate = rate, breakpoint = breakpoint, lower.tail = F),
-                          rate=as.list(as.data.frame(t(attr(object,'lam')))),
-                          breakpoint=as.list(as.data.frame(t(attr(object,'brk')))))
+    if (!is.null(object$brk)){
+      line_data <- mapply(function(rate, breakpoint)PwePred::ppwexpm(xrange, rate = rate, breakpoint = breakpoint, lower.tail = F),
+                          rate=as.list(as.data.frame(t(object$lam))),
+                          breakpoint=as.list(as.data.frame(t(object$brk))))
     }else{
-      line_data <- mapply(function(rate)PWEXP::ppwexp(xrange, rate = rate, lower.tail = F),
-                          rate=as.list(as.data.frame(t(attr(object,'lam')))))
+      line_data <- mapply(function(rate)PwePred::ppwexpm(xrange, rate = rate, lower.tail = F),
+                          rate=as.list(as.data.frame(t(object$lam))))
     }
     ci_data <- apply(line_data, 1, function(x)quantile(x, c(alpha/2, (1-alpha/2)), na.rm=T))
     do.call(lines, c(list(x=xrange, y=ci_data[1,]), CI_par))
@@ -151,8 +174,8 @@ plot_event.default <- function(time, event, abs_time=TRUE, additional_event=0, a
 
 
 
-plot_event.predict.pwexp.fit <- function(time, abs_time=TRUE, add=TRUE, plot=TRUE, xyswitch=FALSE,
-                                         eval_at=NULL, ...){
+plot_event.predict.pwexpm <- function(time, abs_time=TRUE, add=TRUE, plot=TRUE, xyswitch=FALSE,
+                                      eval_at=NULL, ...){
   predict_model <- time
   arg <- list(...)
   if (xyswitch){
@@ -218,7 +241,7 @@ plot_event.predict.pwexp.fit <- function(time, abs_time=TRUE, add=TRUE, plot=TRU
   }
 }
 
-plot_event.predict.boot.pwexp.fit <- function(time, abs_time=TRUE,  alpha=0.1, type='confidence', add=TRUE, plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
+plot_event.predict.boot.pwexpm <- function(time, abs_time=TRUE,  alpha=0.1, type='confidence', add=TRUE, plot=TRUE, xyswitch=FALSE, eval_at=NULL, show_CI=TRUE, CI_par=NULL, ...){
   predict_model <- time
   arg <- list(...)
   if (xyswitch){

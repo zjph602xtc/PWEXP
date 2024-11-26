@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message=FALSE, results='hide', warning=FALSE}
-library(PWEXP)
+library(PwePred)
 library(RColorBrewer)
 set.seed(1818)
 ```
@@ -74,20 +74,20 @@ distribution r.v. $t$ with breakpoints $d_i$ are: \begin{align*}
     \end{cases}
 \end{align*}
 
-The ``PWEXP`` package provides ``dpwexp()``, ``ppwexp()``, ``qpwexp()``, ``rpwexp()`` functions to the piecewise exponential distribution:
+The ``PwePred`` package provides ``dpwexpm()``, ``ppwexpm()``, ``qpwexpm()``, ``rpwexpm()`` functions to the piecewise exponential distribution:
 ```{r fig.show="hold", out.width="50%", out.height="100%", fig.width=6, fig.height=5.8}
 # Left Figure ------------------------------------------------------------
-# use rpwexp function to generate piecewise exp samples with rate 2, 1, 3
-r_sample <- rpwexp(50000, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+# use rpwexpm function to generate piecewise exp samples with rate 2, 1, 3
+r_sample <- rpwexpm(50000, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
 hist(r_sample, freq=F, breaks=200, main="Density of Piecewsie Exp Dist", xlab='t', xlim=c(0, 1.2))
 
 # piecewise exp density with rate 2, 1, 3 
 t <- seq(0, 1.5, 0.01)
-f2 <- dpwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+f2 <- dpwexpm(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
 points(t, f2, col='red', pch=16)
 
 # exp distribution can be a special case of piecewise exp distribution
-f1 <- dpwexp(t, rate=2) 
+f1 <- dpwexpm(t, rate=2) 
 lines(t, f1, lwd=2)
 legend('topright', c('exp dist with rate 2','piecewise exp dist with rate 2, 1, 3',
                      'histogram of piecewise exp dist with rate 2, 1, 3'), 
@@ -96,17 +96,17 @@ legend('topright', c('exp dist with rate 2','piecewise exp dist with rate 2, 1, 
 
 # Right Figure ------------------------------------------------------------
 # CDF of piecewise exp with rate 2, 1, 3
-F2 <- ppwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8), lower.tail=T)
+F2 <- ppwexpm(t, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8), lower.tail=T)
 plot(t, F2, type='l', col='red', lwd=2, main="CDF and Quantile Function of Piecewsie Exp Dist", 
      xlim=c(0, 1.5), ylim=c(0, 1.5))
 
 # CDF of exp dist is compatible with our package
-F1 <- ppwexp(t, rate=2, lower.tail=T)
+F1 <- ppwexpm(t, rate=2, lower.tail=T)
 lines(t, F1, lwd=2)
 
 # plot quantile functions of both distributions
-lines(F1, qpwexp(F1, rate=2, lower.tail=T), lty=2, lwd=2)
-lines(F2, qpwexp(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8), lower.tail=T), col='red', 
+lines(F1, qpwexpm(F1, rate=2, lower.tail=T), lty=2, lwd=2)
+lines(F2, qpwexpm(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8), lower.tail=T), col='red', 
       lty=2, lwd=2)
 
 abline(0, 1, col='grey')
@@ -141,22 +141,22 @@ exponential distribution $t$ given $t>T$ is \begin{align*}
         &\hspace{-60pt} F(d_{k-1}|t>T)\le p <F(d_{k}|t>T), d_{m-1}\le T <d_{m}
     \end{cases}
 \end{align*}
-The ``PWEXP`` package provides ``ppwexp_conditional()``, ``qpwexp_conditional()``, ``rpwexp_conditional()`` functions for conditional piecewise exponential distribution:
+The ``PwePred`` package provides ``ppwexpm_conditional()``, ``qpwexpm_conditional()``, ``rpwexpm_conditional()`` functions for conditional piecewise exponential distribution:
 ```{r fig.show="hold", out.width="50%", out.height="100%", fig.width=6, fig.height=5.8}
 # Left Figure ------------------------------------------------------------
 # CDF and qunatile function of conditional piecewise exp with rate 2, 1, 3 given t > 0.1
 t <- seq(0.1, 1.2, 0.01)
-F2_con <- ppwexp_conditional(t, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
+F2_con <- ppwexpm_conditional(t, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3, 0.8))
 plot(t, F2_con, type='l', col='red', lwd=2, main="CDF and Quantile Function of 
      Conditional \nPiecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1.2))
-lines(F2_con, qpwexp_conditional(F2_con, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), 
+lines(F2_con, qpwexpm_conditional(F2_con, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), 
       lty=2, lwd=2, col='red')
 
 # compare with CDF and quantile function of unconditional piecewise exp with rate 2, 1, 3
 t <- seq(0, 1.2, 0.01)
-F2 <- ppwexp(t, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
+F2 <- ppwexpm(t, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
 lines(t, F2, lwd=2)
-lines(F2, qpwexp(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2)
+lines(F2, qpwexpm(F2, rate=c(2, 1, 3), breakpoint=c(0.3,0.8)), lty=2, lwd=2)
 abline(v=0.1, col='grey')
 abline(h=0.1, col='grey')
 legend('topleft', c('CDF of piecewise exp dist given t > 0.1', 'quantile function of 
@@ -165,8 +165,8 @@ legend('topleft', c('CDF of piecewise exp dist given t > 0.1', 'quantile functio
        lty=c(1, 2, 1, 2), lwd=2)
 
 # Right Figure ------------------------------------------------------------
-# use rpwexp_conditional function to generate piecewise exp samples with rate 2, 1, 3 given t > 0.1
-r_sample_con <- rpwexp_conditional(3000, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
+# use rpwexpm_conditional function to generate piecewise exp samples with rate 2, 1, 3 given t > 0.1
+r_sample_con <- rpwexpm_conditional(3000, qT=0.1, rate=c(2, 1, 3), breakpoint=c(0.3,0.8))
 plot(ecdf(r_sample_con), col='red', lwd=2,  main="Empirical CDF of Conditional 
      Piecewsie Exp Dist", xlim=c(0, 1.2), ylim=c(0, 1))
 
@@ -227,7 +227,7 @@ Since $\lambda_{r+1}\ne \lambda_r$, then the derivative cannot be zero when $d_r
 
 Therefore, we can use a brute-force search to calculate the log likelihood function values for all potential breakpoint combinations. For each candidate, hazard rates can be estimated by the formula in [Section 2.1](#hazard) and thus the log likelihood can be obtained. The breakpoints and hazard rates with the largest log likelihood value are the MLE estimator. 
 
-When the number of samples or the number of breakpoints are relatively large, the combination of breakpoints will be very large and the brute-force search may not be feasible. We will draw a random sub-sample first and then do exhaustive search based on the sub-sample. The argument \verb!max_set! in \verb!pwexp.fit()! function controls the maximum combination candidates to try. 
+When the number of samples or the number of breakpoints are relatively large, the combination of breakpoints will be very large and the brute-force search may not be feasible. We will draw a random sub-sample first and then do exhaustive search based on the sub-sample. The argument \verb!max_set! in \verb!pwexpm()! function controls the maximum combination candidates to try. 
 
 ### OLS on Survival Function {#ols}
 The second method to estimate breakpoints is based on the survival curve. 
@@ -247,7 +247,7 @@ Let $Y_i$ be the log value of KM estimate at $t_i$. Following [Muggeo (2003)](#r
 ### Hybrid Method
 The breakpoints estimated in [Section 2.2.2](#ols) are not exactly but very close to the MLE estimator. In order to obtain the MLE estimator, we combine brute-force search with OLS method. 
 
-Specifically, instead of drawing a random sub-sample in [Section 2.2.1](#mle), we draw a sub-sample from the values within $95\%$ percent confidence intervals of the estimated breakpoints from [Section 2.2.2](#ols). Then we do exhaustive search based on the sub-sample. The argument \verb!max_set! in \verb!pwexp.fit()! function controls the maximum combination candidates to try. The hybrid method improves the efficiency and accuracy of the estimation procedure.  
+Specifically, instead of drawing a random sub-sample in [Section 2.2.1](#mle), we draw a sub-sample from the values within $95\%$ percent confidence intervals of the estimated breakpoints from [Section 2.2.2](#ols). Then we do exhaustive search based on the sub-sample. The argument \verb!max_set! in \verb!pwexpm()! function controls the maximum combination candidates to try. The hybrid method improves the efficiency and accuracy of the estimation procedure.  
 
 ## Summary
 The procedure of parameter estimation is summarized in the diagram below:

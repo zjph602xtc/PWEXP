@@ -1,41 +1,31 @@
-predict.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, censor_model=NULL, n_each=100, future_rand=NULL, seed=1818, ...){
+predict.pwexpm <- function(object, cut_indicator=NULL, analysis_time, censor_model=NULL, n_each=100, future_rand=NULL, seed=1818, ...){
   # future_rand is a list containing parameters in simdata
   # model is a fitted model
   event_model <- object
-  attr(event_model,'lam') <- matrix(attr(event_model,'lam'),nrow=1)
-  if (!is.null(attr(event_model,'brk'))){
-    attr(event_model,'brk') <- matrix(attr(event_model,'brk'),nrow=1)
-  }
-  if (!is.null(censor_model)){
-    attr(censor_model,'lam') <- matrix(attr(censor_model,'lam'),nrow=1)
-    if (!is.null(attr(censor_model,'brk'))){
-      attr(censor_model,'brk') <- matrix(attr(censor_model,'brk'),nrow=1)
-    }
-  }
-  res <- predict.boot.pwexp.fit(object = event_model, cut_indicator = cut_indicator, analysis_time = analysis_time, censor_model_boot = censor_model, n_each = n_each, future_rand = future_rand, seed = seed)
-  class(res) <- c('predict.pwexp.fit','list')
+  res <- predict.boot.pwexpm(object = event_model, cut_indicator = cut_indicator, analysis_time = analysis_time, censor_model = censor_model, n_each = n_each, future_rand = future_rand, seed = seed)
+  class(res) <- c('predict.pwexpm','list')
   return(res)
 }
 
-predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, censor_model_boot=NULL, n_each=10, future_rand=NULL, seed=1818, ...){
+predict.boot.pwexpm <- function(object, cut_indicator=NULL, analysis_time, censor_model=NULL, n_each=10, future_rand=NULL, seed=1818, ...){
   # future_rand is a list containing parameters in simdata
   # model is a fitted model
   event_model_boot <- object
-  if (is.null(censor_model_boot)){
+  if (is.null(censor_model)){
     censormodel <- FALSE
     if (is.null(cut_indicator)){
-      warning('Both \'cut_indicator\' and \'censor_model_boot\' are missing. All subjects without events will be regarded as censored at the end of the trial.' )
-      cut_indicator <- !attr(event_model_boot, 'para')$event
+      warning('Both \'cut_indicator\' and \'censor_model\' are missing. All subjects without events will be regarded as censored at the end of the trial.' )
+      cut_indicator <- !event_model_boot$para$event
     }else{
-      warning('\'censor_model_boot\' is missing. All subjects without events will be regarded as censored at the end of the trial.')
+      warning('\'censor_model\' is missing. All subjects without events will be regarded as censored at the end of the trial.')
     }
   }else{
     censormodel <- TRUE
-    if (NROW(event_model_boot)!=NROW(censor_model_boot)){
-      stop('\'event_model_boot\' should have same number of rows as \'censor_model_boot\'. Please use the same \'nsim\' value when bootstrap both models.')
+    if (NROW(event_model_boot$lam)!=NROW(censor_model$lam)){
+      stop('\'event_model_boot\' should have same number of rows as \'censor_model\'. Please use the same \'nsim\' value when bootstrap both models.')
     }
     if (is.null(cut_indicator)){
-      cut_indicator <- !attr(event_model_boot, 'para')$event & !attr(censor_model_boot, 'para')$event
+      cut_indicator <- !event_model_boot$para$event & !censor_model$para$event
     }
   }
   if (any(is.na(cut_indicator))){
@@ -58,7 +48,7 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
 
   censor_l <- 0
   censor_b <- NULL
-  nsim <- NROW(event_model_boot)
+  nsim <- NROW(event_model_boot$lam)
   line_data_fun <- list()
   # if (type=='confidence'){
   #   n_each <- 1
@@ -69,18 +59,18 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
       setTxtProgressBar(pb, j/n_each)
     }
     for (i in 1:nsim){
-      event_l <- as.numeric(attr(event_model_boot,'lam')[i,])
-      event_b <- as.numeric(attr(event_model_boot,'brk')[i,])
+      event_l <- unlist(event_model_boot$lam[i,])
+      event_b <- unlist(event_model_boot$brk[i,])
       if (censormodel){
-        censor_l <- as.numeric(attr(censor_model_boot,'lam')[i,])
-        censor_b <- as.numeric(attr(censor_model_boot,'brk')[i,])
+        censor_l <- unlist(censor_model$lam[i,])
+        censor_b <- unlist(censor_model$brk[i,])
       }
       if (length(event_b)==0) event_b <- NULL
       if (length(censor_b)==0) censor_b <- NULL
       if (future){
         dat_t <- simdata(advanced_dist = list(
-          event_dist=function(n)PWEXP::rpwexp(n,event_l,event_b),
-          drop_dist=function(n)PWEXP::rpwexp(n,censor_l,censor_b)),
+          event_dist=function(n)PwePred::rpwexpm(n,event_l,event_b),
+          drop_dist=function(n)PwePred::rpwexpm(n,censor_l,censor_b)),
           n_rand=future_rand$n_rand, rand_rate=future_rand$rand_rate, total_sample=future_rand$total_sample,
           add_column = c('event','censor_reason','followT_abs','followT'))
         dat_t$followT_abs <- dat_t$followT_abs+analysis_time
@@ -88,10 +78,10 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
         dat_t <- NULL
       }
 
-      para <- attr(event_model_boot,'para')
+      para <- event_model_boot$para
       dat_t_cut <- simdata(advanced_dist = list(
-        event_dist=function(n)rpwexp_conditional(n,para$time[cut_indicator==1], event_l,event_b),
-        drop_dist=function(n)rpwexp_conditional(n,para$time[cut_indicator==1], censor_l,censor_b)),
+        event_dist=function(n)rpwexpm_conditional(n,para$time[cut_indicator==1], event_l,event_b),
+        drop_dist=function(n)rpwexpm_conditional(n,para$time[cut_indicator==1], censor_l,censor_b)),
         n_rand = sum(cut_indicator), add_column = c('event','censor_reason','followT_abs','followT'))
       dat_t_cut$followT_abs <- dat_t_cut$followT
       dat_t_cut$followT_abs <- dat_t_cut$followT_abs-para$time[cut_indicator==1]+analysis_time
@@ -115,6 +105,11 @@ predict.boot.pwexp.fit <- function(object, cut_indicator=NULL, analysis_time, ce
   setTxtProgressBar(pb, 1)
   close(pb)
   res <- list(event_fun=line_data_fun)
-  class(res) <- c('predict.boot.pwexp.fit','list')
+  res$event_model <- object
+  res$censor_medol <- censor_model
+  res$nsim <- nsim
+  res$bootstrap <- ifelse(nsim > 1, TRUE, FALSE)
+  res$para <- list(cut_indicator=cut_indicator, analysis_time=analysis_time, n_each=n_each, future_rand=future_rand, seed=seed)
+  class(res) <- c('predict.boot.pwexpm','list')
   return(res)
 }

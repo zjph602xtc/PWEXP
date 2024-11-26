@@ -39,7 +39,7 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 
 
 \examples{
-event_dist <- function(n)rpwexp(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
+event_dist <- function(n)rpwexpm(n, rate = c(0.1, 0.01, 0.2), breakpoint =  c(5,14))
 dat <- simdata(rand_rate = 20, total_sample = 1000, drop_rate = 0.03,
                advanced_dist = list(event_dist=event_dist),
                add_column = c('censor_reason','event','followT','followT_abs'))

@@ -77,8 +77,8 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 # Two groups. Treatment:place=1:2. Drop rate=3\%/month. Hazard ratio=0.7.
 
 # define the piecewiese exponential event generation function
-myevent_dist_trt <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2)*0.7, breakpoint=c(5,14))
-myevent_dist_con <- function(n)rpwexp(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
+myevent_dist_trt <- function(n)rpwexpm(n, rate=c(0.1, 0.01, 0.2)*0.7, breakpoint=c(5,14))
+myevent_dist_con <- function(n)rpwexpm(n, rate=c(0.1, 0.01, 0.2), breakpoint=c(5,14))
 
 # user defined summary function, the proportion of subjects that follow more than 12 month
 prop_12 <- function(x)mean(x >= 12)
