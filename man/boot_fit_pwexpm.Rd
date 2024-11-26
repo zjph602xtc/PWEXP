@@ -19,7 +19,7 @@ boot.pwexpm_fit(time, event, nsim=100, breakpoint=NULL, nbreak=0,
   \item{exclude_int}{an interval that excludes any estimated breakpoints.  See \code{\link{pwexpm_fit}}.}
   \item{min_pt_tail}{the minimum number of events used for estimating the tail (the hazard rate of the last piece). See \code{\link{pwexpm_fit}}.}
   \item{max_set}{maximum estimated combination of breakpoints. See \code{\link{pwexpm_fit}}.}
-  \item{seed}{a random seed.}
+  \item{seed}{a random seed. Do not set seed if \code{seed=NULL}.}
   \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. See \code{\link{pwexpm_fit}}.}
   \item{tol}{the minimum allowed gap between two breakpoints. The gap is calculated as \code{(max(time)-min(time))*tol}. Keep it as default in most cases. }
   \item{parallel}{logical. If \code{TRUE}, use \pkg{doSNOW} package to run in parallel.}

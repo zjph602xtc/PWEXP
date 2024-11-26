@@ -35,7 +35,7 @@ sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
   \item{count_insufficient_event}{logical; only affects the result when \code{type='event'}. If TRUE, for samples that cannot achieve required number of events, the last follow-up time is the analysis time. If FALSE, these samples will be dropped. }
   \item{start_date}{the start date of the first randomization; in the format: "2000-01-30"}
   \item{rep}{number simulated iterations. }
-  \item{seed}{a random seed. }
+  \item{seed}{a random seed. Do not set seed if \code{seed=NULL}.}
 }
 
 \value{

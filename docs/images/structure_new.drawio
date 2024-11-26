@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2023-06-05T06:43:16.053Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36" etag="AlHpR8E2Xr5Yb1N6pd71" version="21.3.5" type="device">
+<mxfile host="app.diagrams.net" modified="2024-11-26T07:34:28.905Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0" etag="2hg7LjTcqjpGgPlWeCC-" version="23.1.5" type="device">
   <diagram name="Page-1" id="GcsSYwR-1EW51ADL5NTL">
-    <mxGraphModel dx="1434" dy="796" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="719" dy="391" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -31,23 +31,23 @@
         <mxCell id="GCYgzdkRUOrWLfcpFG6K-9" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;cut_dat()&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="435" y="455" width="110" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="GCYgzdkRUOrWLfcpFG6K-10" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;pwexp.fit()&lt;br&gt;cv.pwexp.fit()&lt;br&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
+        <mxCell id="GCYgzdkRUOrWLfcpFG6K-10" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;pwexpm()&lt;br&gt;cv.pwexpm()&lt;br&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="595" y="455" width="110" height="50" as="geometry" />
         </mxCell>
         <mxCell id="GCYgzdkRUOrWLfcpFG6K-12" value="Bootstrap CI" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fillColor=#fda201;fontColor=#FFFFFF;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="730" y="290" width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="GCYgzdkRUOrWLfcpFG6K-13" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;boot.pwexp.fit()&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
+        <mxCell id="GCYgzdkRUOrWLfcpFG6K-13" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;boot.pwexpm()&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="755" y="455" width="110" height="50" as="geometry" />
         </mxCell>
         <mxCell id="GCYgzdkRUOrWLfcpFG6K-14" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;predict()&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="915" y="455" width="110" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="GCYgzdkRUOrWLfcpFG6K-16" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 14px;&quot;&gt;dpwexp(), ppwexp(), qpwexp(), rpwexp()&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=0" parent="1" vertex="1">
-          <mxGeometry x="471" y="610" width="520" height="26" as="geometry" />
+        <mxCell id="GCYgzdkRUOrWLfcpFG6K-16" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 14px;&quot;&gt;dpwexpm(), ppwexpm(), qpwexpm(), rpwexpm()&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=0" parent="1" vertex="1">
+          <mxGeometry x="460" y="610" width="520" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="GCYgzdkRUOrWLfcpFG6K-17" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 14px;&quot;&gt;ppwexp_conditional(),&amp;nbsp;qpwexp_conditional(),&amp;nbsp;rpwexp_conditional()&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=0" parent="1" vertex="1">
-          <mxGeometry x="498" y="630" width="578" height="32" as="geometry" />
+        <mxCell id="GCYgzdkRUOrWLfcpFG6K-17" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 14px;&quot;&gt;ppwexpm_conditional(),&amp;nbsp;qpwexpm_conditional(),&amp;nbsp;rpwexpm_conditional()&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=0" parent="1" vertex="1">
+          <mxGeometry x="486" y="630" width="578" height="32" as="geometry" />
         </mxCell>
         <mxCell id="GCYgzdkRUOrWLfcpFG6K-18" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;plot_survival()&lt;br&gt;plot_event()&lt;br&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="275" y="500" width="110" height="80" as="geometry" />
@@ -91,17 +91,17 @@
         <mxCell id="GCYgzdkRUOrWLfcpFG6K-60" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 16px;&quot;&gt;plot_survival()&lt;br&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="755" y="500" width="110" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="H9Ek8xvAszThuOrMYr3f-3" value="Study design/plan:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1" vertex="1" parent="1">
+        <mxCell id="H9Ek8xvAszThuOrMYr3f-3" value="Study design/plan:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="255" y="585" width="167" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="H9Ek8xvAszThuOrMYr3f-4" value="Piecewise exponential dist:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1" vertex="1" parent="1">
+        <mxCell id="H9Ek8xvAszThuOrMYr3f-4" value="Piecewise exponential dist:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="255" y="608" width="258" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="H9Ek8xvAszThuOrMYr3f-5" value="Conditional piecewise exp dist:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1" vertex="1" parent="1">
+        <mxCell id="H9Ek8xvAszThuOrMYr3f-5" value="Conditional piecewise exp dist:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="255" y="631" width="235" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="H9Ek8xvAszThuOrMYr3f-6" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 14px;&quot;&gt;sim_followup()&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=0" vertex="1" parent="1">
-          <mxGeometry x="415" y="587" width="520" height="26" as="geometry" />
+        <mxCell id="H9Ek8xvAszThuOrMYr3f-6" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=IBM+Plex+Mono&quot; face=&quot;IBM Plex Mono&quot; style=&quot;font-size: 14px;&quot;&gt;sim_followup()&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=0" parent="1" vertex="1">
+          <mxGeometry x="413" y="587" width="520" height="26" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

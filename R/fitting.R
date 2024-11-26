@@ -95,7 +95,7 @@ pwexpm_fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL,
   time_event <- time[event==1]
   time_noevent <- time[event==0]
   N <- length(time)
-  set.seed(seed)
+  if (!is.null(seed)) set.seed(seed)
   n_fix_brk <- length(breakpoint)
 
   if (n_fix_brk==0  && is.null(nbreak)){
@@ -321,6 +321,7 @@ boot.pwexpm_fit <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, ex
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
   res_1 <- pwexpm_fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
+  if (!is.null(seed)) set.seed(seed+1)
 
   ind <- order(dat$time)
   dat <- dat[ind,,drop=F]
@@ -343,7 +344,7 @@ boot.pwexpm_fit <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, ex
     `%dopar%` <- foreach::`%dopar%`
     res_all_tp <- foreach::foreach(i=1:(nsim-1), .combine = 'rbind', .inorder = FALSE, .errorhandling = 'remove', .packages = 'PwePred', .options.snow=list(progress=function(n)setTxtProgressBar(pb, n))) %dopar% {
       dat_b <- dat[sample.int(n, n, replace = TRUE),]
-      res <- suppressWarnings(pwexpm_fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
+      res <- suppressWarnings(pwexpm_fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=NULL, trace=FALSE, optimizer=optimizer, tol=0))
       if (!is.null(res$brk)){
         res <- cbind(res$brk, res$lam)
       }else{
@@ -356,7 +357,7 @@ boot.pwexpm_fit <- function(time, event, nsim=100, breakpoint=NULL, nbreak=0, ex
     for (i in 1:(nsim-1)){
       setTxtProgressBar(pb, i)
       dat_b <- dat[sample.int(n, n, replace = T),]
-      res <- suppressWarnings(pwexpm_fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i, trace=FALSE, optimizer=optimizer, tol=0))
+      res <- suppressWarnings(pwexpm_fit(time=dat_b$time, event=dat_b$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=NULL, trace=FALSE, optimizer=optimizer, tol=0))
       if (!is.null(res$brk)){
         res_all <- rbind(res_all, cbind(res$brk, res$lam))
       }else{
@@ -459,6 +460,7 @@ cv.pwexpm_fit <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbrea
   dat <- data.frame(time=time, event=event)
   n <- NROW(dat)
   res_all <- pwexpm_fit(time=dat$time, event=dat$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed, trace=FALSE, optimizer=optimizer, tol=tol)
+  if (!is.null(seed)) set.seed(seed+1)
   if (nbreak==0){
     nbreak <- length(as.numeric(res_all$lam))-1
   }
@@ -481,7 +483,7 @@ cv.pwexpm_fit <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbrea
       for (i in 1:nfold){
         dat_train <- dat[ind!=i,]
         dat_test <- dat[ind==i,]
-        md <- pwexpm_fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
+        md <- pwexpm_fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=NULL, trace=FALSE, optimizer=optimizer, tol=0)
         if (is.infinite(as.numeric(md$lam[1]))){
           next
         }
@@ -501,7 +503,7 @@ cv.pwexpm_fit <- function(time, event, nfold=5, nsim=100, breakpoint=NULL, nbrea
       for (i in 1:nfold){
         dat_train <- dat[ind!=i,]
         dat_test <- dat[ind==i,]
-        md <- pwexpm_fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=seed+i+j*nfold, trace=FALSE, optimizer=optimizer, tol=0)
+        md <- pwexpm_fit(time=dat_train$time, event=dat_train$event, breakpoint=breakpoint, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, max_set=max_set, seed=NULL, trace=FALSE, optimizer=optimizer, tol=0)
         if (is.infinite(as.numeric(md$lam[1]))){
           next
         }

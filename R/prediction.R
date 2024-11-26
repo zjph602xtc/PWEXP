@@ -11,6 +11,7 @@ predict.boot.pwexpm <- function(object, cut_indicator=NULL, analysis_time, censo
   # future_rand is a list containing parameters in simdata
   # model is a fitted model
   event_model_boot <- object
+  if (!is.null(seed)) set.seed(seed)
   if (is.null(censor_model)){
     censormodel <- FALSE
     if (is.null(cut_indicator)){

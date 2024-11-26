@@ -22,7 +22,7 @@ Obtain event prediction and (optionally) confidence interval from a piecewise ex
   \item{censor_model}{an object of class \code{\link{pwexpm}} (or \code{\link{boot.pwexpm}}). It is the censoring model for drop-out and death. }
   \item{n_each}{the number of iterations for each bootstrapping sample to obtain predicitive CI. Typically, a value of 10 to 100 should be enough. }
   \item{future_rand}{the randomization curve in the following times. Can be \code{NULL} if all subjects have been randomized. You can specify \bold{future} rand rate and \bold{future} total number of samples to be randomized by \code{list(rand_rate= ,total_sample= )} or specify the \bold{future} number of randomization each month by \code{list(n_rand= )}. See details.}
-  \item{seed}{a random seed.}
+  \item{seed}{a random seed. Do not set seed if \code{seed=NULL}.}
   \item{...}{internal function reserved. }
 }
 \value{

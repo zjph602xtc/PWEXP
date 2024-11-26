@@ -17,7 +17,7 @@ pwexpm_fit(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL, min_pt_tail
   \item{exclude_int}{an interval that excludes any estimated breakpoints (e.g., \code{exclude_int=c(10,Inf)} will exclude any estimated breakpoints after t=10). See details.}
   \item{min_pt_tail}{the minimum number of events used for estimating the tail (the hazard rate of the last piece). See details.}
   \item{max_set}{maximum estimated combination of breakpoints. }
-  \item{seed}{a random seed.}
+  \item{seed}{a random seed. Do not set seed if \code{seed=NULL}.}
   \item{trace}{(internal use) logical; if TRUE, the returned data frame contains the log-likelihood of all possible breakpoints instead of the one with maximum likelihood. }
    \item{optimizer}{one of the optimizers: \code{mle}, \code{ols}, or \code{hybrid}. }
    \item{tol}{the minimum allowed gap between two breakpoints. The gap is calculated as \code{(max(time)-min(time))*tol}. Keep it as default in most cases. }

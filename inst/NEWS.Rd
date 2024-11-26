@@ -29,6 +29,8 @@
     \item (predict.boot.pwexpm) change parameter name 'censor_model_boot' to 'censor_model'
     \item (plot.predict.boot.pwexpm, plot.predict.pwexpm) add default plot
     \item (simdata) set add_column=c('followT','event') as the default value
+
+    \item (pwexpm, pwexpm_fit, cv.pwexpm, cv.pwexpm_fit, boot.pwexpm, boot.pwexpm_fit, sim_followup, predict.pwexpm, predict.boot.pwexpm) allow 'seed=NULL'
   }
 }
 

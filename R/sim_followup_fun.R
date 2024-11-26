@@ -55,7 +55,7 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
   stat_name <- setdiff(stat_name,'c')
   has_event <- all(!is.na(event_lambda)) | !is.null(advanced_dist$event_dist)
 
-  set.seed(seed)
+  if (!is.null(seed)) set.seed(seed)
   T_all <- NULL
   T_by_group <- tp_by_group <- NULL
   T_by_strata <- tp_by_strata <- NULL
