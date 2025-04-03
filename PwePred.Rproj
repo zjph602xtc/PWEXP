@@ -1,7 +1,8 @@
 Version: 1.0
+ProjectId: bbc3555b-3f08-4e1f-bbfb-419da8a74884
 
-RestoreWorkspace: Default
-SaveWorkspace: Default
+RestoreWorkspace: No
+SaveWorkspace: No
 AlwaysSaveHistory: Default
 
 EnableCodeIndexing: Yes
@@ -18,3 +19,7 @@ StripTrailingWhitespace: Yes
 BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
+
+QuitChildProcessesOnExit: Yes
+
+ProjectName: PwePred
