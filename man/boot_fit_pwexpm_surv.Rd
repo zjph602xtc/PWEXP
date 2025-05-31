@@ -17,7 +17,7 @@ Bootstrap an existing piecewise exponential model or build a piecewise exponenti
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{Surv}{a \code{\link{Surv}} object indicating event time and status or a \code{\link{pwexpm}} object.}
+  \item{Surv}{a \code{\link[survival]{Surv}} object indicating event time and status or a \code{\link{pwexpm}} object.}
   \item{data}{a data frame in which to interpret the variables named in the \code{Surv} argument.}
   \item{nsim}{the number of repeated bootstrapping.}
   \item{breakpoint}{pre-specified breakpoints. See \code{\link{pwexpm}}.}

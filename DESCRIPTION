@@ -1,6 +1,6 @@
 Package: PwePred
 Type: Package
-Title: Piecewise Exponential Distribution Prediction Model
+Title: Event/Timeline Prediction Model Based on Piecewise Exponential
 Imports: 
     graphics,
     grDevices,
@@ -17,14 +17,16 @@ Suggests:
     RColorBrewer,
     rmarkdown
 Version: 1.0.0
-Author: Tianchen Xu [aut, cre] (<https://orcid.org/0000-0002-0102-7630>)
+Authors@R: person(given = "Tianchen",
+                    family = "Xu",
+                    role = c("aut", "cre"),
+                    email = "zjph602xutianchen@gmail.com",
+                    comment = c(ORCID = "0000-0002-0102-7630"))
 Maintainer: Tianchen Xu <zjph602xutianchen@gmail.com>
-Description: Build piecewise exponential survival model for study design (planning) and event/timeline prediction. 
-URL: https://github.com/zjph602xtc/PWEXP
-BugReports: https://github.com/zjph602xtc/PWEXP/issues
+Description: Efficient algorithm for estimating piecewise exponential hazard models for right-censored data, and is useful for reliable power calculation, study design, and event/timeline prediction for study monitoring. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 VignetteBuilder: knitr
 Repository: CRAN
-Packaged: 2024-10-28 03:00:00 UTC; Peter Xu
-Date/Publication: 2024-10-28 03:00:00 UTC
+Packaged: 2025-04-09 03:00:00 UTC; Tianchen Xu
+Date/Publication: 2025-04-09 03:00:00 UTC

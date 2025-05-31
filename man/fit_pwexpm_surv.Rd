@@ -12,7 +12,7 @@ pwexpm(Surv, data, breakpoint=NULL, nbreak=0, exclude_int=NULL, min_pt_tail=5,
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{Surv}{a \code{\link{Surv}} object indicating event time and status.}
+  \item{Surv}{a \code{\link[survival]{Surv}} object indicating event time and status.}
   \item{data}{a data frame in which to interpret the variables named in the \code{Surv} argument.}
   \item{breakpoint}{fixed breakpoints. Pre-specifity some breakpionts. The maximum value must be earlier than the last event time.}
   \item{nbreak}{total number of breakpoints in the model. This number includes the points specified in \code{breakpoint}. If \code{nbreak=NULL}, then \code{nbreak=ceiling(8*(# unique events)^0.2)}.}
