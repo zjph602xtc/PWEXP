@@ -1,6 +1,25 @@
 \name{NEWS}
 \title{News for Package \pkg{PwePred}}
 
+\section{Changes in version 1.1.1}{
+  \itemize{
+    \item (AIC.pwexpm, BIC.pwexpm, logLik.pwexpm, confint.boot.pwexpm) export these functions in the namespace
+    \item (pew_data, pwe_data_robust_tail, ruppert_ipd) add example datasets
+  }
+}
+
+\section{Changes in version 1.1.0}{
+  \itemize{
+    \item (summary.pwexpm, print.summary.pwexpm) print the actual optimizer used for estimation
+    \item (summary.boot.pwexpm, print.summary.boot.pwexpm) print the actual optimizer used for estimation; print the number of successful iterations
+    \item (summary.predict.pwexpm, print.summary.predict.pwexpm, summary.predict.boot.pwexpm, print.summary.predict.boot.pwexpm) print the number of successful simulations
+    \item (coef.pwexpm) extract coefficents in 'pwexpm'
+    \item (confint.boot.pwexpm) confidence intervals for model parameters
+    \item (sim_followup) update the help document; add 'sim_followup' class
+    \item (print.sim_followup) add the print function for 'sim_followup' class
+  }
+}
+
 \section{Changes in version 1.0.0}{
   \itemize{
     \item name the package as 'PwePred'

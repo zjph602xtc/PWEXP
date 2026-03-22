@@ -11,12 +11,15 @@ Imports:
     foreach,
     doSNOW,
     parallel
-Depends: survival, fastmatch
+Depends: 
+    survival,
+    fastmatch,
+    R (>= 2.10)
 Suggests: 
     knitr,
     RColorBrewer,
     rmarkdown
-Version: 1.0.0
+Version: 1.1.1
 Authors@R: person(given = "Tianchen",
                     family = "Xu",
                     role = c("aut", "cre"),
@@ -27,6 +30,7 @@ Description: Efficient algorithm for estimating piecewise exponential hazard mod
 License: MIT + file LICENSE
 Encoding: UTF-8
 VignetteBuilder: knitr
+LazyData: true
 Repository: CRAN
-Packaged: 2025-04-09 03:00:00 UTC; Tianchen Xu
-Date/Publication: 2025-04-09 03:00:00 UTC
+Packaged: 2026-03-21 03:00:00 UTC; Tianchen Xu
+Date/Publication: 2026-03-21 03:00:00 UTC

@@ -119,11 +119,12 @@ pwexpm_fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL,
     # attr(res,'para') <- list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail)
     # class(res) <- c('pwexpm', 'data.frame')
 
-    res <- list(lam = data.frame(lam1=lam), brk = NULL, logLik = loglikelihood, AIC = aic, BIC = bic, para = list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, trace=trace))
+    res <- list(lam = data.frame(lam1=lam), brk = NULL, logLik = loglikelihood, AIC = aic, BIC = bic, para = list(time=time_backup, event=event_backup, breakpoint=brk_backup, nbreak=nbreak, exclude_int=exclude_int, min_pt_tail=min_pt_tail, trace=trace, max_set=max_set, seed=seed, optimizer='mle', tol=tol))
     class(res) <- c('pwexpm', 'list')
     return(res)
   }
 
+  # deal with inappropriate fixed breakpoint
   while (n_fix_brk > 0){
     tmpi <- findInterval(time, vec=c(0, breakpoint, Inf))
     numerator <- ctapply(event, tmpi, sum)

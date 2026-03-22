@@ -3,8 +3,10 @@
 \alias{predict.boot.pwexpm}
 \alias{print.predict.pwexpm}
 \alias{print.predict.boot.pwexpm}
-\alias{plot.predict.pwexpm}
-\alias{plot.predict.boot.pwexpm}
+\alias{summary.predict.pwexpm}
+\alias{summary.predict.boot.pwexpm}
+\alias{print.summary.predict.pwexpm}
+\alias{print.summary.predict.boot.pwexpm}
 \title{Predict Events for Piecewise Exponential Model}
 \description{
 Obtain event prediction and (optionally) confidence interval from a piecewise exponential model.

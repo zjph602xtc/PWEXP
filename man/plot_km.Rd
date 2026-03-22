@@ -2,7 +2,9 @@
 \alias{plot_survival}
 \alias{plot_survival.default}
 \alias{plot_survival.pwexpm}
+\alias{plot.pwexpm}
 \alias{plot_survival.boot.pwexpm}
+\alias{plot.boot.pwexpm}
 \title{Plot Survival Curve}
 \description{
   Plot KM curve with right censoring data or the survival curve of a fitted piecewise exponential model.
@@ -12,11 +14,14 @@
        lwd=2, xlab='Follow-up time', ylab='Survival function', ...)
 \method{plot_survival}{pwexpm}(time, add=TRUE, show_breakpoint=TRUE,
        breakpoint_par=NULL, ...)
+\method{plot}{pwexpm}(x, ...)
 \method{plot_survival}{boot.pwexpm}(time, add=TRUE, alpha=0.1, show_breakpoint=TRUE,
        breakpoint_par=NULL, show_CI=TRUE, CI_par=NULL, ...)
+\method{plot}{boot.pwexpm}(x, ...)
 }
 \arguments{
  \item{time}{observed time from randomization or a \code{\link{pwexpm}}/ \code{\link{boot.pwexpm}} object.}
+ \item{x}{the same as \code{time}.}
  \item{event}{the status indicator, normally 0=censor, 1=event. Other choices are TRUE/FALSE (TRUE = event). }
  \item{add}{logical; if TRUE add lines to current plot.}
  \item{show_breakpoint}{logical; if TRUE add vertial dashed lines to indicate breakpoints.}
@@ -29,14 +34,16 @@
  \item{lwd}{line width of the KM curve. }
  \item{xlab}{x label.}
  \item{ylab}{y label.}
- \item{...}{other arguments are passed over to \code{\link[survival]{plot.survfit}} (default method) or \code{\link[base]{plot}} (for class \code{pwexpm}).}
+ \item{...}{other arguments are passed over to \code{\link[survival]{plot.survfit}} (default method) or \code{\link[graphics]{plot.default}} (for classes \code{pwexpm}, \code{boot.pwexpm}).}
 }
 \details{
 For the default method, this a  wrapper of \code{\link[survival]{plot.survfit}} function to plot right censoring data.
 
-For class \code{pwexpm}, parameters in \code{...} are passed to \code{\link[base]{plot}} function to control the appearance of the survival curve; parameters in \code{breakpoint_par} are passed to \code{\link[graphics]{abline}} function to control the appearance of vertical lines of breakpoints. See examples for usage.
+For class \code{pwexpm}, parameters in \code{...} are passed to \code{\link[graphics]{plot.default}} function to control the appearance of the survival curve; parameters in \code{breakpoint_par} are passed to \code{\link[graphics]{abline}} function to control the appearance of vertical lines of breakpoints. See examples for usage.
 
-For class \code{boot.pwexpm}, parameters in \code{...} are passed to \code{\link[base]{plot}} function to control the appearance of the survival curve; parameters in \code{breakpoint_par} are passed to \code{\link[graphics]{abline}} function to control the appearance of vertical lines of breakpoints; parameters in \code{CI_par} are passed to \code{\link[graphics]{lines}} function to control the appearance of confidence intervals. See examples for usage.
+For class \code{boot.pwexpm}, parameters in \code{...} are passed to \code{\link[graphics]{plot.default}} function to control the appearance of the survival curve; parameters in \code{breakpoint_par} are passed to \code{\link[graphics]{abline}} function to control the appearance of vertical lines of breakpoints; parameters in \code{CI_par} are passed to \code{\link[graphics]{lines}} function to control the appearance of confidence intervals. See examples for usage.
+
+\code{plot} method for classes \code{pwexpm} and \code{boot.pwexpm} behaves the same as \code{plot_survival}, except that it also plots the raw event data (by KM curve) by default.
 }
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}

@@ -3,7 +3,8 @@
 \alias{boot.pwexpm.default}
 \alias{boot.pwexpm.pwexpm}
 \alias{print.boot.pwexpm}
-\alias{plot.boot.pwexpm}
+\alias{summary.boot.pwexpm}
+\alias{print.summary.boot.pwexpm}
 \title{Bootstrap a Piecewise Exponential Model}
 \description{
 Bootstrap an existing piecewise exponential model or build a piecewise exponential model with bootstrapping.

@@ -1,14 +1,14 @@
 plot.pwexpm <- function(x, ...){
   plot_survival(time=x$para$time, event=x$para$event)
-  plot_survival(x, add=TRUE)
-  message('Please use \'plot_survival\' function to visualize the model with more options.')
+  plot_survival(x, add=TRUE, ...)
+  # message('Please use \'plot_survival\' function to visualize the model with more options.')
 }
 
 
 plot.boot.pwexpm <- function(x, ...){
   plot_survival(time=x$para$time, event=x$para$event)
-  plot_survival(x, add=TRUE)
-  message('Please use \'plot_survival\' function to visualize the model with more options.')
+  plot_survival(x, add=TRUE, ...)
+  # message('Please use \'plot_survival\' function to visualize the model with more options.')
 }
 
 plot.cv.pwexpm <- function(x, ...){
@@ -17,13 +17,13 @@ plot.cv.pwexpm <- function(x, ...){
 
 
 plot.predict.pwexpm <- function(x, ...){
-  plot_event(x, xlim=c(0,x$para$analysis_time*2.5), add = F)
-  message('Please use \'plot_event\' function to plot the oberved event curve first, then use \'plot_survival\' again to visualize the predicted event curve (see help).')
+  plot_event(x, xlim=c(0,x$para$analysis_time*2.5), add = F, ...)
+  message('Please use \'plot_event\' function to plot the oberved event curve first, then use \'plot_event\' again to visualize the predicted event curve (see help).')
 }
 
 plot.predict.boot.pwexpm <- function(x, ...){
-  plot_event(x, type = 'confidence', xlim=c(0,x$para$analysis_time*2.5), add=F)
-  message('Please use \'plot_event\' function to plot the oberved event curve first, then use \'plot_survival\' again to visualize the predicted event curve (see help).')
+  plot_event(x, type = 'confidence', xlim=c(0,x$para$analysis_time*2.5), add=F, ...)
+  message('Please use \'plot_event\' function to plot the oberved event curve first, then use \'plot_event\' again to visualize the predicted event curve (see help).')
 }
 
 plot_survival <- function (time, ...){

@@ -1,6 +1,7 @@
 \name{sim_followup}
 \alias{sim_followup}
-\title{Estimate follow up time and number of events by simulation}
+\alias{print.sim_followup}
+\title{Estimate Follow-up Time and Number of Events by Simulation}
 \description{
 \code{sim_follwup} is used to estimate follow-up time and number of events (given calander time, or number of randomized samples, or number of events).
 }
@@ -39,22 +40,21 @@ sim_followup(at, type = 'calander', group="Group 1", strata='Strata 1',
 }
 
 \value{
-  A data frame containing the some of these columns:
-  \item{ID}{subject ID}
+  A list contains some of the data frames:
+  \item{T_all}{Simulation result for the whole population}
+  \item{T_by_group}{Simulation result by arms}
+  \item{T_by_strata}{Simulation result by strata}
+  \item{T_by_group_strata}{Simulation result by arms and strata}
+
+  Each data frame contains some of these columns:
+  \item{at}{When \code{type='calander'}, \code{at} is the time from fisrt randomization; when \code{type='event'}, \code{at} is the number of accumulated events; when \code{type='sample'}, \code{at} is  the number of randomized samples}
   \item{group}{group indicator}
   \item{strata}{stratum indicator}
-  \item{randT}{randomization time (from the beginning of the trial)}
-  \item{eventT}{event time (from \code{randT})}
-  \item{eventT_abs}{event time (from the beginning of the trial)}
-  \item{dropT}{drop-out time (from \code{randT})}
-  \item{dropT_abs}{drop-out time (from the beginning of the trial)}
-  \item{deathT}{death time (from \code{randT})}
-  \item{deathT_abs}{death time (from the beginning of the trial)}
-  \item{censor}{censoring (drop-out or death) indicator}
-  \item{censor_reason}{censoring reason ('drop_out','death','never_event'(followT=inf))}
-  \item{event}{event indicator}
-  \item{followT}{follow-up time / observed time (from \code{randT})}
-  \item{followT_abs}{follow-up time / observed time (from the beginning of the trial)}
+  \item{analysis_time}{time from the first randomization}
+  \item{analysis_time_c}{calendar time from the first randomization}
+  \item{event}{number of events}
+  \item{subjects}{number of enrolled subjects}
+  \item{functions in \code{stat}}{function names specified in the \code{stat} argument}
 }
 \details{
 See the help document of \code{\link{simdata}} for most arguments details.
@@ -71,7 +71,7 @@ Tianchen Xu \email{zjph602xutianchen@gmail.com}
 \seealso{\code{\link{simdata}}}
 
 \note{
-\code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have an Inf value for each variable.
+\code{event_lambda}, \code{drop_rate}, \code{death_lambda} can be 0, which means the corresponding subgroup will have no events, drop-out, or deaths.
 }
 \examples{
 # Two groups. Treatment:place=1:2. Drop rate=3\%/month. Hazard ratio=0.7.

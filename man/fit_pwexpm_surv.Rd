@@ -1,7 +1,8 @@
 \name{pwexpm}
 \alias{pwexpm}
 \alias{print.pwexpm}
-\alias{plot.pwexpm}
+\alias{summary.pwexpm}
+\alias{print.summary.pwexpm}
 \title{Fit the Piecewise Exponential Distribution}
 \description{
 Fit the piecewise exponential distribution with right censoring data. User can specifity all breakpoints, some of the breakpoints or let the function estimate the breakpoints.
@@ -44,7 +45,6 @@ A object of class "\code{pwexpm}" is a list containing the following components:
   \item{BIC}{the Bayesian information criterion of the model.}
   \item{para}{the parameters used to estimate the model.}
 The generic accessor functions \code{AIC}, \code{BIC}, \code{logLik} can be used to extract various useful statistics from \code{pwexpm}.
-The \code{plot} function can be used to make a simple plot for \code{pwexpm}.
 }
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}

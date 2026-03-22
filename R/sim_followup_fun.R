@@ -184,6 +184,7 @@ sim_followup <- function(at, type = 'calander', group="Group 1", strata='Strata 
     tmp <- tmp[order(tmp$at),]
     all_res[[i]] <- tmp[,c(all_res_var[all_res_var %in% colnames(tmp)],'subjects',stat_name)]
   }
+  class(all_res) <- c("sim_followup", "list")
   return(all_res)
 }
 

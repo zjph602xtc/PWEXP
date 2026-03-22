@@ -3,6 +3,8 @@
 \alias{plot_event.default}
 \alias{plot_event.predict.pwexpm}
 \alias{plot_event.predict.boot.pwexpm}
+\alias{plot.predict.pwexpm}
+\alias{plot.predict.boot.pwexpm}
 \title{Plot Cumulative Event Curve}
 \description{
   Plot cumulative event curve with right censoring data.
@@ -12,12 +14,15 @@
          add=FALSE, plot=TRUE, xyswitch=FALSE, ...)
 \method{plot_event}{predict.pwexpm}(time, abs_time=TRUE, add=TRUE, plot=TRUE,
          xyswitch=FALSE, eval_at=NULL, ...)
+\method{plot}{predict.pwexpm}(x, ...)
 \method{plot_event}{predict.boot.pwexpm}(time, abs_time=TRUE, alpha=0.1, type='confidence',
          add=TRUE, plot=TRUE, xyswitch=FALSE, eval_at=NULL,
          show_CI=TRUE, CI_par=NULL, ...)
+\method{plot}{predict.boot.pwexpm}(x, ...)
 }
 \arguments{
  \item{time}{observed/follow-up time from individual randomization time (\code{abs_time=FALSE}) or from the first subject randomization time (\code{abs_time=TRUE}); or a predicted object from \code{\link{predict.pwexpm}}, or a predicted object with bootstrapping  from \code{\link{predict.boot.pwexpm}}.}
+ \item{x}{the same as \code{time}.}
  \item{abs_time}{logical; if TRUE, \code{time} is the time from first randomization of the trial. if FALSE, \code{time} is the time from the randomization of each subject. }
  \item{event}{the status indicator, 0=censor, 1=event. Other choices are TRUE/FALSE (TRUE = event).}
  \item{additional_event}{adding the cumulative number of events by a constant number from the beginning. }
@@ -29,14 +34,16 @@
  \item{type}{the type of prediction required. The default \code{confidence} returns the confidence interval without random error; the alternative \code{predictive} returns the predictive interval.}
  \item{show_CI}{logical; if TRUE add confidence interval of the estimated event curve. }
  \item{CI_par}{a list of parameters to control the apperance of lines of confidence intervals. The values pass to \code{\link[graphics]{lines}}.}
- \item{...}{other arguments (e.g., \code{lwd}, etc.) are passed over to \code{\link[base]{plot}.}}
+ \item{...}{other arguments (e.g., \code{lwd}, etc.) are passed over to \code{\link[graphics]{plot.default}.}}
 }
 \details{
 A convenient function to calculate and plot the cumulative number of events.
 
-Parameters in \code{...} are passed to \code{\link[base]{plot}} function to control the appearance of the event curve; parameters in \code{CI_par} are passed to \code{\link[graphics]{lines}} function to control the appearance of confidence intervals. See examples for usage.
+Parameters in \code{...} are passed to \code{\link[graphics]{plot.default}} function to control the appearance of the event curve; parameters in \code{CI_par} are passed to \code{\link[graphics]{lines}} function to control the appearance of confidence intervals. See examples for usage.
 
 By default, \code{plot_event} plots a data frame in a new figure; and plots a predicted model in existing figure.
+
+\code{plot} method for classes \code{predict.pwexpm} and \code{predict.boot.pwexpm} behaves the same as \code{plot_event}, except that it plots a predicted model in a new figure by default.
 }
 \author{
 Tianchen Xu \email{zjph602xutianchen@gmail.com}

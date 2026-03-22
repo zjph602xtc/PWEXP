@@ -29,6 +29,11 @@ export(qpwexpm_conditional)
 # main functions
 export(pwexpm_fit)
 export(pwexpm)
+#export(AIC)
+#export(BIC)
+#export(logLik)
+#export(coef)
+#export(confint)
 export(boot.pwexpm_fit)
 export(boot.pwexpm)
 export(cv.pwexpm_fit)
@@ -45,7 +50,13 @@ S3method(boot.pwexpm, default)
 S3method(cv.pwexpm, default)
 S3method(plot_event, default)
 
+# methods for sim_followup
+S3method(print, sim_followup)
+
 # methods for pwexmp
+S3method(summary, pwexpm)
+S3method(print, summary.pwexpm)
+S3method(coef, pwexpm)
 S3method(boot.pwexpm, pwexpm)
 S3method(cv.pwexpm, pwexpm)
 S3method(print, pwexpm)
@@ -57,6 +68,9 @@ S3method(plot_survival, pwexpm)
 S3method(predict, pwexpm)
 
 # methods for boot.pwexpm
+S3method(summary, boot.pwexpm)
+S3method(print, summary.boot.pwexpm)
+S3method(confint, boot.pwexpm)
 S3method(predict, boot.pwexpm)
 S3method(print, boot.pwexpm)
 S3method(plot, boot.pwexpm)
@@ -67,6 +81,10 @@ S3method(plot, cv.pwexpm)
 S3method(print, cv.pwexpm)
 
 # methods for predict.pwexpm/predict.boot.pwexpm
+S3method(summary, predict.pwexpm)
+S3method(print, summary.predict.pwexpm)
+S3method(summary, predict.boot.pwexpm)
+S3method(print, summary.predict.boot.pwexpm)
 S3method(plot, predict.pwexpm)
 S3method(print, predict.pwexpm)
 S3method(plot_event, predict.pwexpm)
