@@ -2,9 +2,8 @@
 \alias{cv.pwexpm}
 \alias{cv.pwexpm.default}
 \alias{cv.pwexpm.pwexpm}
-\alias{print.cv.pwexpm}
 \alias{plot.cv.pwexpm}
-\title{Cross Validate a Piecewise Exponential Model}
+\title{Cross Validate a PWE Model with Formula or Exsiting Model}
 \description{
 Cross validate an existing piecewise exponential model.
 }

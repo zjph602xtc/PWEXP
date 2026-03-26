@@ -1,6 +1,6 @@
 \name{pwexpm_fit}
 \alias{pwexpm_fit}
-\title{Fit the Piecewise Exponential Distribution}
+\title{Fit a PWE model with Time and Event Vectors}
 \description{
 Fit the piecewise exponential distribution with right censoring data. User can specifity all breakpoints, some of the breakpoints or let the function estimate the breakpoints.
 }

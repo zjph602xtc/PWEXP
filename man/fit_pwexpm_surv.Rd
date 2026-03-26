@@ -1,9 +1,7 @@
 \name{pwexpm}
 \alias{pwexpm}
-\alias{print.pwexpm}
 \alias{summary.pwexpm}
-\alias{print.summary.pwexpm}
-\title{Fit the Piecewise Exponential Distribution}
+\title{Fit a PWE Model with Formula}
 \description{
 Fit the piecewise exponential distribution with right censoring data. User can specifity all breakpoints, some of the breakpoints or let the function estimate the breakpoints.
 }

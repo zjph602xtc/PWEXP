@@ -1,5 +1,5 @@
-coef.pwexpm <- function(object, parm = 'all', ...){
-  if (parm == 'all'){
+coef.pwexpm <- function(object, parm, ...){
+  if (missing(parm) || parm=='all'){
     if (!is.null(object$brk)){
       cbind(object$brk, object$lam)
     }else{
@@ -11,7 +11,7 @@ coef.pwexpm <- function(object, parm = 'all', ...){
   }else if (parm == 'brk'){
     object$brk
   }else {
-    stop('The \'parm\' argument must be one of \'all\', \'lam\', \'brk\'.')
+    stop('The \'parm\' argument must be missing, or \'lam\', \'brk\'.')
   }
 }
 
@@ -21,15 +21,8 @@ summary.pwexpm <- function(object, ...){
 
 print.summary.pwexpm <- function(x, ...){
   object <- x
-  if (!is.null(object$brk)){
-    s <- cbind(object$brk, object$lam)
-    cat(sprintf('This is a piecewise-exponential model with %d change-point(s): \n\n', length(object$brk)))
-  }else{
-    s <- object$lam
-    cat('This is a exponential model: \n\n')
-  }
-  print(cbind(s,data.frame(AIC=object$AIC, BIC=object$BIC, logLik=object$logLik)))
-  cat(sprintf('The \'%s\' optimizer was used for estimation.', object$para$optimizer))
+  print.pwexpm(object)
+  cat(sprintf('The \'%s\' optimizer was used for estimation.\n', object$para$optimizer))
 }
 
 print.pwexpm <- function(x, ...){
@@ -42,6 +35,7 @@ print.pwexpm <- function(x, ...){
     cat('This is a exponential model: \n\n')
   }
   print(cbind(s,data.frame(AIC=object$AIC, BIC=object$BIC, logLik=object$logLik)))
+  # cat('\n')
 }
 
 confint.boot.pwexpm <- function(object, parm, level = 0.90, ...){
@@ -65,7 +59,7 @@ confint.boot.pwexpm <- function(object, parm, level = 0.90, ...){
       NULL
     }
   }else {
-    stop('The \'parm\' argument must be one of \'all\', \'lam\', \'brk\'.')
+    stop('The \'parm\' argument must be missing, or \'lam\', \'brk\'.')
   }
 }
 
@@ -84,7 +78,7 @@ print.summary.boot.pwexpm <- function(x, ...){
   }
   print(cbind(s,data.frame(AIC=object$AIC, BIC=object$BIC, logLik=object$logLik)))
   cat(sprintf('The requested number of bootstrapping resampling (nsim) = %d, and %d iterations are successful. \n', object$para$nsim, NROW(object$lam)))
-  cat(sprintf('The \'%s\' optimizer was used for estimation.', object$para$optimizer)) # here optimizer is from the input, may not be the real optimizer used in all iterations. Update this in future.
+  cat(sprintf('The \'%s\' optimizer was used for estimation.\n', object$para$optimizer)) # here optimizer is from the input, may not be the real optimizer used in all iterations. Update this in future.
 }
 
 
@@ -98,13 +92,13 @@ print.boot.pwexpm <- function(x, ...){
     cat('This is a bootstrapping exponential model: \n\n')
   }
   print(cbind(s,data.frame(AIC=object$AIC, BIC=object$BIC, logLik=object$logLik)))
-  cat(sprintf('The number of bootstrapping resampling (nsim) = %d.', object$para$nsim))
+  cat(sprintf('The number of bootstrapping resampling (nsim) = %d.\n', object$para$nsim))
 }
 
 print.cv.pwexpm <- function(x, ...){
   object <- x
   cat(sprintf('The median CV log likelihood is %.3f.\n', median(object)))
-  cat(sprintf('The number of resampling (nsim) = %d.', length(object)))
+  cat(sprintf('The number of resampling (nsim) = %d.\n', length(object)))
 }
 
 summary.predict.pwexpm <- function(object, ...){
@@ -120,7 +114,7 @@ print.summary.predict.pwexpm <- function(x, ...){
 print.predict.pwexpm <- function(x, ...){
   object <- x
   cat("This a predicted event curve object without bootsatraping.\n")
-  cat("Please use 'plot_event' function to plot event cruve or calculate expected events/timeline.")
+  cat("Please use 'plot_event' function to plot event cruve or calculate expected events/timeline.\n")
 }
 
 summary.predict.boot.pwexpm <- function(object, ...){
@@ -137,7 +131,7 @@ print.summary.predict.boot.pwexpm <- function(x, ...){
 print.predict.boot.pwexpm <- function(x, ...){
   object <- x
   cat(sprintf('This a predicted event curve object with bootsatraping (nsim = %d).\n', object$nsim))
-  cat("Please use 'plot_event' function to plot event cruve or calculate expected events/timeline.")
+  cat("Please use 'plot_event' function to plot event cruve or calculate expected events/timeline.\n")
 }
 
 AIC.pwexpm <- function(object, ..., k = 2){

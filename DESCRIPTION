@@ -8,18 +8,18 @@ Imports:
     methods,
     utils,
     segmented,
+    fastmatch,
     foreach,
     doSNOW,
     parallel
 Depends: 
     survival,
-    fastmatch,
     R (>= 2.10)
 Suggests: 
     knitr,
     RColorBrewer,
     rmarkdown
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: person(given = "Tianchen",
                     family = "Xu",
                     role = c("aut", "cre"),
@@ -32,5 +32,5 @@ Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: true
 Repository: CRAN
-Packaged: 2026-03-21 03:00:00 UTC; Tianchen Xu
-Date/Publication: 2026-03-21 03:00:00 UTC
+Packaged: 2026-03-25 03:00:00 UTC; Tianchen Xu
+Date/Publication: 2026-03-25 03:00:00 UTC

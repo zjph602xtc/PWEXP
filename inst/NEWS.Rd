@@ -1,9 +1,16 @@
 \name{NEWS}
 \title{News for Package \pkg{PwePred}}
 
+\section{Changes in version 1.1.2}{
+  \itemize{
+    \item move 'fastmatch' from Depends to Imports in DESCRIPTION
+    \item (confint.boot.pwexpm) add help document
+    \item remove print.xx function in the help documents
+  }
+}
+
 \section{Changes in version 1.1.1}{
   \itemize{
-    \item (AIC.pwexpm, BIC.pwexpm, logLik.pwexpm, confint.boot.pwexpm) export these functions in the namespace
     \item (pew_data, pwe_data_robust_tail, ruppert_ipd) add example datasets
   }
 }

@@ -1,8 +1,8 @@
 \name{cv.pwexpm_fit}
 \alias{cv.pwexpm_fit}
-\title{Cross Validate a Piecewise Exponential Model}
+\title{Cross Validate a PWE Model with Time and Event Vectors}
 \description{
-Build and cross validate a piecewise exponential model.
+Build and cross validate a piecewise exponential model with time and event vectors.
 }
 \usage{
 cv.pwexpm_fit(time, event, nfold=5, nsim=100, breakpoint=NULL,

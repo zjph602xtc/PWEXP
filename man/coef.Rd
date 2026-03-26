@@ -5,11 +5,11 @@
   The estimated coefficients for the \code{pwexpm} are extracted.
 }
 \usage{
-\method{coef}{pwexpm}(object, parm = 'all', ...)
+\method{coef}{pwexpm}(object, parm, ...)
 }
 \arguments{
  \item{object}{a \code{pwexpm} object.}
- \item{parm}{a specification of which parameters are to be extracted: \code{all} for both change-points and hazard rates (lambda), \code{lam} for hazard rates (lambda), or \code{brk} for change-points.}
+ \item{parm}{a specification of which parameters are to be extracted (either \code{'lam'} for hazard rates, or \code{'brk'} for change-points). If missing, all parameters are considered.}
  \item{...}{some methods for this generic require additional arguments. None are used in this method.}
 }
 

@@ -127,7 +127,7 @@ pwexpm_fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL,
   # deal with inappropriate fixed breakpoint
   while (n_fix_brk > 0){
     tmpi <- findInterval(time, vec=c(0, breakpoint, Inf))
-    numerator <- ctapply(event, tmpi, sum)
+    numerator <- fastmatch::ctapply(event, tmpi, sum)
     if (all(numerator > 0) && all((1:(n_fix_brk+1)) %in% names(numerator))){
       break
     }
@@ -181,7 +181,7 @@ pwexpm_fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL,
       tmp_n_fix_brk <- length(breakpoint)
       while (tmp_n_fix_brk > 0){
         tmpi <- findInterval(time, vec=c(0, breakpoint, Inf))
-        numerator <- ctapply(event, tmpi, sum)
+        numerator <- fastmatch::ctapply(event, tmpi, sum)
         if (all(numerator > 0) && all((1:(tmp_n_fix_brk+1)) %in% names(numerator))){
           break
         }
@@ -253,14 +253,14 @@ pwexpm_fit <- function(time, event, breakpoint=NULL, nbreak=0, exclude_int=NULL,
       brk0 <- breakpoint[i,]
       brk <- c(0, brk0, Inf)
       tmpi <- findInterval(time, vec=brk)
-      numerator <- ctapply(event, tmpi, sum)
+      numerator <- fastmatch::ctapply(event, tmpi, sum)
       if (any(numerator==0)){
         next
       }
       # rhs <- c(diff(c(0, brk0)) * sapply(brk0, function(x)sum(time >= x)),0)
-      rhs <- c(diff(c(0, brk0)),0) * (N-cumsum(ctapply(time, tmpi, length)))
+      rhs <- c(diff(c(0, brk0)),0) * (N-cumsum(fastmatch::ctapply(time, tmpi, length)))
       # lhs_term2 <- sapply(1:(length(brk)-1), function(x)sum(time[time < brk[x+1] & time >= brk[x]] - brk[x]))
-      lhs_term2 <- ctapply(time - brk[tmpi], tmpi, sum)
+      lhs_term2 <- fastmatch::ctapply(time - brk[tmpi], tmpi, sum)
       # lam <- sapply(1:(length(brk)-1), function(x)sum(time < brk[x+1] & time >= brk[x] & event))/(rhs+lhs_term2)
       lam <- numerator/(rhs+lhs_term2)
       loglikelihood <- sum(PwePred::dpwexpm(time_event, rate=lam, breakpoint = brk0, log = T, one_piece = F, safety_check = F))+

@@ -1,6 +1,5 @@
 \name{sim_followup}
 \alias{sim_followup}
-\alias{print.sim_followup}
 \title{Estimate Follow-up Time and Number of Events by Simulation}
 \description{
 \code{sim_follwup} is used to estimate follow-up time and number of events (given calander time, or number of randomized samples, or number of events).

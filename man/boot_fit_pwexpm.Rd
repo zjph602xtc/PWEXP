@@ -1,6 +1,6 @@
 \name{boot.pwexpm_fit}
 \alias{boot.pwexpm_fit}
-\title{Bootstrap a Piecewise Exponential Model}
+\title{Bootstrap a PWE Model with Time and Event Vectors}
 \description{
 Build a piecewise exponential model with bootstrapping.
 }

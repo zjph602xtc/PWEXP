@@ -2,10 +2,8 @@
 \alias{boot.pwexpm}
 \alias{boot.pwexpm.default}
 \alias{boot.pwexpm.pwexpm}
-\alias{print.boot.pwexpm}
 \alias{summary.boot.pwexpm}
-\alias{print.summary.boot.pwexpm}
-\title{Bootstrap a Piecewise Exponential Model}
+\title{Bootstrap a PWE Model with Formula or Existing Model}
 \description{
 Bootstrap an existing piecewise exponential model or build a piecewise exponential model with bootstrapping.
 }
@@ -62,6 +60,6 @@ fit_res_boot <- boot.pwexpm(fit_res3, nsim = 10) # here nsim=10 is for demo purp
                                                   # pls increase it in practice
 plot_survival(dat$followT, dat$event, xlim=c(0,40))
 plot_survival(fit_res_boot, col='red', CI_par = list(col='red'))
-brk_ci <- apply(fit_res_boot$brk, 2, function(x)quantile(x,c(0.025,0.975)))
+brk_ci <- confint(fit_res_boot, level = 0.95, parm = 'brk')
 abline(v=brk_ci, col='grey', lwd=2)
 }

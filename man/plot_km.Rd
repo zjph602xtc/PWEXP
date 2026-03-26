@@ -5,7 +5,7 @@
 \alias{plot.pwexpm}
 \alias{plot_survival.boot.pwexpm}
 \alias{plot.boot.pwexpm}
-\title{Plot Survival Curve}
+\title{Plot Survival Curve for Survival Data or PWE Model}
 \description{
   Plot KM curve with right censoring data or the survival curve of a fitted piecewise exponential model.
 }

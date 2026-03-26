@@ -5,7 +5,7 @@
 \alias{plot_event.predict.boot.pwexpm}
 \alias{plot.predict.pwexpm}
 \alias{plot.predict.boot.pwexpm}
-\title{Plot Cumulative Event Curve}
+\title{Plot Cumulative Event Curve with Survival Data or Predicted PWE Model}
 \description{
   Plot cumulative event curve with right censoring data.
 }
