@@ -1,6 +1,12 @@
 \name{NEWS}
 \title{News for Package \pkg{PWEXP}}
 
+\section{Changes in version 0.5.1}{
+  \itemize{
+    \item move 'fastmatch' from Depends to Imports in DESCRIPTION
+  }
+}
+
 \section{Changes in version 0.5.0}{
   \itemize{
     \item(predict.boot.pwexp.fit) remove 'type' parameter
